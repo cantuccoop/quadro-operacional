@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Quadro Operacional â€” Grupo Cantucci</title>
+<title>Quadro Operacional — Grupo Cantucci</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; }
@@ -50,7 +50,7 @@
   .int-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid #e0ddd7; background: #fff; color: #888; font-size: 13px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
   .int-btn.selected { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
 
-  /* PosiÃ§Ãµes */
+  /* Posições */
   .pos-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
   .pos-label { font-size: 13px; color: #555; min-width: 120px; flex-shrink: 0; }
   .pos-num { font-size: 11px; color: #aaa; min-width: 18px; }
@@ -117,7 +117,7 @@
   /* Alert */
   .alert { background: #faeeda; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #854f0b; margin-bottom: 12px; }
 
-  /* â”€â”€ Rich Preview â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Rich Preview ──────────────────────────────────────────── */
   .rp-card { background:#fff; border:1px solid #e8e6e0; border-radius:12px; overflow:hidden; margin-bottom:16px; box-shadow:0 2px 16px rgba(0,0,0,0.08); }
   .rp-header { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; padding:20px 16px; text-align:center; }
   .rp-header-title { font-size:17px; font-weight:700; letter-spacing:0.04em; margin-bottom:4px; }
@@ -177,16 +177,16 @@
   <div class="section-title">Unidades</div>
   <div id="unit-list"></div>
   <hr class="divider">
-  <div class="section-title">Freelas este mÃªs</div>
+  <div class="section-title">Freelas este mês</div>
   <div id="freela-stats-home"></div>
   <hr class="divider">
-  <div class="section-title">HistÃ³rico</div>
+  <div class="section-title">Histórico</div>
   <div id="hist-list"><div class="empty">Nenhum quadro salvo ainda.</div></div>
 </div>
 
 <!-- FORM -->
 <div id="screen-form" class="screen">
-  <button class="back" onclick="goHome()">â† voltar</button>
+  <button class="back" onclick="goHome()">← voltar</button>
   <div class="header-eyebrow" id="form-unidade-tag"></div>
   <div class="header-title" style="margin-bottom:20px;">Novo Quadro</div>
 
@@ -206,14 +206,14 @@
   <div class="int-buttons" id="int-buttons"></div>
 
   <div id="escala-section">
-    <div class="section-title">EscalaÃ§Ã£o â€” SalÃ£o</div>
+    <div class="section-title">Escalação — Salão</div>
     <div id="posicoes-salao"><div class="empty">Selecione a intensidade acima.</div></div>
-    <div class="section-title">EscalaÃ§Ã£o â€” Cozinha</div>
+    <div class="section-title">Escalação — Cozinha</div>
     <div id="posicoes-cozinha"><div class="empty">Selecione a intensidade acima.</div></div>
   </div>
 
   <div id="freela-counter" class="freela-counter">
-    â˜… <span id="freela-counter-text"></span>
+    ★ <span id="freela-counter-text"></span>
   </div>
 
   <div class="section-title">Rupturas</div>
@@ -226,23 +226,23 @@
 
   <div class="section-title">Reservas</div>
   <div class="form-card" style="padding:10px 14px;">
-    <textarea id="f-reservas" placeholder="Ex: 18:30 â€” Mesa 5, 8 pessoas"></textarea>
+    <textarea id="f-reservas" placeholder="Ex: 18:30 — Mesa 5, 8 pessoas"></textarea>
   </div>
 
-  <div class="section-title">ObservaÃ§Ãµes</div>
+  <div class="section-title">Observações</div>
   <div class="form-card" style="padding:10px 14px; margin-bottom:20px;">
-    <textarea id="f-obs" placeholder="Campanhas, praÃ§a, avisos..."></textarea>
+    <textarea id="f-obs" placeholder="Campanhas, praça, avisos..."></textarea>
   </div>
 
-  <div id="alert-intensidade" class="alert" style="display:none;">âš  Selecione a intensidade do turno para continuar.</div>
+  <div id="alert-intensidade" class="alert" style="display:none;">⚠ Selecione a intensidade do turno para continuar.</div>
   <div id="alert-escala" class="alert" style="display:none;"></div>
   <div id="alert-rupturas" class="alert" style="display:none; background:#fcebeb; color:#a32d2d;"></div>
-  <button class="btn btn-primary" onclick="saveQuadro()">Gerar quadro â†’</button>
+  <button class="btn btn-primary" onclick="saveQuadro()">Gerar quadro →</button>
 </div>
 
 <!-- VIEW -->
 <div id="screen-view" class="screen">
-  <button class="back" onclick="goHome()">â† voltar</button>
+  <button class="back" onclick="goHome()">← voltar</button>
   <div id="view-content"></div>
   <button class="btn btn-wa" onclick="sendWhatsapp()">WhatsApp</button>
   <button class="btn btn-green" onclick="printQuadro()">Imprimir / PDF</button>
@@ -252,39 +252,39 @@
 </div>
 
 <script>
-// â”€â”€â”€ UNIDADES E ESCALAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── UNIDADES E ESCALAS ────────────────────────────────────────────────────
 const UNITS = {
   "Asa Sul": {
     setor: "Cantucci",
     escalas: {
       salao: {
         "Fraca": {
-          "Dia": ["LÃ­der","Atendimento 1","Atendimento 2","Bar"],
-          "Noite": ["LÃ­der","Atendimento 1","Atendimento 2","Bar","Caixa"]
+          "Dia": ["Líder","Atendimento 1","Atendimento 2","Bar"],
+          "Noite": ["Líder","Atendimento 1","Atendimento 2","Bar","Caixa"]
         },
-        "MÃ©dia": {
-          "Dia": ["LÃ­der","Atendimento 1","Atendimento 2","Atendimento 3","Bar"],
-          "Noite": ["Caixa","LÃ­der","Atendimento 1","Atendimento 2","Atendimento 3","Bar"]
+        "Média": {
+          "Dia": ["Líder","Atendimento 1","Atendimento 2","Atendimento 3","Bar"],
+          "Noite": ["Caixa","Líder","Atendimento 1","Atendimento 2","Atendimento 3","Bar"]
         },
         "Forte": {
-          "Dia/Noite": ["Caixa AlmoÃ§o","LÃ­der","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4","Bar"]
+          "Dia/Noite": ["Caixa Almoço","Líder","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4","Bar"]
         },
-        "FortÃ­ssima": {
-          "Dia/Noite": ["Caixa AlmoÃ§o","LÃ­der 1","LÃ­der 2","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4","Bar"]
+        "Fortíssima": {
+          "Dia/Noite": ["Caixa Almoço","Líder 1","Líder 2","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4","Bar"]
         }
       },
       cozinha: {
         "Fraca": {
-          "Dia": ["LÃ­der","Cozinheiro I","Aux Cozinha","ASG"],
-          "Noite": ["Pizza LÃ­der","Auxiliar de pizza","Cozinheiro iniciante","Cozinheiro pleno","ASG"]
+          "Dia": ["Líder","Cozinheiro I","Aux Cozinha","ASG"],
+          "Noite": ["Pizza Líder","Auxiliar de pizza","Cozinheiro iniciante","Cozinheiro pleno","ASG"]
         },
-        "MÃ©dia": {
-          "Dia": ["LÃ­der","Cozinheiro I","Aux Cozinha","ASG"],
-          "Noite": ["Pizza LÃ­der","Auxiliar de pizza","Cozinheiro iniciante","Cozinheiro pleno","Aux Pizza","ASG"]
+        "Média": {
+          "Dia": ["Líder","Cozinheiro I","Aux Cozinha","ASG"],
+          "Noite": ["Pizza Líder","Auxiliar de pizza","Cozinheiro iniciante","Cozinheiro pleno","Aux Pizza","ASG"]
         },
         "Forte": {
-          "Dia": ["LÃ­der","Souchefe","Cozinheiro I","Aux Cozinha","Grano","ASG"],
-          "Noite": ["Cozinheiro Iniciante","Auxiliar de coz","Piz LÃ­der","Piz Pleno","Aux Pizza","ASG"]
+          "Dia": ["Líder","Souchefe","Cozinheiro I","Aux Cozinha","Grano","ASG"],
+          "Noite": ["Cozinheiro Iniciante","Auxiliar de coz","Piz Líder","Piz Pleno","Aux Pizza","ASG"]
         }
       }
     }
@@ -293,79 +293,79 @@ const UNITS = {
     setor: "Cantucci",
     escalas: {
       salao: {
-        "FraquÃ­ssima": { "Dia": ["LÃ­der","Caixa (Boqueta)","GarÃ§om 1","GarÃ§om 2","Cumim 1","Cumim 2","Bar"] },
+        "Fraquíssima": { "Dia": ["Líder","Caixa (Boqueta)","Garçom 1","Garçom 2","Cumim 1","Cumim 2","Bar"] },
         "Fraca": {
-          "Dia": ["LÃ­der","Caixa (Boqueta)","GarÃ§om 1","GarÃ§om 2","GarÃ§om 3","Cumim 1","Cumim 2","Cumim 3","Bar"],
-          "Noite": ["LÃ­der","Caixa (Boqueta)","GarÃ§om 1","GarÃ§om 2","GarÃ§om 3","Cumim 1","Cumim 2","Cumim 3","Bar"]
+          "Dia": ["Líder","Caixa (Boqueta)","Garçom 1","Garçom 2","Garçom 3","Cumim 1","Cumim 2","Cumim 3","Bar"],
+          "Noite": ["Líder","Caixa (Boqueta)","Garçom 1","Garçom 2","Garçom 3","Cumim 1","Cumim 2","Cumim 3","Bar"]
         },
-        "MÃ©dia": {
-          "Dia": ["LÃ­der","LÃ­der (boqueta)","Caixa","GarÃ§om 1","GarÃ§om 2","GarÃ§om 3","GarÃ§om 4","Cumim 1","Cumim 2","Cumim 3","Bar"],
-          "Noite": ["LÃ­der","LÃ­der (boqueta)","Caixa","GarÃ§om 1","GarÃ§om 2","GarÃ§om 3","GarÃ§om 4","Cumim 1","Cumim 2","Cumim 3","Bar"]
+        "Média": {
+          "Dia": ["Líder","Líder (boqueta)","Caixa","Garçom 1","Garçom 2","Garçom 3","Garçom 4","Cumim 1","Cumim 2","Cumim 3","Bar"],
+          "Noite": ["Líder","Líder (boqueta)","Caixa","Garçom 1","Garçom 2","Garçom 3","Garçom 4","Cumim 1","Cumim 2","Cumim 3","Bar"]
         },
         "Forte": {
-          "Dia": ["LÃ­der","LÃ­der","Caixa","Recepcionista","GarÃ§om 1","GarÃ§om 2","GarÃ§om 3","GarÃ§om 4","GarÃ§om 5","Cumim 1","Cumim 2","Cumim 3","Bar 1","Bar 2"]
+          "Dia": ["Líder","Líder","Caixa","Recepcionista","Garçom 1","Garçom 2","Garçom 3","Garçom 4","Garçom 5","Cumim 1","Cumim 2","Cumim 3","Bar 1","Bar 2"]
         },
-        "FortÃ­ssima": {
-          "Dia": ["LÃ­der","LÃ­der","LÃ­der","Caixa","Recepcionista","GarÃ§om 1","GarÃ§om 2","GarÃ§om 3","GarÃ§om 4","GarÃ§om 5","GarÃ§om 6","Boqueta","Cumim 1","Cumim 2","Cumim 3","Cumim 4","Chefe Bar","Bar 1","Bar 2"]
+        "Fortíssima": {
+          "Dia": ["Líder","Líder","Líder","Caixa","Recepcionista","Garçom 1","Garçom 2","Garçom 3","Garçom 4","Garçom 5","Garçom 6","Boqueta","Cumim 1","Cumim 2","Cumim 3","Cumim 4","Chefe Bar","Bar 1","Bar 2"]
         }
       },
       cozinha: {
-        "FraquÃ­ssima": { "Dia": ["Boqueta","FogÃ£o","Entrada","Pia","ProduÃ§Ã£o"] },
+        "Fraquíssima": { "Dia": ["Boqueta","Fogão","Entrada","Pia","Produção"] },
         "Fraca": {
-          "Dia": ["Boqueta","Forno","FogÃ£o","Gard 1","Gard 2","Pia"],
-          "Noite": ["Boqueta","Forno","FogÃ£o","Gard 1","Gard 2","Pia","ASG"]
+          "Dia": ["Boqueta","Forno","Fogão","Gard 1","Gard 2","Pia"],
+          "Noite": ["Boqueta","Forno","Fogão","Gard 1","Gard 2","Pia","ASG"]
         },
-        "MÃ©dia": { "Dia": ["Boqueta","FogÃ£o","Forno","Gard 1","Gard 2","ASG 1","Pia 1","Pia 2"] },
-        "Forte": { "Dia": ["Boqueta","FogÃ£o 1","FogÃ£o 2","Forno","Gard (entradas)","Gard (sobr.)","Pia 1","Pia 2","Aux Cozinha"] }
+        "Média": { "Dia": ["Boqueta","Fogão","Forno","Gard 1","Gard 2","ASG 1","Pia 1","Pia 2"] },
+        "Forte": { "Dia": ["Boqueta","Fogão 1","Fogão 2","Forno","Gard (entradas)","Gard (sobr.)","Pia 1","Pia 2","Aux Cozinha"] }
       }
     }
   },
-  "Ãguas Claras": {
+  "Águas Claras": {
     setor: "Cantucci",
     escalas: {
       salao: {
-        "FraquÃ­ssima": { "Dia": ["Lider","GarÃ§on 1","Cumin 1","Barman","Caixa","ASG salÃ£o"] },
+        "Fraquíssima": { "Dia": ["Lider","Garçon 1","Cumin 1","Barman","Caixa","ASG salão"] },
         "Fraca": {
-          "Dia": ["Caixa","Lider","Cumin","GarÃ§on 1","GarÃ§on 2","Barman","ASG salÃ£o"],
-          "Noite": ["Caixa","Lider","Cumin","GarÃ§on 1","GarÃ§on 2","GarÃ§on 3","Barman","ASG salÃ£o"]
+          "Dia": ["Caixa","Lider","Cumin","Garçon 1","Garçon 2","Barman","ASG salão"],
+          "Noite": ["Caixa","Lider","Cumin","Garçon 1","Garçon 2","Garçon 3","Barman","ASG salão"]
         },
-        "MÃ©dia": {
-          "Dia": ["Lider","Lider 2","Caixa","Cumin","GarÃ§on 1","GarÃ§on 2","GarÃ§on 3","Barman","Recepcionista","ASG salÃ£o"],
-          "Noite": ["Lider","Lider 2","Caixa","Cumin","ASG salÃ£o","GarÃ§on 1","GarÃ§on 2","GarÃ§on 3","Barman","Recepcionista"]
+        "Média": {
+          "Dia": ["Lider","Lider 2","Caixa","Cumin","Garçon 1","Garçon 2","Garçon 3","Barman","Recepcionista","ASG salão"],
+          "Noite": ["Lider","Lider 2","Caixa","Cumin","ASG salão","Garçon 1","Garçon 2","Garçon 3","Barman","Recepcionista"]
         },
         "Forte": {
-          "Dia": ["Lider 1","Lider 2","Caixa","Caixa 2","Cumin 1","Cumin 2","ASG salÃ£o","GarÃ§on 1","GarÃ§on 2","GarÃ§on 3","GarÃ§on 4","Barman","RecepÃ§Ã£o"],
-          "Noite": ["Lider 1","Lider 2","Caixa","Caixa 2","Cumin 1","Cumin 2","ASG salÃ£o","GarÃ§on 1","GarÃ§on 2","GarÃ§on 3","GarÃ§on 4","GarÃ§on 5","RecepÃ§Ã£o","Barman","Barman 2"]
+          "Dia": ["Lider 1","Lider 2","Caixa","Caixa 2","Cumin 1","Cumin 2","ASG salão","Garçon 1","Garçon 2","Garçon 3","Garçon 4","Barman","Recepção"],
+          "Noite": ["Lider 1","Lider 2","Caixa","Caixa 2","Cumin 1","Cumin 2","ASG salão","Garçon 1","Garçon 2","Garçon 3","Garçon 4","Garçon 5","Recepção","Barman","Barman 2"]
         }
       },
       cozinha: {
-        "FraquÃ­ssima": { "Dia": ["Boqueta","FogÃ£o","Entrada","Pia","ProduÃ§Ã£o","ASG"] },
-        "Fraca": { "Dia": ["Boqueta","FogÃ£o","Entrada","Pia","ProduÃ§Ã£o","ProduÃ§Ã£o 2"] },
-        "MÃ©dia": { "Dia": ["Boqueta","FogÃ£o","Forno","Gard 1","Gard 2","ASG","Pia","ProduÃ§Ã£o"] },
+        "Fraquíssima": { "Dia": ["Boqueta","Fogão","Entrada","Pia","Produção","ASG"] },
+        "Fraca": { "Dia": ["Boqueta","Fogão","Entrada","Pia","Produção","Produção 2"] },
+        "Média": { "Dia": ["Boqueta","Fogão","Forno","Gard 1","Gard 2","ASG","Pia","Produção"] },
         "Forte": {
-          "Dia": ["Boqueta","FogÃ£o","FogÃ£o 2","Entrada","Entrada 2","Pia","Pia 2","ProduÃ§Ã£o","Grano 1"],
-          "Noite": ["Boqueta","FogÃ£o","FogÃ£o 2","Entrada","Entrada 2","Pia","Pia 2","Inforno","Inforno 2","Grano 1","Grano 2","Grano 3"]
+          "Dia": ["Boqueta","Fogão","Fogão 2","Entrada","Entrada 2","Pia","Pia 2","Produção","Grano 1"],
+          "Noite": ["Boqueta","Fogão","Fogão 2","Entrada","Entrada 2","Pia","Pia 2","Inforno","Inforno 2","Grano 1","Grano 2","Grano 3"]
         }
       }
     }
   },
-  "ManÃ© Carne": {
+  "Mané Carne": {
     setor: "Carne",
     escalas: {
       salao: {
         "Fraca": { "Dia/Noite": ["Gerente","Atendimento 1","Atendimento 2","Atendimento 3","Bar","Caixa"] },
-        "MÃ©dia": { "Dia/Noite": ["Gerente","Subgerente/Chefe de fila","Atendimento 1","Atendimento 2","Atendimento 3","Bar","Caixa"] },
+        "Média": { "Dia/Noite": ["Gerente","Subgerente/Chefe de fila","Atendimento 1","Atendimento 2","Atendimento 3","Bar","Caixa"] },
         "Forte": { "Dia/Noite": ["Gerente","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4","Atendimento 5","Atendimento 6","Bar","Caixa"] },
-        "FortÃ­ssima": { "Dia/Noite": ["Gerente","Subgerente","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4","Atendimento 5","Atendimento 6","Atendimento 7","Bar","Caixa"] }
+        "Fortíssima": { "Dia/Noite": ["Gerente","Subgerente","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4","Atendimento 5","Atendimento 6","Atendimento 7","Bar","Caixa"] }
       },
       cozinha: {
-        "FraquÃ­ssima": { "Noite": ["Boqueta/Gard","FogÃ£o","ASG","Parrilheiro 1"] },
+        "Fraquíssima": { "Noite": ["Boqueta/Gard","Fogão","ASG","Parrilheiro 1"] },
         "Fraca": {
-          "Dia": ["Boqueta/Gard","FogÃ£o","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"],
-          "Noite": ["Boqueta/Gard","FogÃ£o","ASG","Parrilheiro 1","Boqueta Parrilla"]
+          "Dia": ["Boqueta/Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"],
+          "Noite": ["Boqueta/Gard","Fogão","ASG","Parrilheiro 1","Boqueta Parrilla"]
         },
-        "MÃ©dia": { "Dia": ["Boqueta","Gard","FogÃ£o","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"] },
-        "Forte": { "Dia": ["Boqueta","Gard","FogÃ£o","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1","Parrilheiro 2"] }
+        "Média": { "Dia": ["Boqueta","Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"] },
+        "Forte": { "Dia": ["Boqueta","Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1","Parrilheiro 2"] }
       }
     }
   },
@@ -374,18 +374,18 @@ const UNITS = {
     escalas: {
       salao: {
         "Fraca": { "Dia/Noite": ["Gerente","Atendimento 1","Atendimento 2","Atendimento 3","Bar","Caixa"] },
-        "MÃ©dia": { "Dia/Noite": ["Gerente","Subgerente/Chefe de fila","Atendimento 1","Atendimento 2","Atendimento 3","Bar","Caixa"] },
+        "Média": { "Dia/Noite": ["Gerente","Subgerente/Chefe de fila","Atendimento 1","Atendimento 2","Atendimento 3","Bar","Caixa"] },
         "Forte": { "Dia/Noite": ["Gerente","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4","Atendimento 5","Atendimento 6","Bar","Caixa"] },
-        "FortÃ­ssima": { "Dia/Noite": ["Gerente","Subgerente","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4","Atendimento 5","Atendimento 6","Atendimento 7","Bar","Caixa"] }
+        "Fortíssima": { "Dia/Noite": ["Gerente","Subgerente","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4","Atendimento 5","Atendimento 6","Atendimento 7","Bar","Caixa"] }
       },
       cozinha: {
-        "FraquÃ­ssima": { "Noite": ["Boqueta/Gard","FogÃ£o","ASG","Parrilheiro 1"] },
+        "Fraquíssima": { "Noite": ["Boqueta/Gard","Fogão","ASG","Parrilheiro 1"] },
         "Fraca": {
-          "Dia": ["Boqueta/Gard","FogÃ£o","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"],
-          "Noite": ["Boqueta/Gard","FogÃ£o","ASG","Parrilheiro 1","Boqueta Parrilla"]
+          "Dia": ["Boqueta/Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"],
+          "Noite": ["Boqueta/Gard","Fogão","ASG","Parrilheiro 1","Boqueta Parrilla"]
         },
-        "MÃ©dia": { "Dia": ["Boqueta","Gard","FogÃ£o","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"] },
-        "Forte": { "Dia": ["Boqueta","Gard","FogÃ£o","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1","Parrilheiro 2"] }
+        "Média": { "Dia": ["Boqueta","Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"] },
+        "Forte": { "Dia": ["Boqueta","Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1","Parrilheiro 2"] }
       }
     }
   },
@@ -393,24 +393,24 @@ const UNITS = {
     setor: "Sushi",
     escalas: {
       salao: {
-        "Fraca": { "Dia/Noite": ["LÃ­der","Atendimento 1","Atendimento 2"] },
-        "MÃ©dia": { "Dia/Noite": ["LÃ­der","Atendimento 1","Atendimento 2","Atendimento 3"] },
-        "Forte": { "Dia/Noite": ["LÃ­der","Subgerente","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4"] }
+        "Fraca": { "Dia/Noite": ["Líder","Atendimento 1","Atendimento 2"] },
+        "Média": { "Dia/Noite": ["Líder","Atendimento 1","Atendimento 2","Atendimento 3"] },
+        "Forte": { "Dia/Noite": ["Líder","Subgerente","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4"] }
       },
       cozinha: {
         "Fraca": { "Dia/Noite": ["Sushiman","Auxiliar","ASG"] },
-        "MÃ©dia": { "Dia/Noite": ["Sushiman","Sushiman 2","Auxiliar","ASG"] },
+        "Média": { "Dia/Noite": ["Sushiman","Sushiman 2","Auxiliar","ASG"] },
         "Forte": { "Dia/Noite": ["Sushiman","Sushiman 2","Auxiliar","Auxiliar 2","ASG"] }
       }
     }
   }
 };
 
-// â”€â”€â”€ COLABORADORES POR UNIDADE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── COLABORADORES POR UNIDADE ─────────────────────────────────────────────
 const COLABORADORES = {
   "Asa Sul": [
     "Alexandre Ribeiro","Amanda Fernandes","Ana Clara Vaz",
-    "AndrÃ© Luis CorrÃªa Batista","Antonio Filho","Danillo de Almeida",
+    "André Luis Corrêa Batista","Antonio Filho","Danillo de Almeida",
     "Evaristo Junior","Fabio Alves","Francisca Silva",
     "Geovani Vergilio","Israel Rocha","Jenifer Barbosa",
     "Jerfeson Teixeira","Leonardo Almeida","Leticia Vidal",
@@ -425,11 +425,11 @@ const COLABORADORES = {
     "Bruna Silva","Carlos Gabriel","Carlos Leandro Pereira",
     "Cleiton Souza","Daniela Silva","Edson Souza",
     "Eduardo Gomes","Edvan Martins","Emerson Alves",
-    "Endson Sousa","Erycksson MaurÃ­cio","Everton Silva",
+    "Endson Sousa","Erycksson Maurício","Everton Silva",
     "Francisco Furtado","Gabriel Marcelino","Gabriela de Souza",
     "Giovana Nunes","Guilherme da Silva","Gustavo Sousa",
     "Henrik Almeida","Igor Loiola","Jaouad Afroukh",
-    "JoÃ£o Paulo Morais","Joyce de Faria","Leandro Barros",
+    "João Paulo Morais","Joyce de Faria","Leandro Barros",
     "Lerri Souza","Lucas dos Santos","Lucas Espindola",
     "Lunna da Silva","Marcelo Ataide","Marcelo Temoteo",
     "Marcelo Vieira","Marcio Lomes","Maria Ferreira",
@@ -438,14 +438,14 @@ const COLABORADORES = {
     "Rodrigo Jesus","Severiana Nascimento","Victor Raonne",
     "Vitor Queiroz","Wanderlley Almeida","Whin Milena Alves"
   ],
-  "Ãguas Claras": [
-    "Addson SÃ¡","Adolphe St Prix","Alef Silva",
+  "Águas Claras": [
+    "Addson Sá","Adolphe St Prix","Alef Silva",
     "Alef Tiago","Alexandre Nunes","Aline Souza",
     "Ana Karolina Lima","Angela Tabosa","Anne Caroline Batista",
     "Bryan Horsth","Camilla Alves","Carla Juliao",
-    "Carlos Brito","Carlos Rodrigues","Daniel ConceiÃ§Ã£o",
+    "Carlos Brito","Carlos Rodrigues","Daniel Conceição",
     "Daniel Silva","Davi Santos","Edina dos Santos",
-    "Edmundo Monteiro","Edson Cruz","Ã‰rick Souza",
+    "Edmundo Monteiro","Edson Cruz","Érick Souza",
     "Estephanie Araujo","Fabi Correia","Guilherme Rezende",
     "Higo Pereira","Igor Nunes","Irlandia Silva",
     "Jaene Cristina Oliveira","Jefferson Queiroz","Jennyfer Moreno",
@@ -455,12 +455,12 @@ const COLABORADORES = {
     "Thales Moraes","Valdecy Rodrigues","Vinicius Costa",
     "Walison Calazans","Yanier Guerrero"
   ],
-  "ManÃ© Carne": [
-    // Superquadra ManÃ©
-    "Ana LetÃ­cia Pires","Apollo Miranda","Ãtalo Marques",
-    "Jeane Costa","JoÃ£o Pedro Dantas","Lorena Ramos",
+  "Mané Carne": [
+    // Superquadra Mané
+    "Ana Letícia Pires","Apollo Miranda","Ítalo Marques",
+    "Jeane Costa","João Pedro Dantas","Lorena Ramos",
     "Lucas da Silva","Maxsuel Costa","Rosyane Abreu",
-    "Sueli Macedo","Thays Cristina GonÃ§alves","Walmir Silva",
+    "Sueli Macedo","Thays Cristina Gonçalves","Walmir Silva",
     // Vai Chico
     "Alexander Silva","Eber Nascimento","Fernando Santos",
     "Geovanny Silva","Jaliane Lacerda","Thiago Miranda",
@@ -482,40 +482,40 @@ const COLABORADORES = {
     "Claudeidson Santos","Claudia Vieira","Cleyton Melo",
     "Erik Emanoel","Francisco Brandao","Gabriel Cassimiro",
     "Gilvaneide Silva","Grisalvo da Silva","Guilherme Soares",
-    "Italo Moraes","JosÃ© Cordeiro","JÃºlio Ferreira",
-    "Junio LeitÃ£o","KÃ¡rcia Cabral","Leandro Costa",
+    "Italo Moraes","José Cordeiro","Júlio Ferreira",
+    "Junio Leitão","Kárcia Cabral","Leandro Costa",
     "Leonderson Santos","Luis Martins","Manuel Antonio",
-    "Maria da ConceiÃ§Ã£o","Maria Jesus","Mateus de Assis",
+    "Maria da Conceição","Maria Jesus","Mateus de Assis",
     "Mateus Farias","Pablo Cleiton","Rafael dos Santos",
     "Reinaldo Silva","Samuel Rodrigues","Sileide Ferreira",
     "Vitor Borges","Vitor Silva","Vitoria Cardoso"
   ]
 };
 
-// â”€â”€â”€ CONFIGURAÃ‡ÃƒO DE RUPTURAS POR UNIDADE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── CONFIGURAÇÃO DE RUPTURAS POR UNIDADE ─────────────────────────────────
 const RUPTURAS_CONFIG = {
   "Asa Sul":          ["Cantucci","Inforno","Grano","Bar","Insumo"],
   "Asa Norte":        ["Cantucci","Inforno","Grano","Bar","Insumo"],
-  "Ãguas Claras":     ["Cantucci","Inforno","Grano","Bar","Insumo"],
-  "ManÃ© Carne":       ["Vei","Superquadra","Insumo"],
+  "Águas Claras":     ["Cantucci","Inforno","Grano","Bar","Insumo"],
+  "Mané Carne":       ["Vei","Superquadra","Insumo"],
   "Superquadra Norte":["Pratos","Insumo"],
-  "Koji":             ["ProduÃ§Ã£o","Insumo"]
+  "Koji":             ["Produção","Insumo"]
 };
 
-// â”€â”€â”€ PRODUTOS POR CAMPO DE RUPTURA (unidades Cantucci) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── PRODUTOS POR CAMPO DE RUPTURA (unidades Cantucci) ────────────────────
 const RUPTURAS_PRODUTOS = {
   "Bar": [
     // Cervejas
     "600ML BADEN CRISTAL","600ML BADEN GOLDEN","600ML BADEN IPA","600ML BADEN WITBIER",
     "CERVEJA HEINEKEN 00 ALCOOL LONG NECK 330ML","CERVEJA HEINEKEN LONG NECK 330ML",
-    "CERVEJA PRAYA LN 330ML","CERVEJA PRAYA SEM GLÃšTEN LN 330ML",
+    "CERVEJA PRAYA LN 330ML","CERVEJA PRAYA SEM GLÚTEN LN 330ML",
     "CERVEJA STELLA ARTOIS LN 330ML","CERVEJA STELLA ARTOIS S/GLUTEN LN 330ML",
     "CHOPP HEINEKEN","CHOPP PILSEN",
     "LONG NECK BLUE MOON","LONG NECK EISENBAHN IPA","LONG NECK EISENBAHN PALE ALE",
     "LONG NECK EISENBAHN PILSEN","LONG NECK EISENBAHN SESSION IPA","LONG NECK LAGUNITAS IPA",
     // Destilados
     "APEROL - GARRAFA 750ML","BITTER ANGUSTURA AROMATIC 200ML","BITTER GAMONDI",
-    "CACHACA BOAZINHA GARRAFA","CACHAÃ‡A CANA LATA CLASSICA","CACHACA SAGATIBA PURA",
+    "CACHACA BOAZINHA GARRAFA","CACHAÇA CANA LATA CLASSICA","CACHACA SAGATIBA PURA",
     "CAMPARI GARRAFA","GIN MERIC","GIN YVY LATA 710ML","JACK DANIELS",
     "LICOR 43 700ML","LICOR COINTREAU","LICOR CREME DE CASSIS","LICOR LIMONCELLO GARRAFA","LICOR MARTINI ROSSO",
     "RUM MONTILLA 700ML","SAKE AZUMA 740ML","TEQUILA JOSE CUERVO GOLD","TEQUILA JOSE CUERVO SILVER",
@@ -540,12 +540,12 @@ const RUPTURAS_PRODUTOS = {
     "V TINTO RIPASSO DELLA VALPOLICELLA DOC SUPERIORE","V TINTO STEMMARI NERO D'AVOLA DOC SICILIA",
     "V TINTO TRUFFLE HUNTER LEDA LANGHE ROSSO DOC","V TINTO YLLERA ROBLE 9 MESES",
     "V BRANCO 1550 BRAS RESERVA CHARDONNAY",
-    // Bebidas nÃ£o alcoÃ³licas
+    // Bebidas não alcoólicas
     "AGUA COM GAS","AGUA COM GAS SODA 1,5LT","AGUA SEM GAS","AGUA TONICA 350ML","AGUA TONICA ZERO 350ML",
     "CAPSULA CAFE DESCAFEINADO","CAPSULA CAFE ESPRESSO","CAPSULA DE CHA DE HIBISCO","CHA MATTE LEAO",
     "COCA COLA KS ORIGINAL","COCA COLA KS ZERO","COCA COLA ORIGINAL 310ML","COCA COLA ZERO 310ML",
     "GELO EM CUBO","H2OH LIMONETO C/GAS 500ML","REFRIGERANTE FANTA GUARANA","REFRIGERANTE FANTA GUARANA ZERO",
-    "REFRIGERANTE FANTA LARANJA","REFRIGERANTE GUARANÃ ANTARTICA","REFRIGERANTE GUARANÃ ANTARTICA ZERO",
+    "REFRIGERANTE FANTA LARANJA","REFRIGERANTE GUARANÁ ANTARTICA","REFRIGERANTE GUARANÁ ANTARTICA ZERO",
     "REFRIGERANTE SCHWEPPES CITRUS","REFRIGERANTE SPRITE ORTIGINAL LATA 310ML","REFRIGERANTE 2L",
     "SUCO DE LARANJA NATURAL","SUCO UVA INTEGRAL",
     "XAROPE PARA DRINK DE AMARENA 1 LT","XAROPE PARA DRINK DE CRANBERRY 1LT",
@@ -555,7 +555,7 @@ const RUPTURAS_PRODUTOS = {
   "Insumo": [
     // Carnes brancas
     "BACON FATIADO","FILE DE PEITO DE FRANGO","GUANCIALE DEFUMADO","LINGUICA APIMENTADA",
-    "LINGUIÃ‡A CALABRESA","LOMBO SUINO","MORTADELA CERATTI","PEPPERONI FATIADO",
+    "LINGUIÇA CALABRESA","LOMBO SUINO","MORTADELA CERATTI","PEPPERONI FATIADO",
     "PRESUNTO DE PARMA FATIADO 80G","PRESUNTO KG","COXA E SOBRECOXA FRANGO DESOSSADO",
     // Carnes vermelhas
     "BLEND POLPETONE","FILE MIGNON 5 UP","HAMBURGUER ANGUS 100G","HAMBURGUER ANGUS 160G",
@@ -566,11 +566,11 @@ const RUPTURAS_PRODUTOS = {
     "QUEIJO MUSSARELA","QUEIJO MUSSARELA BUFALA","QUEIJO PARMESAO CAPA PRETA",
     "QUEIJO PARMESAO MEIA CURA","QUEIJO PRATO FATIADO","QUEIJO RICOTA FRESCA",
     "QUEIJO VEGETAL VEGANO","REQUEIJAO CULINARIO BISNAGA",
-    // Ovos e laticÃ­nios
+    // Ovos e laticínios
     "CREAM CHEESE BISNAGA 1,2KG","CREME DE LEITE","CREME DE LEITE FRESCO",
     "LEITE INTEGRAL","LEITE EM PO","OVOS BRANCOS","OVOS PASTEURIZADOS",
     // Pescados
-    "ALICI","CAMARAO S CABECA 31/35","CAMARAO S CABECA 41/50","FILE DE TILAPIA","MEXILHÃƒO","SALMAO FILE",
+    "ALICI","CAMARAO S CABECA 31/35","CAMARAO S CABECA 41/50","FILE DE TILAPIA","MEXILHÃO","SALMAO FILE",
     // Secos e temperos
     "ACUCAR CRISTAL 5 KG","ACUCAR DEMERARA","AMENDOA INTEIRA","AMENDOA LAMINADA","AMIDO DE MILHO",
     "ARROZ ARBOREO","ARROZ BRANCO TIPO 1","AVELA GRAO","BAGUETE ITALIANA","BATATA FRITA CONGELADA KG",
@@ -584,7 +584,7 @@ const RUPTURAS_PRODUTOS = {
     "MACARRAO PENNE 500G","MASSA DE LASANHA","MASSA FETTUCCINI 500G","MASSA FOLHADA WELLINGTON",
     "MASSA NHOQUE DE BATATA 500G","MASSA PASTEL 200G","MASSA SEM GLUTEN 500G",
     "NOZ MOSCADA","NOZES QUEBRADA","OREGANO","PAPRICA DEFUMADA","PAPRICA DOCE",
-    "PIMENTA DO REINO EM GRÃƒO PRETA","PIMENTA DO REINO MOIDA","PISTACHE EM GRÃƒO",
+    "PIMENTA DO REINO EM GRÃO PRETA","PIMENTA DO REINO MOIDA","PISTACHE EM GRÃO",
     "POLENTA PALITO CONGELADA","RIGATONI 500G","SAL REFINADO","TORTELLONI RICOTA E ESPINAFRE",
     // Conservas, condimentos, molhos
     "ACETO BALSAMICO","ALCAPARRA EM CONSERVA","ATUM LATA 480G","AZEITE DE DENDE",
@@ -593,7 +593,7 @@ const RUPTURAS_PRODUTOS = {
     "GELEIA DE PIMENTA","KETCHUP","KETCHUP HEINZ","LEITE DE COCO","MANTEIGA","MEL",
     "MOLHO DE PIMENTA","MOLHO ESCURO DEMI GLACE","MOLHO INGLES","MOLHO SHOYU",
     "MOSTARDA AMARELA","MOSTARDA AMARELA HEINZ","MOSTARDA ANCIENNE","MOSTARDA DIJON","MOSTARDA ESCURA",
-    "OLEO DE ALGODÃƒO LT","OLEO DE SOJA 900 ML","PICLES EM CONSERVA","PIMENTA BIQUINHO",
+    "OLEO DE ALGODÃO LT","OLEO DE SOJA 900 ML","PICLES EM CONSERVA","PIMENTA BIQUINHO",
     "POLPA DI POMODORO - BAG 10KG","SALSA TRUFADA 500G","VINAGRE",
     "VINHO BRANCO SECO COZINHA 5 LTS","VINHO TINTO COZINHA 5 LTS",
     // Confeitaria
@@ -609,14 +609,14 @@ const RUPTURAS_PRODUTOS = {
     "CHEESECAKE FATIA [TORT C/ 16 FATIAS]","CREME DE ABOBORA",
     "FILE MIGNON LIMPO [SEM APARAS E SEM PORCIONAR]","FILE MIGON TIRINHAS [PROCESSADO]",
     "FONDUA DE PARMESAO TRUFADA","FRANGO GRELHADO [PORCIONADO]",
-    "GREMOLATA DE LIMÃƒO SÃCILIANO","LEGUMES PRIMAVERA","LOMBINHO SUINO [PROCESSADO]",
+    "GREMOLATA DE LIMÃO SÍCILIANO","LEGUMES PRIMAVERA","LOMBINHO SUINO [PROCESSADO]",
     "MOLHO 3 MOSTARDAS","MOLHO BISQUE","MOLHO ROTI",
     "PARMEGIANA DE CARNE","PARMEGIANA DE FRANGO","PESCADA [PROCESSADO]",
     "POLPETONE RECHEADO [150~160G]","PURE DE BATATA [PROCESSADO]",
     "QUEIJO BRIE EM TIRAS","QUEIJO BRIE EMPANADO [120G]","QUEIJO BUFALA PORCIONADO [EM TIRAS]",
     "SALMAO [PORCAO 180G]","SALTIMBOCA [180G]","TARTUFFI [PORCIONADO 180G]",
     "TIRINHA DE FRANGO [100G]","TOMATE CONFITADOS","WELLINGTON [INDIVIDUAL 150G]",
-    "PERA AO VINHO [PORÃ‡ÃƒO 60G]","APARA DE SALMÃƒO","TILAPIA [PORCAO 200G]"
+    "PERA AO VINHO [PORÇÃO 60G]","APARA DE SALMÃO","TILAPIA [PORCAO 200G]"
   ],
   "Inforno": [
     "MASSA PIZZA BOLA GRANDE [350G]","MASSA PIZZA BOLA MEDIA [250G]","MASSA PIZZA BOLA INDIVIDUAL [200G]",
@@ -626,15 +626,15 @@ const RUPTURAS_PRODUTOS = {
     "SACO PARA BATATA INFORNO","PAPEL P/ HAMBURGUER INFORNO"
   ],
   "Grano": [
-    "FETTUCINE [PORCAO 100G]","GNOCHI [PORÃ‡ÃƒO 200G]","LASANHA BOLONHESA",
+    "FETTUCINE [PORCAO 100G]","GNOCHI [PORÇÃO 200G]","LASANHA BOLONHESA",
     "MOLHO BECHAMEL","MOLHO BOLONHESA","MOLHO FUNGHI","MOLHO PESTO",
-    "RAGOUT DE COGUMELOS [PORCAO]","RAVIOLI [PORCAO]","RECHEIO DE SALMÃƒO P/ TORTELINE",
+    "RAGOUT DE COGUMELOS [PORCAO]","RAVIOLI [PORCAO]","RECHEIO DE SALMÃO P/ TORTELINE",
     "SFOLIA LORDA[PORCAO]","TAGLIOLINI - [PORCAO 100G]","TORTELINE DE SALMAO [PORCAO C/ 8]",
     "CORACAO ALCACHOFRA [PORCAO GRANO OLIVA]","EMBALAGEM CX SEDEX 22X15X6 GRANO / INFORNO"
   ]
 };
 
-// â”€â”€â”€ ESTADO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── ESTADO ────────────────────────────────────────────────────────────────
 let currentUnit = null;
 let currentTurno = "Dia";
 let currentIntensidade = null;
@@ -646,7 +646,7 @@ let rupturasTags = {};  // { "Bar": ["produto1",...], ... }
 try { history = JSON.parse(localStorage.getItem("qo_history") || "[]"); } catch(e) {}
 try { freelaMonthly = JSON.parse(localStorage.getItem("qo_freela_monthly") || "{}"); } catch(e) {}
 
-// â”€â”€â”€ NAVEGAÃ‡ÃƒO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── NAVEGAÇÃO ─────────────────────────────────────────────────────────────
 function goHome() {
   showScreen("home");
   renderHistory();
@@ -659,13 +659,13 @@ function showScreen(name) {
   window.scrollTo(0, 0);
 }
 
-// â”€â”€â”€ BADGES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── BADGES ────────────────────────────────────────────────────────────────
 function badgeClass(i) {
-  const m = { "FraquÃ­ssima":"fraquissima","Fraca":"fraca","MÃ©dia":"media","Forte":"forte","FortÃ­ssima":"fortissima" };
+  const m = { "Fraquíssima":"fraquissima","Fraca":"fraca","Média":"media","Forte":"forte","Fortíssima":"fortissima" };
   return m[i] || "fraca";
 }
 
-// â”€â”€â”€ HOME â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── HOME ──────────────────────────────────────────────────────────────────
 function renderUnitList() {
   const el = document.getElementById("unit-list");
   el.innerHTML = Object.keys(UNITS).map(u =>
@@ -689,11 +689,11 @@ function renderFreelaStats() {
   const totalMes = freelaMonthly[mesAtual] || 0;
 
   if (totalMes === 0) {
-    el.innerHTML = `<div class="empty">Nenhum freela escalado este mÃªs.</div>`;
+    el.innerHTML = `<div class="empty">Nenhum freela escalado este mês.</div>`;
     return;
   }
 
-  // Quebrar por unidade no mÃªs atual
+  // Quebrar por unidade no mês atual
   const porUnidade = {};
   history.forEach(q => {
     if (q.data && q.data.startsWith(mesAtual) && q.freelas > 0) {
@@ -703,7 +703,7 @@ function renderFreelaStats() {
 
   const linhasUnidade = Object.entries(porUnidade)
     .sort((a, b) => b[1] - a[1])
-    .map(([u, n]) => `<div style="font-size:12px;color:#888;margin-top:3px;">${u}: ${n} diÃ¡ria${n > 1 ? 's' : ''}</div>`)
+    .map(([u, n]) => `<div style="font-size:12px;color:#888;margin-top:3px;">${u}: ${n} diária${n > 1 ? 's' : ''}</div>`)
     .join("");
 
   el.innerHTML = `
@@ -727,26 +727,26 @@ function renderHistory() {
   el.innerHTML = history.slice().reverse().map((q, i) => {
     const idx = history.length - 1 - i;
     const freelaTag = q.freelas > 0
-      ? `<span class="badge" style="background:#e6f1fb;color:#185fa5;">â˜… ${q.freelas} freela${q.freelas > 1 ? 's' : ''}</span> `
+      ? `<span class="badge" style="background:#e6f1fb;color:#185fa5;">★ ${q.freelas} freela${q.freelas > 1 ? 's' : ''}</span> `
       : '';
     return `<div class="card" onclick="viewQuadro(${idx})">
       <div class="card-row">
         <div>
           <div class="card-title">${q.unidade}</div>
-          <div class="card-sub">${q.data} Â· ${q.turno} Â· <span class="badge badge-${badgeClass(q.intensidade)}">${q.intensidade}</span> ${freelaTag}${q.alerta_escala ? '<span class="badge" style="background:#faeeda;color:#854f0b;">escala</span>' : ''}${q.alerta_rupturas ? ' <span class="badge" style="background:#fcebeb;color:#a32d2d;">rupturas</span>' : ''}</div>
+          <div class="card-sub">${q.data} · ${q.turno} · <span class="badge badge-${badgeClass(q.intensidade)}">${q.intensidade}</span> ${freelaTag}${q.alerta_escala ? '<span class="badge" style="background:#faeeda;color:#854f0b;">escala</span>' : ''}${q.alerta_rupturas ? ' <span class="badge" style="background:#fcebeb;color:#a32d2d;">rupturas</span>' : ''}</div>
         </div>
-        <div style="font-size:13px;color:#aaa;">ver â†’</div>
+        <div style="font-size:13px;color:#aaa;">ver →</div>
       </div>
     </div>`;
   }).join("");
 }
 
-// â”€â”€â”€ FORMULÃRIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── FORMULÁRIO ────────────────────────────────────────────────────────────
 function startForm(unit) {
   currentUnit = unit;
   currentTurno = "Dia";
   currentIntensidade = null;
-  document.getElementById("form-unidade-tag").textContent = unit + " Â· " + UNITS[unit].setor;
+  document.getElementById("form-unidade-tag").textContent = unit + " · " + UNITS[unit].setor;
   const today = new Date().toISOString().split("T")[0];
   document.getElementById("f-data").value = today;
   document.getElementById("f-rupt-prod").value = "";
@@ -774,7 +774,7 @@ function selectTurno(t, el) {
 
 function renderIntButtons() {
   const unit = UNITS[currentUnit];
-  const ordem = ["FraquÃ­ssima","Fraca","MÃ©dia","Forte","FortÃ­ssima"];
+  const ordem = ["Fraquíssima","Fraca","Média","Forte","Fortíssima"];
   const available = new Set();
   ["salao","cozinha"].forEach(s => {
     if (unit.escalas[s]) Object.keys(unit.escalas[s]).forEach(k => available.add(k));
@@ -817,8 +817,8 @@ function renderPosicoes() {
         <span class="pos-num">${i+1}</span>
         <span class="pos-label">${p}</span>
         <select class="pos-input" id="pos-${setor}-${i}" onchange="onSelectChange(this)">
-          <option value="">â€” vazio â€”</option>
-          <option value="__freela__">â˜… Freela</option>
+          <option value="">— vazio —</option>
+          <option value="__freela__">★ Freela</option>
           ${opcoesHTML}
         </select>
       </div>`
@@ -827,14 +827,14 @@ function renderPosicoes() {
   updateFreelaCounter();
 }
 
-// â”€â”€â”€ RUPTURAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── RUPTURAS ──────────────────────────────────────────────────────────────
 function getRupturasProdutos(campo) {
-  const isCantucci = ["Asa Sul","Asa Norte","Ãguas Claras"].includes(currentUnit);
+  const isCantucci = ["Asa Sul","Asa Norte","Águas Claras"].includes(currentUnit);
   return isCantucci ? (RUPTURAS_PRODUTOS[campo] || []) : [];
 }
 
 function renderRupturas() {
-  const campos = RUPTURAS_CONFIG[currentUnit] || ["ProduÃ§Ã£o","Insumo"];
+  const campos = RUPTURAS_CONFIG[currentUnit] || ["Produção","Insumo"];
   rupturasTags = {};
   campos.forEach(c => { rupturasTags[c] = []; });
 
@@ -882,12 +882,12 @@ function renderRupturaTags(campo) {
   if (!el) return;
   const tags = rupturasTags[campo] || [];
   el.innerHTML = tags.map((t, i) =>
-    `<span class="ruptura-tag">${t}<button type="button" onclick="removeRupturaTag('${campo}',${i})">Ã—</button></span>`
+    `<span class="ruptura-tag">${t}<button type="button" onclick="removeRupturaTag('${campo}',${i})">×</button></span>`
   ).join("");
 }
 
 function getRupturasData() {
-  const campos = RUPTURAS_CONFIG[currentUnit] || ["ProduÃ§Ã£o","Insumo"];
+  const campos = RUPTURAS_CONFIG[currentUnit] || ["Produção","Insumo"];
   const result = {};
   campos.forEach(campo => {
     const produtos = getRupturasProdutos(campo);
@@ -935,11 +935,11 @@ function getEscalacao(setor) {
   return getPosicoes(setor).map((p, i) => {
     const el = document.getElementById(`pos-${setor}-${i}`);
     const val = el ? el.value : "";
-    return { cargo: p, nome: val === "__freela__" ? "Freela â˜…" : val };
+    return { cargo: p, nome: val === "__freela__" ? "Freela ★" : val };
   });
 }
 
-// â”€â”€â”€ SALVAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── SALVAR ────────────────────────────────────────────────────────────────
 function saveQuadro(confirmed) {
   ["alert-intensidade","alert-escala","alert-rupturas"].forEach(id => document.getElementById(id).style.display = "none");
 
@@ -972,24 +972,24 @@ function saveQuadro(confirmed) {
   if (totalVazios > 0) {
     const pct = Math.round(((totalPos - totalVazios) / totalPos) * 100);
     const msgs = [];
-    if (vaziosSalao.length) msgs.push(`SalÃ£o: ${vaziosSalao.join(", ")}`);
+    if (vaziosSalao.length) msgs.push(`Salão: ${vaziosSalao.join(", ")}`);
     if (vaziosCozinha.length) msgs.push(`Cozinha: ${vaziosCozinha.join(", ")}`);
     const el = document.getElementById("alert-escala");
-    el.innerHTML = `âš  Escala incompleta â€” ${totalVazios} posiÃ§Ã£o(Ãµes) sem colaborador (${pct}% preenchido).<br><small style="opacity:0.8">${msgs.join(" Â· ")}</small>`;
+    el.innerHTML = `⚠ Escala incompleta — ${totalVazios} posição(ões) sem colaborador (${pct}% preenchido).<br><small style="opacity:0.8">${msgs.join(" · ")}</small>`;
     el.style.display = "block";
     hasAlerta = true;
   }
 
   if (totalRupturas > 5) {
     const el = document.getElementById("alert-rupturas");
-    el.innerHTML = `ðŸš¨ ${totalRupturas} rupturas registradas. Alta quantidade pode comprometer o serviÃ§o.`;
+    el.innerHTML = `🚨 ${totalRupturas} rupturas registradas. Alta quantidade pode comprometer o serviço.`;
     el.style.display = "block";
     hasAlerta = true;
   }
 
   if (hasAlerta && !confirmed) {
     const btn = document.querySelector(".btn-primary");
-    btn.textContent = "Gerar mesmo assim â†’";
+    btn.textContent = "Gerar mesmo assim →";
     btn.setAttribute("onclick", "saveQuadro(true)");
     btn.style.background = "#854f0b";
     document.getElementById("alert-escala").scrollIntoView({ behavior: "smooth" });
@@ -997,7 +997,7 @@ function saveQuadro(confirmed) {
   }
 
   const btn = document.querySelector(".btn-primary");
-  btn.textContent = "Gerar quadro â†’";
+  btn.textContent = "Gerar quadro →";
   btn.setAttribute("onclick", "saveQuadro()");
   btn.style.background = "";
 
@@ -1035,7 +1035,7 @@ function saveQuadro(confirmed) {
   viewQuadro(currentViewIdx);
 }
 
-// â”€â”€â”€ VISUALIZAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── VISUALIZAR ────────────────────────────────────────────────────────────
 function viewQuadro(idx) {
   currentViewIdx = idx;
   const q = history[idx];
@@ -1043,101 +1043,101 @@ function viewQuadro(idx) {
   showScreen("view");
 }
 
-// â”€â”€â”€ FORMATAR (texto plano â€” WhatsApp) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── FORMATAR (texto plano — WhatsApp) ────────────────────────────────────
 function pad(str, len) { return String(str).padEnd(len, " "); }
 
 function formatQuadro(q) {
-  const sep = "â”€".repeat(42);
-  const dbl = "â•".repeat(42);
+  const sep = "─".repeat(42);
+  const dbl = "═".repeat(42);
   const lines = [];
   lines.push(dbl);
   lines.push(`  QUADRO OPERACIONAL`);
-  lines.push(`  ${q.unidade.toUpperCase()} â€” ${UNITS[q.unidade] ? UNITS[q.unidade].setor.toUpperCase() : ""}`);
+  lines.push(`  ${q.unidade.toUpperCase()} — ${UNITS[q.unidade] ? UNITS[q.unidade].setor.toUpperCase() : ""}`);
   lines.push(dbl);
   lines.push(`  Data:         ${q.data}`);
   lines.push(`  Turno:        ${q.turno}`);
   lines.push(`  Intensidade:  ${q.intensidade}`);
   if (q.freelas > 0) lines.push(`  Freelas:      ${q.freelas}`);
   lines.push(sep);
-  lines.push("  SALÃƒO");
+  lines.push("  SALÃO");
   lines.push(sep);
   (q.salao || []).forEach((r, i) =>
-    lines.push(`  ${pad(i+1+".", 4)}${pad(r.cargo, 22)}${r.nome || "â€”"}`)
+    lines.push(`  ${pad(i+1+".", 4)}${pad(r.cargo, 22)}${r.nome || "—"}`)
   );
   lines.push(sep);
   lines.push("  COZINHA");
   lines.push(sep);
   (q.cozinha || []).forEach((r, i) =>
-    lines.push(`  ${pad(i+1+".", 4)}${pad(r.cargo, 22)}${r.nome || "â€”"}`)
+    lines.push(`  ${pad(i+1+".", 4)}${pad(r.cargo, 22)}${r.nome || "—"}`)
   );
   lines.push(sep);
   lines.push("  RUPTURAS");
   // Suporta formato novo (rupturas obj) e antigo (rupt_prod/rupt_ins)
   const _rupt = q.rupturas || {
-    "ProduÃ§Ã£o": q.rupt_prod ? [q.rupt_prod] : [],
+    "Produção": q.rupt_prod ? [q.rupt_prod] : [],
     "Insumo":   q.rupt_ins  ? [q.rupt_ins]  : []
   };
   Object.entries(_rupt).forEach(([campo, itens]) => {
     const lista = Array.isArray(itens) ? itens : [];
-    lines.push(`  ${campo.padEnd(12)} ${lista.length ? lista.join(", ") : "â€”"}`);
+    lines.push(`  ${campo.padEnd(12)} ${lista.length ? lista.join(", ") : "—"}`);
   });
   lines.push(sep);
-  lines.push(`  Meta:      R$ ${q.meta || "â€”"}`);
-  lines.push(`  Reservas:  ${q.reservas || "â€”"}`);
-  lines.push(`  Obs:       ${q.obs || "â€”"}`);
+  lines.push(`  Meta:      R$ ${q.meta || "—"}`);
+  lines.push(`  Reservas:  ${q.reservas || "—"}`);
+  lines.push(`  Obs:       ${q.obs || "—"}`);
   lines.push(dbl);
   return lines.join("\n");
 }
 
-// â”€â”€â”€ FORMATAR (HTML rico â€” preview e PDF) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── FORMATAR (HTML rico — preview e PDF) ─────────────────────────────────
 function formatQuadroHTML(q) {
   const intColor = {
-    "FraquÃ­ssima":"#3b6d11","Fraca":"#1D9E75",
-    "MÃ©dia":"#c97a00","Forte":"#dc3545","FortÃ­ssima":"#a32d2d"
+    "Fraquíssima":"#3b6d11","Fraca":"#1D9E75",
+    "Média":"#c97a00","Forte":"#dc3545","Fortíssima":"#a32d2d"
   }[q.intensidade] || "#555";
 
-  const dataFmt = q.data ? q.data.split("-").reverse().join("/") : "â€”";
+  const dataFmt = q.data ? q.data.split("-").reverse().join("/") : "—";
 
-  // â”€â”€ Alertas â”€â”€
+  // ── Alertas ──
   let alertsHTML = "";
   if (q.alerta_escala || q.alerta_rupturas) {
     let inner = "";
     if (q.alerta_escala) {
-      const vazSalao  = (q.salao  || []).filter(r => !r.nome || r.nome === "â€”");
-      const vazCoz    = (q.cozinha|| []).filter(r => !r.nome || r.nome === "â€”");
+      const vazSalao  = (q.salao  || []).filter(r => !r.nome || r.nome === "—");
+      const vazCoz    = (q.cozinha|| []).filter(r => !r.nome || r.nome === "—");
       const total = vazSalao.length + vazCoz.length;
-      inner += `<div class="rp-alert-main">Escala incompleta â€” ${total} posiÃ§Ã£o(Ãµes) sem cobertura</div>`;
+      inner += `<div class="rp-alert-main">Escala incompleta — ${total} posição(ões) sem cobertura</div>`;
       if (vazSalao.length) {
-        inner += `<div class="rp-alert-sub">SalÃ£o:</div>`;
-        vazSalao.forEach(r => { inner += `<div class="rp-alert-item">â€º ${r.cargo}</div>`; });
+        inner += `<div class="rp-alert-sub">Salão:</div>`;
+        vazSalao.forEach(r => { inner += `<div class="rp-alert-item">› ${r.cargo}</div>`; });
       }
       if (vazCoz.length) {
         inner += `<div class="rp-alert-sub">Cozinha:</div>`;
-        vazCoz.forEach(r => { inner += `<div class="rp-alert-item">â€º ${r.cargo}</div>`; });
+        vazCoz.forEach(r => { inner += `<div class="rp-alert-item">› ${r.cargo}</div>`; });
       }
     }
     if (q.alerta_rupturas) {
-      inner += `<div class="rp-alert-main" style="margin-top:6px;">ðŸš¨ Alta quantidade de rupturas</div>`;
+      inner += `<div class="rp-alert-main" style="margin-top:6px;">🚨 Alta quantidade de rupturas</div>`;
     }
     alertsHTML = `
       <div class="rp-alerts">
         <div class="rp-alerts-header">
-          <span>âš ï¸</span>
+          <span>⚠️</span>
           <span class="rp-alerts-title">Alertas do Turno</span>
-          <span class="rp-alert-badge">ATENÃ‡ÃƒO</span>
+          <span class="rp-alert-badge">ATENÇÃO</span>
         </div>
         ${inner}
       </div>`;
   }
 
-  // â”€â”€ Grade de equipe â”€â”€
+  // ── Grade de equipe ──
   function teamGrid(arr) {
-    if (!arr || !arr.length) return '<div style="font-size:13px;color:#aaa;">Sem posiÃ§Ãµes</div>';
+    if (!arr || !arr.length) return '<div style="font-size:13px;color:#aaa;">Sem posições</div>';
     return arr.map((r, i) => {
-      const empty   = !r.nome || r.nome === "â€”";
+      const empty   = !r.nome || r.nome === "—";
       const freela  = r.nome && r.nome.startsWith("Freela");
       const cls     = empty ? "rp-status-empty" : freela ? "rp-status-freela" : "rp-status-filled";
-      const label   = empty ? "NÃ£o escalado" : r.nome;
+      const label   = empty ? "Não escalado" : r.nome;
       return `<div class="rp-team-item">
         <span class="rp-team-pos">${i+1}. ${r.cargo}</span>
         <span class="rp-team-status ${cls}">${label}</span>
@@ -1145,20 +1145,20 @@ function formatQuadroHTML(q) {
     }).join("");
   }
 
-  // â”€â”€ MÃ©tricas â”€â”€
+  // ── Métricas ──
   let metricsHTML = "";
   const metricItems = [];
   if (q.meta)     metricItems.push(`<div class="rp-metric"><div class="rp-metric-label">Meta</div><div class="rp-metric-value">R$ ${q.meta}</div></div>`);
   if (q.reservas) metricItems.push(`<div class="rp-metric"><div class="rp-metric-label">Reservas</div><div class="rp-metric-value" style="font-size:13px;line-height:1.3">${q.reservas}</div></div>`);
   if (q.freelas > 0) metricItems.push(`<div class="rp-metric freela"><div class="rp-metric-label">Freelas</div><div class="rp-metric-value">${q.freelas}</div></div>`);
   if (metricItems.length) {
-    metricsHTML = `<div class="rp-section"><div class="rp-section-title">ðŸ“Š MÃ©tricas</div><div class="rp-metrics">${metricItems.join("")}</div></div>`;
+    metricsHTML = `<div class="rp-section"><div class="rp-section-title">📊 Métricas</div><div class="rp-metrics">${metricItems.join("")}</div></div>`;
   }
 
-  // â”€â”€ Rupturas â”€â”€
+  // ── Rupturas ──
   let rupturasHTML = "";
   const _rObj = q.rupturas || {
-    "ProduÃ§Ã£o": q.rupt_prod ? [q.rupt_prod] : [],
+    "Produção": q.rupt_prod ? [q.rupt_prod] : [],
     "Insumo":   q.rupt_ins  ? [q.rupt_ins]  : []
   };
   const _rEntries = Object.entries(_rObj).filter(([,v]) => (v||[]).length > 0);
@@ -1168,22 +1168,22 @@ function formatQuadroHTML(q) {
     ).join("");
     rupturasHTML = `
       <div class="rp-section">
-        <div class="rp-section-title">âš ï¸ Rupturas</div>
+        <div class="rp-section-title">⚠️ Rupturas</div>
         <div class="rp-rupturas">${_rLines}</div>
       </div>`;
   }
 
-  // â”€â”€ Obs â”€â”€
+  // ── Obs ──
   let obsHTML = "";
   if (q.obs && q.obs.trim()) {
-    obsHTML = `<div class="rp-section"><div class="rp-obs"><div class="rp-obs-title">ðŸ“ ObservaÃ§Ãµes</div><div class="rp-obs-content">${q.obs}</div></div></div>`;
+    obsHTML = `<div class="rp-section"><div class="rp-obs"><div class="rp-obs-title">📝 Observações</div><div class="rp-obs-content">${q.obs}</div></div></div>`;
   }
 
   return `
     <div class="rp-card">
       <div class="rp-header">
         <div class="rp-header-title">QUADRO OPERACIONAL</div>
-        <div class="rp-header-sub">${q.unidade.toUpperCase()} â€” ${(UNITS[q.unidade]||{setor:""}).setor.toUpperCase()}</div>
+        <div class="rp-header-sub">${q.unidade.toUpperCase()} — ${(UNITS[q.unidade]||{setor:""}).setor.toUpperCase()}</div>
       </div>
       <div class="rp-infobar">
         <div class="rp-info-item"><div class="rp-info-label">Data</div><div class="rp-info-value">${dataFmt}</div></div>
@@ -1193,11 +1193,11 @@ function formatQuadroHTML(q) {
       <div class="rp-body">
         ${alertsHTML}
         <div class="rp-section">
-          <div class="rp-section-title">ðŸ½ï¸ SalÃ£o</div>
+          <div class="rp-section-title">🍽️ Salão</div>
           <div class="rp-team-grid">${teamGrid(q.salao)}</div>
         </div>
         <div class="rp-section">
-          <div class="rp-section-title">ðŸ‘¨â€ðŸ³ Cozinha</div>
+          <div class="rp-section-title">👨‍🍳 Cozinha</div>
           <div class="rp-team-grid">${teamGrid(q.cozinha)}</div>
         </div>
         ${metricsHTML}
@@ -1208,14 +1208,14 @@ function formatQuadroHTML(q) {
 }
 
 
-// â”€â”€â”€ EXPORTAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── EXPORTAR ──────────────────────────────────────────────────────────────
 function printQuadro() {
   const q = history[currentViewIdx];
   const innerHTML = formatQuadroHTML(q);
   const w = window.open("", "_blank");
   w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head>
 <meta charset="UTF-8">
-<title>Quadro â€” ${q.unidade} ${q.data}</title>
+<title>Quadro — ${q.unidade} ${q.data}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;padding:24px;color:#1a1a1a}
@@ -1273,13 +1273,13 @@ function sendWhatsapp() {
 function resetConfirmBtn() {
   const btn = document.querySelector(".btn-primary");
   if (btn) {
-    btn.textContent = "Gerar quadro â†’";
+    btn.textContent = "Gerar quadro →";
     btn.setAttribute("onclick", "saveQuadro()");
     btn.style.background = "";
   }
 }
 
-// â”€â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── INIT ──────────────────────────────────────────────────────────────────
 renderUnitList();
 renderHistory();
 renderFreelaStats();
