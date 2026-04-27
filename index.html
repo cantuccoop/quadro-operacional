@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Quadro Operacional — Grupo Cantucci</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; }
@@ -1263,10 +1264,51 @@ function printQuadro() {
   w.addEventListener("load", () => w.print());
 }
 
-function sendWhatsapp() {
-  const q = history[currentViewIdx];
-  const text = encodeURIComponent(formatQuadro(q));
-  window.open("https://wa.me/?text=" + text, "_blank");
+async function sendWhatsapp() {
+  const btn = document.querySelector('#screen-view .btn-wa');
+  const cardEl = document.querySelector('#view-content .rp-card');
+  if (!cardEl) return;
+
+  const orig = btn.textContent;
+  btn.textContent = 'Gerando imagem…';
+  btn.disabled = true;
+
+  try {
+    const canvas = await html2canvas(cardEl, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false
+    });
+
+    canvas.toBlob(async (blob) => {
+      const q = history[currentViewIdx];
+      const nome = q ? q.unidade.replace(/\s+/g, '-') : 'quadro';
+      const file = new File([blob], `quadro-${nome}.png`, { type: 'image/png' });
+
+      try {
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'Quadro Operacional' });
+        } else {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `quadro-${nome}.png`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+      } catch (shareErr) {
+        // usuário cancelou ou share falhou — não é erro
+      }
+
+      btn.textContent = orig;
+      btn.disabled = false;
+    }, 'image/png');
+  } catch (e) {
+    console.error('html2canvas erro:', e);
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
 }
 
 function resetConfirmBtn() {
