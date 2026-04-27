@@ -749,8 +749,7 @@ function startForm(unit) {
   document.getElementById("form-unidade-tag").textContent = unit + " · " + UNITS[unit].setor;
   const today = new Date().toISOString().split("T")[0];
   document.getElementById("f-data").value = today;
-  document.getElementById("f-rupt-prod").value = "";
-  document.getElementById("f-rupt-ins").value = "";
+  
   document.getElementById("f-meta").value = "";
   document.getElementById("f-reservas").value = "";
   document.getElementById("f-obs").value = "";
