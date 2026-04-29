@@ -164,6 +164,30 @@
   .freela-stat-label { font-size: 13px; color: #555; }
   .freela-stat-val { font-size: 16px; font-weight: 700; color: #185fa5; }
   .freela-stat-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+  /* Dashboard */
+  .dash-link { display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid #e8e6e0; border-radius:12px; padding:12px 16px; margin-bottom:16px; cursor:pointer; font-size:14px; font-weight:600; color:#1a1a1a; }
+  .dash-link:hover { background:#faf9f7; }
+  .dash-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:18px; }
+  .dash-kpi { background:#fff; border:1px solid #e8e6e0; border-radius:10px; padding:12px 8px; text-align:center; }
+  .dash-kpi-val { font-size:22px; font-weight:700; color:#1a1a1a; }
+  .dash-kpi-lbl { font-size:10px; color:#888; text-transform:uppercase; letter-spacing:0.05em; margin-top:3px; }
+  .dash-kpi.alert { background:#fcebeb; border-color:#f5c6cb; }
+  .dash-kpi.alert .dash-kpi-val { color:#a32d2d; }
+  .dash-kpi.freela { background:#e6f1fb; border-color:#c8dff7; }
+  .dash-kpi.freela .dash-kpi-val { color:#185fa5; }
+  .dash-filter { display:flex; gap:8px; margin-bottom:12px; align-items:center; }
+  .dash-filter select { flex:1; }
+  .dash-filter label { font-size:11px; color:#888; white-space:nowrap; }
+  .dash-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .dash-table th { text-align:left; padding:7px 8px; border-bottom:2px solid #e8e6e0; font-size:10px; color:#888; text-transform:uppercase; letter-spacing:0.05em; font-weight:700; }
+  .dash-table td { padding:9px 8px; border-bottom:1px solid #f0ede8; vertical-align:middle; }
+  .dash-table tr:last-child td { border-bottom:none; }
+  .dash-table tr:hover td { background:#faf9f7; cursor:pointer; }
+  .dash-row-unit { font-weight:600; color:#1a1a1a; }
+  .dash-row-sub { font-size:11px; color:#888; margin-top:1px; }
+  .dash-meta { font-weight:600; color:#1D9E75; }
+  .dash-empty { text-align:center; padding:40px 0; color:#aaa; font-size:14px; }
 </style>
 </head>
 <body>
@@ -183,6 +207,40 @@
   <hr class="divider">
   <div class="section-title">Histórico</div>
   <div id="hist-list"><div class="empty">Nenhum quadro salvo ainda.</div></div>
+  <div class="dash-link" onclick="showScreen('dashboard'); renderDashboard();">
+    <span>📊 Ver dashboard completo</span>
+    <span style="color:#aaa;">→</span>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="screen-dashboard" class="screen">
+  <button class="back" onclick="goHome()">← voltar</button>
+  <div class="header-title" style="margin-bottom:4px;">Dashboard</div>
+  <div class="header-eyebrow" style="margin-bottom:16px;">Histórico de quadros</div>
+  <div id="dash-summary" class="dash-summary"></div>
+  <div class="dash-filter">
+    <label>Unidade:</label>
+    <select id="dash-filter-unit" onchange="renderDashboard()">
+      <option value="">Todas</option>
+    </select>
+  </div>
+  <div style="background:#fff;border:1px solid #e8e6e0;border-radius:12px;overflow:hidden;">
+    <div style="overflow-x:auto;">
+      <table class="dash-table" id="dash-table">
+        <thead>
+          <tr>
+            <th>Unidade</th>
+            <th>Data · Turno</th>
+            <th>Intens.</th>
+            <th>Meta</th>
+            <th>Alertas</th>
+          </tr>
+        </thead>
+        <tbody id="dash-tbody"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <!-- FORM -->
@@ -1318,6 +1376,63 @@ function resetConfirmBtn() {
     btn.setAttribute("onclick", "saveQuadro()");
     btn.style.background = "";
   }
+}
+
+// ─── DASHBOARD ─────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const filterUnit = document.getElementById("dash-filter-unit").value;
+
+  // Populate unit filter options (once)
+  const filterEl = document.getElementById("dash-filter-unit");
+  const units = [...new Set(history.map(q => q.unidade))].sort();
+  if (filterEl.options.length <= 1) {
+    units.forEach(u => {
+      const opt = document.createElement("option");
+      opt.value = u; opt.textContent = u;
+      filterEl.appendChild(opt);
+    });
+  }
+
+  const data = filterUnit ? history.filter(q => q.unidade === filterUnit) : history;
+
+  // KPIs
+  const totalAlerta = data.filter(q => q.alerta_escala || q.alerta_rupturas).length;
+  const totalFreelas = data.reduce((s, q) => s + (q.freelas || 0), 0);
+  document.getElementById("dash-summary").innerHTML = `
+    <div class="dash-kpi">
+      <div class="dash-kpi-val">${data.length}</div>
+      <div class="dash-kpi-lbl">Quadros</div>
+    </div>
+    <div class="dash-kpi alert">
+      <div class="dash-kpi-val">${totalAlerta}</div>
+      <div class="dash-kpi-lbl">Com alerta</div>
+    </div>
+    <div class="dash-kpi freela">
+      <div class="dash-kpi-val">${totalFreelas}</div>
+      <div class="dash-kpi-lbl">Freelas</div>
+    </div>`;
+
+  // Table rows — most recent first
+  const sorted = data.slice().sort((a, b) => b.data.localeCompare(a.data));
+  const tbody = document.getElementById("dash-tbody");
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="dash-empty">Nenhum quadro registrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = sorted.map(q => {
+    const idx = history.indexOf(q);
+    const dataFmt = q.data ? q.data.split("-").reverse().join("/") : "—";
+    const alertIcons = (q.alerta_escala ? "⚠️" : "") + (q.alerta_rupturas ? "🚨" : "");
+    const intBadge = `<span class="badge badge-${badgeClass(q.intensidade)}">${q.intensidade}</span>`;
+    const metaFmt = q.meta ? `R$ ${Number(q.meta).toLocaleString('pt-BR')}` : "—";
+    return `<tr onclick="viewQuadro(${idx})">
+      <td><div class="dash-row-unit">${q.unidade}</div></td>
+      <td><div>${dataFmt}</div><div class="dash-row-sub">${q.turno}</div></td>
+      <td>${intBadge}</td>
+      <td class="dash-meta">${metaFmt}</td>
+      <td style="font-size:15px;">${alertIcons || "<span style='color:#aaa;font-size:11px;'>—</span>"}</td>
+    </tr>`;
+  }).join("");
 }
 
 // ─── INIT ──────────────────────────────────────────────────────────────────
