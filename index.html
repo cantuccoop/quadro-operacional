@@ -852,7 +852,7 @@ function checkDashPin() {
   if (val === DASH_SENHA) {
     closeDashPin();
     showScreen("dashboard");
-    renderDashboard();
+    setTimeout(() => renderDashboard(), 60);
   } else {
     document.getElementById("dash-pin-error").style.display = "block";
     document.getElementById("dash-pin-input").value = "";
@@ -953,8 +953,8 @@ function renderHistory() {
     </div>`;
   }).join("");
 
-  // Render charts
-  renderCharts(data);
+  // Render charts (setTimeout ensures canvas has dimensions after screen becomes visible)
+  setTimeout(() => renderCharts(data), 60);
 }
 
 // ─── FORMULÁRIO ────────────────────────────────────────────────────────────
