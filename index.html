@@ -235,6 +235,13 @@
   <div class="header-eyebrow" style="margin-bottom:16px;">Histórico de quadros</div>
   <div id="dash-summary" class="dash-summary"></div>
 
+
+  <div class="dash-filter" style="margin-bottom:16px;">
+    <label>Unidade:</label>
+    <select id="dash-filter-unit" onchange="renderDashboard()">
+      <option value="">Todas as unidades</option>
+    </select>
+  </div>
   <div id="dash-charts">
     <div class="dash-chart-card">
       <div class="dash-chart-title">📈 Freelas por mês</div>
@@ -259,12 +266,6 @@
   </div>
 
   <div class="section-title" style="margin-top:18px;">Quadros registrados</div>
-  <div class="dash-filter">
-    <label>Unidade:</label>
-    <select id="dash-filter-unit" onchange="renderDashboard()">
-      <option value="">Todas</option>
-    </select>
-  </div>
   <div style="background:#fff;border:1px solid #e8e6e0;border-radius:12px;overflow:hidden;">
     <div style="overflow-x:auto;">
       <table class="dash-table" id="dash-table">
