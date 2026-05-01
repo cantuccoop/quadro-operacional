@@ -177,6 +177,10 @@
   .dash-kpi.alert .dash-kpi-val { color:#a32d2d; }
   .dash-kpi.freela { background:#e6f1fb; border-color:#c8dff7; }
   .dash-kpi.freela .dash-kpi-val { color:#185fa5; }
+  .dash-chart-card { background:#fff; border:1px solid #e8e6e0; border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+  .dash-chart-title { font-size:13px; font-weight:700; margin-bottom:4px; color:#1a1a1a; }
+  .dash-chart-sub { font-size:10px; color:#aaa; margin-bottom:10px; }
+  .dash-empty-chart { text-align:center; color:#bbb; font-size:12px; padding:20px 0; display:none; }
   .dash-filter { display:flex; gap:8px; margin-bottom:12px; align-items:center; }
   .dash-filter select { flex:1; }
   .dash-filter label { font-size:11px; color:#888; white-space:nowrap; }
@@ -230,6 +234,31 @@
   <div class="header-title" style="margin-bottom:4px;">Dashboard</div>
   <div class="header-eyebrow" style="margin-bottom:16px;">Histórico de quadros</div>
   <div id="dash-summary" class="dash-summary"></div>
+
+  <div id="dash-charts">
+    <div class="dash-chart-card">
+      <div class="dash-chart-title">📈 Freelas por mês</div>
+      <canvas id="chart-freelas" height="160"></canvas>
+    </div>
+    <div class="dash-chart-card">
+      <div class="dash-chart-title">🕳️ Posições vazias por mês</div>
+      <div class="dash-chart-sub">Total de espaços não preenchidos no quadro</div>
+      <canvas id="chart-vazios" height="160"></canvas>
+    </div>
+    <div class="dash-chart-card">
+      <div class="dash-chart-title">⚠️ Escala abaixo do mínimo — por dia da semana</div>
+      <div class="dash-chart-sub">Quadros onde a intensidade ficou abaixo do esperado para o dia</div>
+      <canvas id="chart-escala-min" height="180"></canvas>
+    </div>
+    <div class="dash-chart-card">
+      <div class="dash-chart-title">🚨 Rupturas por insumo</div>
+      <div class="dash-chart-sub">% de ocorrência por produto no período</div>
+      <canvas id="chart-rupturas" height="200"></canvas>
+      <div id="chart-rupturas-empty" class="dash-empty-chart">Nenhuma ruptura registrada.</div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:18px;">Quadros registrados</div>
   <div class="dash-filter">
     <label>Unidade:</label>
     <select id="dash-filter-unit" onchange="renderDashboard()">
