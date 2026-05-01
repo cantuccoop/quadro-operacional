@@ -715,6 +715,93 @@ let rupturasTags = {};  // { "Bar": ["produto1",...], ... }
 try { history = JSON.parse(localStorage.getItem("qo_history") || "[]"); } catch(e) {}
 try { freelaMonthly = JSON.parse(localStorage.getItem("qo_freela_monthly") || "{}"); } catch(e) {}
 
+// ─── GRÁFICOS ──────────────────────────────────────────────────────────────
+const INT_ORDER = ["Fraquíssima","Fraca","Média","Forte","Fortíssima"];
+
+// Intensidade mínima esperada por dia da semana (0=Dom … 6=Sáb)
+const ESCALA_MIN_DIA = { 0:"Forte", 1:"Fraca", 2:"Fraca", 3:"Média", 4:"Média", 5:"Forte", 6:"Fortíssima" };
+
+let _charts = {};
+
+function destroyCharts() {
+  Object.values(_charts).forEach(c => { try { c.destroy(); } catch(e){} });
+  _charts = {};
+}
+
+function renderCharts(data) {
+  destroyCharts();
+  const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const fmtMes = m => { const [y,mo] = m.split('-'); return MESES[parseInt(mo)-1]+'/'+y.slice(2); };
+
+  // 1. Freelas por mês
+  const freelasByMonth = {};
+  data.forEach(q => {
+    if (!q.data) return;
+    const m = q.data.slice(0,7);
+    freelasByMonth[m] = (freelasByMonth[m]||0) + (q.freelas||0);
+  });
+  const fMonths = Object.keys(freelasByMonth).sort();
+  _charts.freelas = new Chart(document.getElementById('chart-freelas'), {
+    type: 'bar',
+    data: { labels: fMonths.map(fmtMes), datasets: [{ label: 'Freelas', data: fMonths.map(m=>freelasByMonth[m]), backgroundColor: '#185fa5', borderRadius: 6 }] },
+    options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true, ticks:{stepSize:1} } } }
+  });
+
+  // 2. Posições vazias por mês
+  const vaziosByMonth = {};
+  data.forEach(q => {
+    if (!q.data) return;
+    const m = q.data.slice(0,7);
+    const v = (q.salao||[]).filter(r=>!r.nome||r.nome==='—').length + (q.cozinha||[]).filter(r=>!r.nome||r.nome==='—').length;
+    vaziosByMonth[m] = (vaziosByMonth[m]||0) + v;
+  });
+  const vMonths = Object.keys(vaziosByMonth).sort();
+  _charts.vazios = new Chart(document.getElementById('chart-vazios'), {
+    type: 'bar',
+    data: { labels: vMonths.map(fmtMes), datasets: [{ label: 'Vazios', data: vMonths.map(m=>vaziosByMonth[m]), backgroundColor: '#e0874a', borderRadius: 6 }] },
+    options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true, ticks:{stepSize:1} } } }
+  });
+
+  // 3. Escala abaixo do mínimo por dia da semana
+  const diasNome = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const abaixoMin = [0,0,0,0,0,0,0], totalDia = [0,0,0,0,0,0,0];
+  data.forEach(q => {
+    if (!q.data || !q.intensidade) return;
+    const dow = new Date(q.data+'T12:00:00').getDay();
+    const min = ESCALA_MIN_DIA[dow];
+    totalDia[dow]++;
+    if (INT_ORDER.indexOf(q.intensidade) < INT_ORDER.indexOf(min)) abaixoMin[dow]++;
+  });
+  _charts.escalaMin = new Chart(document.getElementById('chart-escala-min'), {
+    type: 'bar',
+    data: { labels: diasNome, datasets: [
+      { label: 'Abaixo do mín.', data: abaixoMin, backgroundColor: '#a32d2d', borderRadius: 4 },
+      { label: 'Total quadros',  data: totalDia,  backgroundColor: '#e8e6e0', borderRadius: 4 }
+    ]},
+    options: { responsive:true, plugins:{ legend:{ display:true, labels:{ boxWidth:12, font:{size:10} } } }, scales:{ y:{ beginAtZero:true, ticks:{stepSize:1} } } }
+  });
+
+  // 4. Rupturas por insumo (pizza)
+  const ruptCount = {};
+  data.forEach(q => {
+    const r = q.rupturas || {};
+    Object.values(r).forEach(arr => (arr||[]).forEach(item => { if(item) ruptCount[item] = (ruptCount[item]||0)+1; }));
+  });
+  const ruptEntries = Object.entries(ruptCount).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  const PIE_COLORS = ['#a32d2d','#e0874a','#185fa5','#1D9E75','#854f0b','#6c3483','#117a65','#b7950b','#c0392b','#2471a3','#1e8449','#7d6608'];
+  const emptyEl = document.getElementById('chart-rupturas-empty');
+  if (ruptEntries.length) {
+    emptyEl.style.display = 'none';
+    _charts.rupturas = new Chart(document.getElementById('chart-rupturas'), {
+      type: 'doughnut',
+      data: { labels: ruptEntries.map(e=>e[0]), datasets: [{ data: ruptEntries.map(e=>e[1]), backgroundColor: PIE_COLORS, borderWidth: 2 }] },
+      options: { responsive:true, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, font:{size:11} } } } }
+    });
+  } else {
+    emptyEl.style.display = 'block';
+  }
+}
+
 // ─── ACESSO AO DASHBOARD ───────────────────────────────────────────────────
 const DASH_SENHA = "cantucci2026"; // ← altere aqui para mudar a senha
 
@@ -834,6 +921,9 @@ function renderHistory() {
       </div>
     </div>`;
   }).join("");
+
+  // Render charts
+  renderCharts(data);
 }
 
 // ─── FORMULÁRIO ────────────────────────────────────────────────────────────
