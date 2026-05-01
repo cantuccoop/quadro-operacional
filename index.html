@@ -238,7 +238,7 @@
 
   <div class="dash-filter" style="margin-bottom:16px;">
     <label>Unidade:</label>
-    <select id="dash-filter-unit" onchange="renderDashboard()">
+    <select id="dash-filter-unit" onchange="renderDashboard(); setTimeout(()=>{ const u=this.value; renderCharts(u?history.filter(q=>q.unidade===u):history); },250)">
       <option value="">Todas as unidades</option>
     </select>
   </div>
@@ -755,6 +755,9 @@ const ESCALA_MIN_DIA = { 0:"Forte", 1:"Fraca", 2:"Fraca", 3:"Média", 4:"Média"
 let _charts = {};
 
 function destroyCharts() {
+  ['chart-freelas','chart-vazios','chart-escala-min','chart-rupturas'].forEach(id => {
+    try { Chart.getChart(document.getElementById(id))?.destroy(); } catch(e){}
+  });
   Object.values(_charts).forEach(c => { try { c.destroy(); } catch(e){} });
   _charts = {};
 }
@@ -852,7 +855,8 @@ function checkDashPin() {
   if (val === DASH_SENHA) {
     closeDashPin();
     showScreen("dashboard");
-    setTimeout(() => renderDashboard(), 60);
+    renderDashboard();
+    setTimeout(() => renderCharts(history), 250);
   } else {
     document.getElementById("dash-pin-error").style.display = "block";
     document.getElementById("dash-pin-input").value = "";
@@ -953,8 +957,6 @@ function renderHistory() {
     </div>`;
   }).join("");
 
-  // Render charts (setTimeout ensures canvas has dimensions after screen becomes visible)
-  setTimeout(() => renderCharts(data), 60);
 }
 
 // ─── FORMULÁRIO ────────────────────────────────────────────────────────────
