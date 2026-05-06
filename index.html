@@ -6,6 +6,8 @@
 <title>Quadro Operacional — Grupo Cantucci</title>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; }
@@ -58,8 +60,8 @@
   .pos-num { font-size: 11px; color: #aaa; min-width: 18px; }
   .pos-input { flex: 1; }
 
-  /* Freela select highlight */
-  select.freela-on {
+  /* Freela input highlight */
+  input.freela-on {
     border-color: #185fa5 !important;
     background-color: #f0f7ff !important;
     color: #185fa5 !important;
@@ -83,6 +85,10 @@
   .ruptura-tag { display: inline-flex; align-items: center; gap: 4px; background: #fcebeb; color: #a32d2d; border-radius: 6px; padding: 4px 8px 4px 10px; font-size: 12px; font-weight: 500; }
   .ruptura-tag button { background: none; border: none; color: inherit; cursor: pointer; font-size: 16px; line-height: 1; padding: 0; opacity: 0.7; font-family: inherit; }
   .ruptura-tag button:hover { opacity: 1; }
+  .ruptura-search-wrap { position: relative; flex: 1.5; }
+  .ruptura-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #1a1a1a; border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; }
+  .ruptura-dropdown-item { padding: 9px 12px; font-size: 13px; cursor: pointer; }
+  .ruptura-dropdown-item:hover { background: #f5f4f0; }
 
   /* Buttons */
   .btn { display: block; width: 100%; padding: 13px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; border: none; margin-bottom: 10px; font-family: inherit; transition: opacity 0.15s; }
@@ -179,6 +185,13 @@
   .dash-kpi.freela .dash-kpi-val { color:#185fa5; }
   .dash-chart-card { background:#fff; border:1px solid #e8e6e0; border-radius:12px; padding:14px 16px; margin-bottom:14px; }
   .dash-chart-title { font-size:13px; font-weight:700; margin-bottom:4px; color:#1a1a1a; }
+  .dash-chart-card.dark { background:#1e1b3a; border-color:#2d2a50; }
+  .dash-chart-card.dark .dash-chart-title { color:#fff; }
+  .dash-rup-legend { margin-top:10px; display:flex; flex-direction:column; gap:4px; }
+  .dash-rup-legend-item { display:flex; align-items:center; gap:8px; font-size:12px; color:#ddd; }
+  .dash-rup-legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .dash-rup-legend-name { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .dash-rup-legend-pct { font-weight:700; color:#fff; min-width:36px; text-align:right; }
   .dash-chart-sub { font-size:10px; color:#aaa; margin-bottom:10px; }
   .dash-empty-chart { text-align:center; color:#bbb; font-size:12px; padding:20px 0; display:none; }
   .dash-filter { display:flex; gap:8px; margin-bottom:12px; align-items:center; }
@@ -206,12 +219,7 @@
   </div>
   <div class="section-title">Unidades</div>
   <div id="unit-list"></div>
-  <hr class="divider">
-  <div class="section-title">Freelas este mês</div>
-  <div id="freela-stats-home"></div>
-  <div style="text-align:center;margin-top:24px;padding-bottom:8px;">
-    <span onclick="openDashboard()" style="font-size:11px;color:#bbb;cursor:pointer;letter-spacing:0.04em;">ver dashboard</span>
-  </div>
+  <button type="button" onclick="openDashboard()" style="width:100%;margin-top:16px;padding:13px;border-radius:10px;border:1.5px solid #185fa5;background:#f0f6ff;color:#185fa5;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:0.02em;">📊 Acessar Dashboard</button>
 </div>
 
 <!-- PIN OVERLAY -->
@@ -236,33 +244,37 @@
   <div id="dash-summary" class="dash-summary"></div>
 
 
-  <div class="dash-filter" style="margin-bottom:16px;">
+  <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+    <button class="turno-tab active" style="flex:0 0 auto;white-space:nowrap;" onclick="setDashAll(this)">Tudo</button>
+    <select id="dash-sel-month" onchange="onDashMonthChange(this)" style="flex:1;">
+      <option value="">Mês...</option>
+    </select>
+    <select id="dash-sel-week" onchange="onDashWeekChange(this)" style="flex:1;" disabled>
+      <option value="">Semana...</option>
+    </select>
+  </div>
+  <div class="dash-filter" style="margin-bottom:14px;">
     <label>Unidade:</label>
-    <select id="dash-filter-unit" onchange="renderDashboard(); setTimeout(()=>{ const u=this.value; renderCharts(u?history.filter(q=>q.unidade===u):history); },250)">
+    <select id="dash-filter-unit" onchange="applyDashFilters()">
       <option value="">Todas as unidades</option>
     </select>
   </div>
   <div id="dash-charts">
     <div class="dash-chart-card">
-      <div class="dash-chart-title">📈 Freelas por mês</div>
-      <canvas id="chart-freelas" height="160"></canvas>
+      <div class="dash-chart-title">📈 Freelas</div>
+      <canvas id="chart-freelas" height="120"></canvas>
     </div>
     <div class="dash-chart-card">
-      <div class="dash-chart-title">🕳️ Posições vazias por mês</div>
-      <div class="dash-chart-sub">Total de espaços não preenchidos no quadro</div>
-      <canvas id="chart-vazios" height="160"></canvas>
+      <div class="dash-chart-title">🕳️ Posições vazias</div>
+      <canvas id="chart-vazios" height="120"></canvas>
     </div>
     <div class="dash-chart-card">
-      <div class="dash-chart-title">⚠️ Escala abaixo do mínimo — por dia da semana</div>
-      <div class="dash-chart-sub">Quadros onde a intensidade ficou abaixo do esperado para o dia</div>
-      <canvas id="chart-escala-min" height="180"></canvas>
+      <div class="dash-chart-title">⚠️ Escala abaixo do mínimo</div>
+      <div class="dash-chart-sub">Por dia da semana</div>
+      <canvas id="chart-escala-min" height="130"></canvas>
     </div>
-    <div class="dash-chart-card">
-      <div class="dash-chart-title">🚨 Rupturas por insumo</div>
-      <div class="dash-chart-sub">% de ocorrência por produto no período</div>
-      <canvas id="chart-rupturas" height="200"></canvas>
-      <div id="chart-rupturas-empty" class="dash-empty-chart">Nenhuma ruptura registrada.</div>
-    </div>
+    <div id="dash-ruptura-pies"></div>
+    <button type="button" class="btn btn-secondary" id="btn-download-rupturas" onclick="downloadRupturasCSV()" style="width:100%;margin-top:4px;display:none;">⬇ Baixar Rupturas (.csv)</button>
   </div>
 
   <div class="section-title" style="margin-top:18px;">Quadros registrados</div>
@@ -734,6 +746,159 @@ const RUPTURAS_PRODUTOS = {
   ]
 };
 
+// ─── CASCADE RUPTURAS (Asa Sul / Asa Norte / Águas Claras) ────────────────
+const UNIDADES_CASCADE = new Set(["Asa Sul","Asa Norte","Águas Claras"]);
+
+const PDV_IAN = {
+  "Cantucci": ["POLPETONE ANGUS","RISOTO FUNGHI PORCINI E FILE","FILETTO AL TARTUFI","STEAK AL FUNGHI","GNOCCHI DA SORTE","FILE WELLINGTON","CARBONARA CLASSICO","STEAK TRES MOSTARDAS","SALMONE AO MEDITERRANEO","FILE PARME ARROZ/FRITAS","FILETTO PARMEGIANA COM MASSA","RISOTO DE CAMARAO","RAVIOLI DI BUFALA","CAMARAO AO BRIE","PICADINHO CLASSICO CASA","PESCE SICILIANO","LASAGNA BOLOGNESE","POLLO PARMEGIANA","RISOTO DI GORGONZOLA","FONDUTA DE FILE","BRUSCHETTAS","ARANCINI TOSCANO","BRIE AL CARAMELLO","FETTUCCINI AO BISQUE","BROWNIE I GELATO","SFOLIA LORDA DI ZUCCA","BURRATA SPECIALE","POLLO PARMEGIANA COM MASSA","RISOTO MARGHERITE AO PESTO","FRANGO CORDON BLEU","POLLO CEASERE","CARPACCIO IN CROSTA","BRUSCHETTA HAPPY HOUR","SALTIMBOCA DI POLLO","CHEESECAKE FRUTAS VERMELHAS","CARPACCIO HAPPY HOUR","RONDELLI RICOTA FIGO E NOZES","POLLO CAESERE","TORTELLINI DI SALMONE PICATTA","RIGATONI AMATRICIANA","INSALATA","PEIXE BRANCO MOLHO TOMATE","ARANCINI HAPPY HOUR","BANOFEE","PEIXE BRANCO COM LEGUMES","INFORNITO DE NUTELLA","ROTOLINA","PARMIGIANA DELLA FAMIGLIA","CROSTINI","CHEESECAKE GOIABADA","STRACCIATELLA","DOBRO DE CARNE 160G","ARANCINI DE FUNGHI","CHEESECAKE DOCE DE LEITE","MELANZANI PARMEGIANA COM MASSA","CROSTINI HAPPY HOUR","ACOMPANHAMENTO POLENTA FRITA","INFORNITO DE DOCE DE LEITE","CHEESECAKE CHOCOLATE","CHEESECAKE PISTACHE","BATATA CHIPS","TORTA DI CAPRI","AMARENA SOUR","PIRARUCU A LAGAREIRO","CHEESECAKE BASCA","BRUSCHETTAS EXECUTIVO","MINI CREPE MUSSARELA","MELANZANI PARMEGIANA","KIR AMARENA","PARMEGIANA CANTUCCI FRANGO","DOBRO DE CARNE 100G","BAMBINI FRANGO MOLHO VERMELHO","CHEESECAKE BASCA EXECUTIVO","DUPLA DE ARANCINI","INFORNITO DE PISTACHE","ACOMPANHAMENTO BATATA FRITA","ACOMPANHAMENTO NUGGETS","ADICIONAL TORRADAS","CROQUETA DE PEPPERONI"],
+  "Grano Oliva": ["CALABRESA G","PARMA I RUCOLA G","KATCHA DE NUTELLA COM MORANGO","MARGHERITA G","DOMENICA G","DIAVOLETA G","CRISPY DI PARMA G","ITALIANA G","MARGHERITA M","CALABRESA P","CALABRESA M","DOMENICA P","DOMENICA M","PARMA I RUCOLA M","CRISPY DI PARMA M","GAMBERI I PANCETTA G","GORGONZOLA SPECIALE G","PESTO G","CARCIOFI G","MARGHERITA P","BIANCA G","CERRADO G","BIANCA P","KATCHA DE PISTACHE","DIAVOLETA M","GORGONZOLA SPECIALE M","GAMBERI I PANCETTA M","PESTO M","FUNGHI I ZUCCHINI G","KATCHA DE DOCE DE LEITE C CASTANHA","DIAVOLETA P","CARCIOFI M","BIANCA M","CARBONARA G","ITALIANA P","PARMA I RUCOLA P","CRISPY DI PARMA P","GAMBERI I PANCETTA P","BURRATA I TAPENADE G","FUNGHI I ZUCCHINI M","ITALIANA M","NOSTRO KATCHA","PESTO P","CERRADO M","GORGONZOLA SPECIALE P","CARCIOFI P","KATCHA DE BANANA COM CANELA","BURRATA I TAPENADE M","BURRATA I TAPENADE P","KATCHA DE NUTELLA COM BANANA","CARBONARA M","GAMBERETTI M","GAMBERETTI G","CERRADO P","GAMBERETTI P","CARBONARA P","FUNGHI I ZUCCHINI P"],
+  "Inforno": ["INFORNO DI MAGNUS","INFORNO BURGER","INFORNO DI DANTE","INFORNO DI SORDI","INFORNO DI RONALD","INFORNO DI POLLO","INFORNINO","INFORNO DI VEGGIE"],
+  "Bar": ["COCA COLA ZERO LATA","AGUA COM GAS","QUARTINO TINTO","CHOPP PILSEN","MATE COM ESPUMA DE GENGIBRE","COCA COLA LATA","TACA DE VINHO HAPPY HOUR","CAFE EXPRESSO","SODA ITALIANA","SUCO DE LARANJA","APEROL SPRITZ","AGUA SEM GAS","APEROL SPRITZ HAPPY HOUR","QUARTINO BRANCO","BRASILEIRINHO CANTUCCI","HEINEKEN LN","2 TACA DE ESPUMANTE HAPPY HOUR","GUARANA ANTARTICA ZERO","CHOPP HAPPY HOUR","CHA MATE SIMPLES","BADEN CRISTAL 600ml","GUARANA ANTARTICA","H2O LIMONETO COM GAS","FITZGERALD","SUCO DE UVA","NEGRONI","TACA ESPUMANTE BRANCO","LIMONCELLO SPRITZ","CAIPIRINHA","SPRITE ORIGINAL","SUPERQUADRA FRESH","BACCIO ROSSO","HEINEKEN 00 ALCOOL LN","TANGERINA SOUR","GIN TONICA HAPPY HOUR","SANGRIA TACA","COZUMEL","TACA ESPUMANTE ROSE","AGUA TONICA","EISENBAHN PILSEN LN","CANTUCCI MULE","CAIPI VODKA","CLERICOT TACA","AGUA TONICA ZERO","SHOT DE LIMAO","GIN TONICA HIBISCUS","BLUE MOON LN","CAIPI SAKE","FANTA GUARANA ZERO","CACHACA DOSE","BACCIO BIANCO","HUGO SPRITZ","WHISKY BLACK LABEL DOSE","AZUMA LIMONADE","EISENBAHN PALE ALE LN","LAGUNITAS IPA LN","GIN DOSE","EISENBAHN IPA LN","CHOPP HEINEKEN","WHISKY JACK DANIELS DOSE","FANTA GUARANA","BADEN GOLDEN 600ml","BADEN AMERICAN IPA 600ML","BADEN WITBIER 600ML"],
+  "Adega": ["CHAKA CARMENERE","POUCA ROUPA TINTO","4 ESTACIONES PREMIUM MALBEC","BODEGA VIEJA CABERNET SAUVIGNON","VULCANICI GARGANECA CHARDONNAY","MALACARA","1913 SPARKLING BRUT","1913 SPARKLING BRUT ROSE","JEAN BOUSQUET CHARDONNAY","ARADON","MONTEIRO TORRES ALENTEJANO","4 ESTACIONES STATE SUMMER TORRONTES","POUCA ROUPA ROSE","FORTE AMBRONE ETICHETTA NERA","TRUFFLE HUNTER LEDA LANGHE","BODEGA VIEJA SAUVIGNON BLANC","TOSO BRUT MILESIMATO DOC","1550 BRAS RESERVA MERLOT","RIPASSO DELLA VALPOLICELLA DOC","VULCANICI ROSATO PUGLIA","MARCELO PELLERITI SIGNATURE","DON ROMAN TINTO","CASA DONOSO BUTTERY CHARDONNAY","CUVEE SIDOINE IGP MEDITERRANE","1550 BRAS RESERVA CHARDONNAY","NUMBERED EDITION SOTO DE ONATI"]
+};
+
+const INSUMOS_IAN = {
+  "Carnes Vermelhas": ["CORACAO DA ALCATRA - BOM BOM","Blend Polpetone","FILE MIGNON 3/4","File Mignon 5 Up","Hamburguer Angus 100G","Hamburguer Angus 160G","Lagarto","T-BONE 600G","MOCOTO","OSSO BOVINO"],
+  "Carnes Brancas": ["Bacon Fatiado","Coxa E Sobrecoxa Frango Desossado","File De Peito De Frango","Guanciale Defumado","Linguica Apimentada","Linguiça Calabresa Reta","Lombo Suino","Peperoni Fatiado","Presunto De Parma Fatiado 80G","MORTADELA CERATTI","PRESUNTO","PEITO DE PERU DEFUMADO","CHESTER","PEITO DE FRANGO [PORCIONADO 180G]","PEITO DE FRANGO [PORCIONADO 130G]"],
+  "Pescados E Frutos Do Mar": ["Camarao S Cabeca 41/50","Salmao","Mexilhão","LOMBO DE PIRARUCU","CAMARAO S CABECA 31/35","CABEÇA DE CAMARAO","PESCADA AMARELA","FILE DE PANGA","CAMARAO DESCASCADO 26/30"],
+  "Hortifruti": ["Hortifruti Semanal","Microverdes"],
+  "Ovos E Laticinios": ["OVOS PASTEURIZADOS","Cream Cheese Bisnaga 1,2Kg","Creme De Leite","Creme De Leite Fresco","Leite Integral","Ovos Brancos","LEITE EM PO","Manteiga"],
+  "Queijos": ["QUEIJO PROVOLONE","Queijo Brie","Queijo Burrata Pote 200G","Queijo Cheddar Fatiado","Queijo Gorgonzola","Queijo Mussarela","Queijo Mussarela Bufala","Queijo Parmesao A","Queijo Parmesao Capa Preta","Queijo Prato Fatiado","Queijo Ricota Fresca","Queijo Vegetal Vegano","Requeijao Culinario Bisnaga","MUSSARELA DE BUFALA BOLA 60G","BURRATA POTE 100G","QUEIJO MASCARPONE"],
+  "Confeitaria": ["ACUCAR MASCAVO","Acucar Refinado","Chantilly","Chocolate Barra Cob Meio Amargo","Chocolate Em Barra Branco","Chocolate Em Po","Creme De Pistache 3Kg","Doce De Leite 4,7 Kg","Goiabada Cremosa","Leite Condensado","Mr Brownie","Nutella 3Kg","DELIPASTE BAUNILHA 1,2 KG","CHOCOLATE AO LEITE BARRA","Cereja Em Calda Amarena Fabbri"],
+  "Secos": ["GELATINA SEM SABOR","ACUCAR DEMERARA","Acucar Cristal 5Kg","Amido De Milho","Arroz Arboreo","Arroz Branco Tipo 1","Batata Palha","Castanha Do Para Quebrada","Farinha De Arroz","Farinha De Mandioca Amarela","Farinha De Rosca 5kg","Farinha De Trigo 00 Pasta Fresca","Farinha De Trigo 00 Faritalia","Farinha Panko","Farinha Semola Rimatinada","Farinha De Trigo","FEIJAO CARIOCA 1KG","Funghi Seco","MACARRAO PENNE 500G","Pimenta Do Reino Moida","Sal Grosso","Sal Refinado","Corante Amarelo","FARINHA DE BETERRABA","MASSA NHOQUE DE BATATA 500G","FARINHA DE TRIGO INTEGRAL","ESPAGUETTE 500G","RIGATONI 500G","FERMENTO LEMADY","CREME BALSAMICO 500ML","MASSA SEM GLUTEN 500G","FARINHA DE AMENDOA","FEIJAO BRANCO","ERVILHA CONGELADA","TORTELLONI RICOTA E ESPINAFRE","BISCOITO CHAMPANHE","FLOCOS DE MILHO","BISCOITO CREAM CRACKER","BATATA CHIPS JUJU"],
+  "Congelados": ["Sorvete Fior Di Latte","Baguete Italiana","Batata Frita Congelada","Frutas Vermelhas Congeladas","Massa Folhada Wellington","Polenta Palito Congelada","MASSA PASTEL 200G"],
+  "Especiarias e Castanhas": ["Curcuma","Amendoa Inteira","Amendoa Laminada","Canela Em Po","Castanha De Caju Xerem","Castanha Do Para Inteira","Fermento Biológico Fresco 500G","Fermento Em Pó","Folha De Louro","Lemon Pepper Tempero","Noz Moscada","Oregano","Paprica Defumada","Paprica Doce","Pimenta Do Reino Em Grão Preta","PISTACHE EM GRÃO","Pimenta Calabresa","CUMARU MANIOCA","PIMENTA ROSA","SEMENTE DE ABOBORA"],
+  "Conservas, Condimentos, Molhos E Oleos": ["Mostarda Escura","ATUM LATA 480G","AZEITE DE DENDE","Aceto Balsamico","Alcaparra Em Conserva","Azeite Extra Virgem 5L","Azeite Oleo Misto 5L","Azeite Trufado","Azeitona Preta Fatiada Sem Caroco","Champignon Em Conserva","Conhaque","Coracao De Alcachofra","Figo Cristalizado","Geleia De Pimenta","Ketchup","LEITE DE COCO","Mel","Frasco De Molho Pimenta 60g","Molho Escuro Demi Glace","Molho Ingles","Molho Shoyu","Mostarda Amarela","Mostarda Ancienne","Mostarda Dijon","OLEO DE ALGODÃO","Oleo De Soja 900 Ml","Pimenta Biquinho","Polpa Di Pomodoro","SALSA TRUFADA 500G","Vinagre","Vinho Branco Seco 5 Lts","Vinho Tinto Cozinha 5 Lts","EXTRATO DE TOMATE","PICLES EM CONSERVA","KETCHUP HEINZ","MOSTARDA AMARELA HEINZ"],
+  "Processados": ["APARA DE SALMAO","Arancini [Porcao C/6]","Arroz Arboreo [Porcao 160G]","Banoffe [Torta C/ 16 Fatias]","Calabresa Fatiada","Camarao Porcionado [100G]","Carpaccio Fatiado [Porcao]","Carpaccio Peca Inteira","Cheesecake [Tort C/ 16 Fatias]","Coracao Alcachofra [Porcao Grano Oliva]","Creme De Abobora","Farofa De Panko","Fettucine [Porcao 100G]","File Mignon Limpo [Sem Aparas]","File Migon Tirinhas [Processado]","Fondua De Parmesao Trufada","Gremolata De Limão Síciliano","Lasanha Bolonhesa","Legumes Primavera / Pesce","Molho Pesto [Processado]","Molho Pomodoro [Processado]","Molho Roti","Parmegiana Berinjela","Parmegiana De Carne","Pescada [Processado]","Polpetone Angus [130G]","Queijo Brie [Em Tiras]","Queijo Brie Empanado [120G]","Queijo Bufala Porcionado [Em Tiras]","Queijo Mussarela [Ralado]","Queijo Parmesao A [Ralado]","Ragout De Cogumelos [Porcao]","Ravioli [Porcao]","Salmao [Porcao 180G]","Sfolia Lorda[Porcao]","Tagliolini [Porcao 100G]","Tartuffi [Porcionado 180G]","Tomate Confitados","Wellington [Individual 150G]","GNOCHI [PORÇÃO 200G]","NUGGETS [110G]","MOLHO BECHAMEL","MOLHO BISQUE","MOLHO 3 MOSTARDAS","MOLHO FUNGHI","LOMBINHO SUINO [PROCESSADO]","SALTIMBOCA [180G]","TIRINHA DE FRANGO [100G]","BOMBOM DE ALCATRA [180G]","TORTELINE DE SALMAO [PORCAO C/ 8]","MOLHO BOLONHESA","RECHEIO DE SALMÃO P/ TORTELINE","PURE DE BATATA [PROCESSADO]","PERA AO VINHO [PORÇÃO 60G]","BOMBOM DA ALCATRA 150G","MASSA FRESCA DE BETERRABA","PIRARUCU [PORÇÃO 180G]","GUANCIALE [PORÇÃO 80G]","BOMBOM DE ALCATRA [100G]","FILE DE PANGA 180G","POLLO CORDON BLEU 180G"],
+  "Processados Grano e Oliva": ["Massa Pizza Bola Grande [Grano Oliva]","Massa Pizza Bola Individual [Grano Oliva]","Massa Pizza Bola Media [Grano Oliva]","MASSA DE PIZZA"],
+  "Alcoolicos - Destilados": ["GIN MERIC","GIN TANQUERAY","Aperol","Bitter Angustura Aromatic","Bitter Gamondi","Whisky Black Label","Cachaca Boazinha","CAMPARI GARRAFA","Gin Yvy Lata 710Ml","Licor 43 700Ml","Licor Contreau","Licor Creme De Cassis","Licor Limoncello","Licor Martini Branco","Licor Martini Rosso","Rum Montilla","Sake Azuma 740Ml","Tequila Jose Cuervo Gold","Tequila Jose Cuervo Silver","Vermouth Gamondi","Vodka Yvi Lata 710Ml","Whisky Red Label","LICOR CEREJA MARASCHINO","LICOR CURACAO TRIPLE SEC","VODKA GARRAFA 1L","CACHAÇA SAGATIBA","VODKA MERIC","MARTINI EXTRA DRY","LICOR STOCK CREME DE CACAU","GIN TANQUERAY TEN","SAN BASILE VERMUTE EXTRA DRY","SAN BASILE VERMUTE ROSSO","SAN BASILE DRY APERITIVO","AMARO AVERNA","WHISKY JIM BEAM BOURBON 1L","TRUFA PARA DRINKS","CINZANO ROSSO","NOILY PRAT EXTRA DRY","RISERVA RUBINO MARTINI","CARPANO ROSSO"],
+  "Alcoolicos - Cervejas": ["600Ml Baden Cristal","600Ml Baden Golden","600Ml Baden Ipa","600Ml Baden Witbier","Cerveja Heineken 00 Alcool Long Neck 330Ml","Cerveja Stella Artois Ln 330Ml","Cerveja Stella Artois S/ Gluten Ln 330Ml","Chopp Pilsen","Chopp Heineken","Long Neck Blue Moon","Long Neck Eisenbahn Ipa","Long Neck Eisenbahn Pale Ale","Long Neck Eisenbahn Pilsen","Long Neck Lagunitas Ipa","CERVEJA PRAYA LN 330ML","CERVEJA PRAYA SEM GLÚTEN LN 330ML"],
+  "Espumantes": ["VINHO ESPUMANTE PRO SECO BRUT","Espumante 1913 Brut Rose","Espumante 1913 Brut Branco","Espumante Almaden Brut Branco","Espumante Chandon","Espumante Garibaldi Vero Brut Branco","Espumante Garibaldi Vero Brut Rose","ESPUMANTE BELVINO BRANCO BRUT","ESPUMANTE 1550 BRAS BRUT CHAMPENOISE","ESPUMANTE ALMADEN MOSCATEL ROSE"],
+  "Vinhos Tintos": ["4 Estaciones Premium ICON Malbec","Pelleriti Reserve Malbec Signature","Catena - Malbec","Angelica Zapata Cabernet Sauvignon","Aradon Rioja Tinto","CHIANTI MONTALBANO DOCG RISALTO","Bellavista Cabernet Sauvignon","V TINTO ROSSO TOSCANA IMPAZZIMENTO","V TINTO POUCA ROUPA ALENTEJO","V TINTO FORTE AMBRONE ETICHETTA NERA","V TINTO STEMMARI NERO DAVOLA DOC SICILIA","V TINTO DON ROMAN RIOJA","V TINTO RE MINOR COSECHA","V TINTO TRUFFLE HUNTER LEDA LANGHE ROSSO","V TINTO RIPASSO DELLA VALPOLICELLA","V TINTO OLARIA BAG IN BOX","V TINTO MONSARAZ DOC ALENTEJO","V TINTO COTES DU RHONE URBAN","Malacara - Malbec","V TINTO NORTON SELECT PINOT NOIR","V TINTO ROSSO TOSCANA GOVERNATO","V TINTO FRANC PAVILLON LA TOURELLE","V TINTO LE PETIT MAYNE PINOT NOIR","V TINTO CHATEAU LA TOURELLE MEDOC","V TINTO LUNA BENEGAS CABERNET SAUVIGNON"],
+  "Vinhos Brancos": ["Cuvee Sidoine Igp Mediterrane Branco","Festivo Torrontes","V Bellavista Chardonnay","V BRANCO TREBBIANO TOSCANA","V BRANCO STATE SUMMER 4 ESTACIONES TORRONTES","VULCANICI CHARDONNAY VENETO IGT","V BRANCO ORVIETO DOC SENSI","V BRANCO COLLEZIONE PINOT GRIGIO","V BRANCO VERNACCIA SAN GIMIGNANO DOCG","V BRANCO OLARIA BAG IN BOX","V BRANCO MONTEIRO TORRES REGIONAL ALENTEJANO","VINHO VIN SANTO PARA DRINKS"],
+  "Vinhos Rose": ["V ROSE POUCA ROUPA ALENTEJO","VINHO ROSE CASAL DA SEARA","V ROSE SANTO DEL CHIANTI DOC SENSI"],
+  "Bebidas Nao Alcoolicas": ["Coca Cola Original 310Ml","Coca Cola Ks Zero","Refrigerante Fanta Guarana","Refrigerante Fanta Guarana Zero","Refrigerante Guaraná Antartica","Refrigerante Schweppes Citrus","Refrigerante Sprite Lemon 510Ml","Refrigerante Sprite Original Lata 310Ml","Suco Uva Integral","Xarope Drink Cranberry","Xarope Drink Limao Siciliano","Xarope Drink Maca Verde","Xarope Drink Morango","Xarope Drink Tangerina","Agua com Gas Soda 1,5L","Capsula Cafe Espresso","XAROPE DRINK AMARENA","GELO EM CUBOS","REFRIGERANTE 2L","POLPA DE YUZU MONIN","SUCO DE LARANJA NATURAL","SCHWEPPES CLUB SODA LATA 350 ML","XAROPE FLOR DE SABUGUERO","ERVA MATE","Capsula Pra Chantilly","Emulsificante Balde"],
+  "Embalagens": ["Caixa Para Pizza Grande","Caixa Para Pizza Individual","Caixa Para Pizza Media","Embalagem Cantucci Delivery 800Ml","Embalagem Cantucci Delivery 1500Ml","Embalagem Cx Sedex 22X15X6 Grano / Inforno","Pote Molho C/ Tampa 30Ml","Sacola Kraft G","Sacola Kraft Gg","Sacola Kraft M","Sacola Para Vinho","EMBALAGEM DE ALUMINIO 7LT","DIVISÓRIA DE EMBALAGEM GRANDE"],
+  "Material De Limpeza": ["Sanitizante Hortifruti","Detergente Neutro 5Lt","Agua Sanitaria 5 Litros","Alcool 70","Desinfetante","Desodorizador Sanitario","Detergente 500Ml","Desincrustante 5L","Detergente De Maquina","Esponja Dupla Face Amarela","Esponja Fibraco","Luva De Boracha Amarela Par G","Pano Multiuso Perfex","Sabonete Liquido Clientes","Sabonete Liquido Funcionarios","Saco De Lixo 100Lts","Secante Maquina De Lavar","VASSOURA","MERCOTHEC DETERGENTE ALCALINO 5L","PEDRA SANITÁRIA","GRILL DILUIVEL 5L","MERCOTHEC OXY BLUE","MERCOTHEC DESINFETANTE FRESH","RODO PLASTICO","DETERGENTE LIMPA FACIL NEUTRO PLUS","Limpa Coifa Chapex","Pano Alvejado","INSETICIDA"],
+  "Descartaveis": ["Canudo Comum","Guardanapo Para Mesa 23/24Cm","GUARDANAPO PERSONALIZADO PARA MESA 40/40CM","COPO DESCARTAVEL 300ML","PALITO DE BAMBU PARA DRINK","MEXEDOR DE CAFÉ PCT C/ 500","Papel P/ Hamburguer Inforno"]
+};
+
+function renderRupturasCascade() {
+  rupturasTags = {};
+  const pdvOpts = Object.keys(PDV_IAN).map(k => `<option value="${k}">${k}</option>`).join("");
+  const insOpts = Object.keys(INSUMOS_IAN).map(k => `<option value="${k}">${k}</option>`).join("");
+  document.getElementById("rupturas-section").innerHTML = `
+    <div class="form-card" style="padding:12px 14px;margin-bottom:10px;">
+      <div class="ruptura-label" style="font-weight:700;margin-bottom:8px;">Ruptura de Produto</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <select id="rc-cat-pdv" onchange="onRupturaCatChange('pdv')" style="flex:1">
+          <option value="">— categoria —</option>
+          ${pdvOpts}
+        </select>
+        <div class="ruptura-search-wrap">
+          <input type="text" id="rc-search-pdv" placeholder="— produto —" disabled autocomplete="off"
+            oninput="filterRupturaProds('pdv',this.value)"
+            onfocus="filterRupturaProds('pdv',this.value)">
+          <div id="rc-dropdown-pdv" class="ruptura-dropdown"></div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-secondary" style="padding:8px;margin-bottom:12px;" onclick="addRupturaFromCascade('pdv')">+ Adicionar</button>
+      <div id="rc-tags-pdv"></div>
+    </div>
+    <div class="form-card" style="padding:12px 14px;">
+      <div class="ruptura-label" style="font-weight:700;margin-bottom:8px;">Ruptura de Insumo</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <select id="rc-cat-ins" onchange="onRupturaCatChange('ins')" style="flex:1">
+          <option value="">— categoria —</option>
+          ${insOpts}
+        </select>
+        <div class="ruptura-search-wrap">
+          <input type="text" id="rc-search-ins" placeholder="— produto —" disabled autocomplete="off"
+            oninput="filterRupturaProds('ins',this.value)"
+            onfocus="filterRupturaProds('ins',this.value)">
+          <div id="rc-dropdown-ins" class="ruptura-dropdown"></div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-secondary" style="padding:8px;margin-bottom:12px;" onclick="addRupturaFromCascade('ins')">+ Adicionar</button>
+      <div id="rc-tags-ins"></div>
+    </div>`;
+}
+
+function onRupturaCatChange(type) {
+  const cat = document.getElementById(`rc-cat-${type}`).value;
+  const inp = document.getElementById(`rc-search-${type}`);
+  const dd = document.getElementById(`rc-dropdown-${type}`);
+  inp.value = ""; inp.dataset.selected = ""; dd.style.display = "none";
+  if (!cat) { inp.disabled = true; return; }
+  inp.disabled = false;
+  inp.focus();
+  filterRupturaProds(type, "");
+  resetConfirmBtn();
+}
+
+function filterRupturaProds(type, query) {
+  const cat = document.getElementById(`rc-cat-${type}`).value;
+  if (!cat) return;
+  const prods = type === "pdv" ? PDV_IAN[cat] : INSUMOS_IAN[cat];
+  const q = query.toLowerCase();
+  const filtered = q ? prods.filter(p => p.toLowerCase().includes(q)) : prods;
+  const dd = document.getElementById(`rc-dropdown-${type}`);
+  if (!filtered.length) { dd.innerHTML = ""; dd.style.display = "none"; return; }
+  dd.innerHTML = filtered.map(p =>
+    `<div class="ruptura-dropdown-item" onmousedown="selectRupturaProd('${type}','${p.replace(/'/g, "&#39;")}')">${p}</div>`
+  ).join("");
+  dd.style.display = "block";
+}
+
+function selectRupturaProd(type, prod) {
+  const inp = document.getElementById(`rc-search-${type}`);
+  inp.value = prod; inp.dataset.selected = prod;
+  document.getElementById(`rc-dropdown-${type}`).style.display = "none";
+}
+
+function addRupturaFromCascade(type) {
+  const catVal = document.getElementById(`rc-cat-${type}`).value;
+  const inp = document.getElementById(`rc-search-${type}`);
+  const prodVal = inp.dataset.selected || "";
+  if (!catVal || !prodVal) return;
+  if (!rupturasTags[catVal]) rupturasTags[catVal] = [];
+  if (!rupturasTags[catVal].includes(prodVal)) {
+    rupturasTags[catVal].push(prodVal);
+    renderRupturaTagsCascade(type);
+    resetConfirmBtn();
+  }
+  inp.value = ""; inp.dataset.selected = "";
+  document.getElementById(`rc-dropdown-${type}`).style.display = "none";
+}
+
+function renderRupturaTagsCascade(type) {
+  const types = type ? [type] : ["pdv", "ins"];
+  types.forEach(t => {
+    const el = document.getElementById(`rc-tags-${t}`);
+    if (!el) return;
+    const source = t === "pdv" ? PDV_IAN : INSUMOS_IAN;
+    const campos = Object.keys(source).filter(k => (rupturasTags[k]||[]).length > 0);
+    el.innerHTML = campos.map(campo => `
+      <div style="margin-bottom:8px;">
+        <div class="ruptura-label" style="margin-bottom:4px;">${campo}</div>
+        <div class="ruptura-tags">${(rupturasTags[campo]||[]).map((tag, i) =>
+          `<span class="ruptura-tag">${tag}<button type="button" onclick="removeRupturaTagCascade(this)" data-campo="${campo}" data-idx="${i}">×</button></span>`
+        ).join("")}</div>
+      </div>`).join("") || "";
+  });
+}
+
+function removeRupturaTagCascade(btn) {
+  const campo = btn.dataset.campo;
+  const idx = parseInt(btn.dataset.idx);
+  if (rupturasTags[campo]) {
+    rupturasTags[campo].splice(idx, 1);
+    if (!rupturasTags[campo].length) delete rupturasTags[campo];
+  }
+  renderRupturaTagsCascade();
+  resetConfirmBtn();
+}
+
 // ─── ESTADO ────────────────────────────────────────────────────────────────
 let currentUnit = null;
 let currentTurno = "Dia";
@@ -746,6 +911,45 @@ let rupturasTags = {};  // { "Bar": ["produto1",...], ... }
 try { history = JSON.parse(localStorage.getItem("qo_history") || "[]"); } catch(e) {}
 try { freelaMonthly = JSON.parse(localStorage.getItem("qo_freela_monthly") || "{}"); } catch(e) {}
 
+// ─── FIREBASE ──────────────────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey: "AIzaSyB_EOO59ePTfIchITlXCMaNOUPGMy7P2j0",
+  authDomain: "quadro-cantucci.firebaseapp.com",
+  projectId: "quadro-cantucci",
+  storageBucket: "quadro-cantucci.firebasestorage.app",
+  messagingSenderId: "515265193107",
+  appId: "1:515265193107:web:50ad97157c3ee299f15966"
+});
+const db = firebase.firestore();
+
+function calcFreelaMonthly(hist) {
+  const m = {};
+  hist.forEach(q => {
+    if (q.freelas > 0 && q.data) {
+      const k = q.data.slice(0, 7);
+      m[k] = (m[k] || 0) + q.freelas;
+    }
+  });
+  return m;
+}
+
+async function loadFromFirestore() {
+  try {
+    const snap = await db.collection("quadros").orderBy("saved_at", "asc").get();
+    if (!snap.empty) {
+      history = snap.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+      freelaMonthly = calcFreelaMonthly(history);
+      try { localStorage.setItem("qo_history", JSON.stringify(history)); } catch(e) {}
+      try { localStorage.setItem("qo_freela_monthly", JSON.stringify(freelaMonthly)); } catch(e) {}
+      renderUnitList();
+      renderHistory();
+      renderFreelaStats();
+    }
+  } catch(e) {
+    console.warn("Firestore indisponível, usando dados locais:", e.message);
+  }
+}
+
 // ─── GRÁFICOS ──────────────────────────────────────────────────────────────
 const INT_ORDER = ["Fraquíssima","Fraca","Média","Forte","Fortíssima"];
 
@@ -753,87 +957,164 @@ const INT_ORDER = ["Fraquíssima","Fraca","Média","Forte","Fortíssima"];
 const ESCALA_MIN_DIA = { 0:"Forte", 1:"Fraca", 2:"Fraca", 3:"Média", 4:"Média", 5:"Forte", 6:"Fortíssima" };
 
 let _charts = {};
+let dashPeriodStart = null, dashPeriodEnd = null;
+
+function populateDashMonths() {
+  const sel = document.getElementById('dash-sel-month');
+  if (sel.options.length > 1) return;
+  const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  // Mai/2026 → Dez/2026
+  for (let mo = 11; mo >= 4; mo--) {
+    const opt = document.createElement('option');
+    opt.value = `2026-${String(mo+1).padStart(2,'0')}`;
+    opt.textContent = `${MESES[mo]} 2026`;
+    sel.appendChild(opt);
+  }
+}
+
+function getWeeksOfMonth(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  const first = new Date(y, m-1, 1), last = new Date(y, m, 0);
+  const weeks = [], fmt = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+  const cur = new Date(first); const dow = cur.getDay(); cur.setDate(cur.getDate() - (dow===0?6:dow-1));
+  while (cur <= last) {
+    const s = new Date(cur), e = new Date(cur); e.setDate(cur.getDate()+6);
+    weeks.push({ start: s.toISOString().slice(0,10), end: e.toISOString().slice(0,10), label: `${fmt(s)} – ${fmt(e)}` });
+    cur.setDate(cur.getDate()+7);
+  }
+  return weeks;
+}
+
+function filterByPeriod(data) {
+  if (!dashPeriodStart) return data;
+  const s = new Date(dashPeriodStart+'T00:00:00'), e = new Date(dashPeriodEnd+'T23:59:59');
+  return data.filter(q => { if (!q.data) return false; const d = new Date(q.data+'T12:00:00'); return d>=s && d<=e; });
+}
+
+function setDashAll(btn) {
+  dashPeriodStart = dashPeriodEnd = null;
+  document.getElementById('dash-sel-month').value = '';
+  const ws = document.getElementById('dash-sel-week'); ws.innerHTML = '<option value="">Semana...</option>'; ws.disabled = true;
+  document.querySelectorAll('[onclick^="setDashAll"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyDashFilters();
+}
+
+function onDashMonthChange(sel) {
+  document.querySelectorAll('[onclick^="setDashAll"]').forEach(b => b.classList.remove('active'));
+  const ym = sel.value, ws = document.getElementById('dash-sel-week');
+  ws.innerHTML = '<option value="">Todas as semanas</option>';
+  if (!ym) { dashPeriodStart = dashPeriodEnd = null; ws.disabled = true; applyDashFilters(); return; }
+  const [y,mo] = ym.split('-').map(Number);
+  dashPeriodStart = `${ym}-01`; dashPeriodEnd = new Date(y,mo,0).toISOString().slice(0,10);
+  getWeeksOfMonth(ym).forEach(w => { const o = document.createElement('option'); o.value = JSON.stringify(w); o.textContent = w.label; ws.appendChild(o); });
+  ws.disabled = false;
+  applyDashFilters();
+}
+
+function onDashWeekChange(sel) {
+  if (!sel.value) { onDashMonthChange(document.getElementById('dash-sel-month')); return; }
+  const w = JSON.parse(sel.value);
+  dashPeriodStart = w.start; dashPeriodEnd = w.end;
+  applyDashFilters();
+}
+
+let _dashFiltered = [];
+function applyDashFilters() {
+  populateDashMonths();
+  const u = document.getElementById('dash-filter-unit').value;
+  const base = u ? history.filter(q => q.unidade === u) : history;
+  _dashFiltered = filterByPeriod(base);
+  renderDashboard(_dashFiltered);
+  setTimeout(() => renderCharts(_dashFiltered), 100);
+}
 
 function destroyCharts() {
-  ['chart-freelas','chart-vazios','chart-escala-min','chart-rupturas'].forEach(id => {
+  ['chart-freelas','chart-vazios','chart-escala-min'].forEach(id => {
     try { Chart.getChart(document.getElementById(id))?.destroy(); } catch(e){}
   });
   Object.values(_charts).forEach(c => { try { c.destroy(); } catch(e){} });
   _charts = {};
+  const pc = document.getElementById('dash-ruptura-pies'); if (pc) pc.innerHTML = '';
 }
 
 function renderCharts(data) {
   destroyCharts();
   const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const fmtMes = m => { const [y,mo] = m.split('-'); return MESES[parseInt(mo)-1]+'/'+y.slice(2); };
+  const DIAS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const isWeek = dashPeriodStart && dashPeriodEnd && (new Date(dashPeriodEnd)-new Date(dashPeriodStart)) <= 7*864e5;
+  const fmtMes = k => { const [y,mo]=k.split('-'); return MESES[+mo-1]+'/'+y.slice(2); };
+  const fmtDay = k => { const d=new Date(k+'T12:00:00'); return DIAS[d.getDay()]+' '+k.slice(8)+'/'+k.slice(5,7); };
+  const barOpts = { responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}} };
 
-  // 1. Freelas por mês
-  const freelasByMonth = {};
-  data.forEach(q => {
-    if (!q.data) return;
-    const m = q.data.slice(0,7);
-    freelasByMonth[m] = (freelasByMonth[m]||0) + (q.freelas||0);
-  });
-  const fMonths = Object.keys(freelasByMonth).sort();
-  _charts.freelas = new Chart(document.getElementById('chart-freelas'), {
-    type: 'bar',
-    data: { labels: fMonths.map(fmtMes), datasets: [{ label: 'Freelas', data: fMonths.map(m=>freelasByMonth[m]), backgroundColor: '#185fa5', borderRadius: 6 }] },
-    options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true, ticks:{stepSize:1} } } }
-  });
-
-  // 2. Posições vazias por mês
-  const vaziosByMonth = {};
-  data.forEach(q => {
-    if (!q.data) return;
-    const m = q.data.slice(0,7);
-    const v = (q.salao||[]).filter(r=>!r.nome||r.nome==='—').length + (q.cozinha||[]).filter(r=>!r.nome||r.nome==='—').length;
-    vaziosByMonth[m] = (vaziosByMonth[m]||0) + v;
-  });
-  const vMonths = Object.keys(vaziosByMonth).sort();
-  _charts.vazios = new Chart(document.getElementById('chart-vazios'), {
-    type: 'bar',
-    data: { labels: vMonths.map(fmtMes), datasets: [{ label: 'Vazios', data: vMonths.map(m=>vaziosByMonth[m]), backgroundColor: '#e0874a', borderRadius: 6 }] },
-    options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true, ticks:{stepSize:1} } } }
-  });
-
-  // 3. Escala abaixo do mínimo por dia da semana
-  const diasNome = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  const abaixoMin = [0,0,0,0,0,0,0], totalDia = [0,0,0,0,0,0,0];
-  data.forEach(q => {
-    if (!q.data || !q.intensidade) return;
-    const dow = new Date(q.data+'T12:00:00').getDay();
-    const min = ESCALA_MIN_DIA[dow];
-    totalDia[dow]++;
-    if (INT_ORDER.indexOf(q.intensidade) < INT_ORDER.indexOf(min)) abaixoMin[dow]++;
-  });
-  _charts.escalaMin = new Chart(document.getElementById('chart-escala-min'), {
-    type: 'bar',
-    data: { labels: diasNome, datasets: [
-      { label: 'Abaixo do mín.', data: abaixoMin, backgroundColor: '#a32d2d', borderRadius: 4 },
-      { label: 'Total quadros',  data: totalDia,  backgroundColor: '#e8e6e0', borderRadius: 4 }
-    ]},
-    options: { responsive:true, plugins:{ legend:{ display:true, labels:{ boxWidth:12, font:{size:10} } } }, scales:{ y:{ beginAtZero:true, ticks:{stepSize:1} } } }
-  });
-
-  // 4. Rupturas por insumo (pizza)
-  const ruptCount = {};
-  data.forEach(q => {
-    const r = q.rupturas || {};
-    Object.values(r).forEach(arr => (arr||[]).forEach(item => { if(item) ruptCount[item] = (ruptCount[item]||0)+1; }));
-  });
-  const ruptEntries = Object.entries(ruptCount).sort((a,b)=>b[1]-a[1]).slice(0,12);
-  const PIE_COLORS = ['#a32d2d','#e0874a','#185fa5','#1D9E75','#854f0b','#6c3483','#117a65','#b7950b','#c0392b','#2471a3','#1e8449','#7d6608'];
-  const emptyEl = document.getElementById('chart-rupturas-empty');
-  if (ruptEntries.length) {
-    emptyEl.style.display = 'none';
-    _charts.rupturas = new Chart(document.getElementById('chart-rupturas'), {
-      type: 'doughnut',
-      data: { labels: ruptEntries.map(e=>e[0]), datasets: [{ data: ruptEntries.map(e=>e[1]), backgroundColor: PIE_COLORS, borderWidth: 2 }] },
-      options: { responsive:true, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, font:{size:11} } } } }
-    });
-  } else {
-    emptyEl.style.display = 'block';
+  function timeKeys(map) {
+    if (isWeek) {
+      const s = new Date(dashPeriodStart+'T00:00:00');
+      return Array.from({length:7},(_,i)=>{ const d=new Date(s); d.setDate(s.getDate()+i); return d.toISOString().slice(0,10); });
+    }
+    return Object.keys(map).sort();
   }
+
+  // 1. Freelas
+  const fMap={};
+  data.forEach(q=>{ if(!q.data)return; const k=isWeek?q.data:q.data.slice(0,7); fMap[k]=(fMap[k]||0)+(q.freelas||0); });
+  const fKeys=timeKeys(fMap);
+  _charts.freelas=new Chart(document.getElementById('chart-freelas'),{ type:'bar', data:{labels:fKeys.map(isWeek?fmtDay:fmtMes),datasets:[{data:fKeys.map(k=>fMap[k]||0),backgroundColor:'#185fa5',borderRadius:4}]}, options:barOpts });
+
+  // 2. Vazios
+  const vMap={};
+  data.forEach(q=>{ if(!q.data)return; const k=isWeek?q.data:q.data.slice(0,7); const v=(q.salao||[]).filter(r=>!r.nome||r.nome==='—').length+(q.cozinha||[]).filter(r=>!r.nome||r.nome==='—').length; vMap[k]=(vMap[k]||0)+v; });
+  const vKeys=timeKeys(vMap);
+  _charts.vazios=new Chart(document.getElementById('chart-vazios'),{ type:'bar', data:{labels:vKeys.map(isWeek?fmtDay:fmtMes),datasets:[{data:vKeys.map(k=>vMap[k]||0),backgroundColor:'#e0874a',borderRadius:4}]}, options:barOpts });
+
+  // 3. Escala por dia
+  const abaixo=[0,0,0,0,0,0,0],total=[0,0,0,0,0,0,0];
+  data.forEach(q=>{ if(!q.data||!q.intensidade)return; const dow=new Date(q.data+'T12:00:00').getDay(); total[dow]++; if(INT_ORDER.indexOf(q.intensidade)<INT_ORDER.indexOf(ESCALA_MIN_DIA[dow]))abaixo[dow]++; });
+  _charts.escala=new Chart(document.getElementById('chart-escala-min'),{ type:'bar', data:{labels:DIAS,datasets:[{label:'Abaixo',data:abaixo,backgroundColor:'#a32d2d',borderRadius:4},{label:'Total',data:total,backgroundColor:'#e8e6e0',borderRadius:4}]}, options:{responsive:true,plugins:{legend:{display:true,labels:{boxWidth:10,font:{size:10}}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}} });
+
+  // 4. Donut por categoria de ruptura (tema escuro)
+  const COLORS=['#e05c5c','#e0874a','#4a9fe0','#1D9E75','#b07d3a','#9b59b6','#1abc9c','#f1c40f','#e74c3c','#3498db','#2ecc71','#e67e22','#1abc9c','#8e44ad','#16a085','#d35400'];
+  const byCat={};
+  data.forEach(q=>{ Object.entries(q.rupturas||{}).forEach(([cat,arr])=>{ if(!(arr||[]).length)return; if(!byCat[cat])byCat[cat]={}; arr.forEach(item=>{ if(item)byCat[cat][item]=(byCat[cat][item]||0)+1; }); }); });
+  const pc=document.getElementById('dash-ruptura-pies');
+  const dlBtn=document.getElementById('btn-download-rupturas');
+  if(!Object.keys(byCat).length){
+    pc.innerHTML='<div class="empty" style="padding:16px 0;">Nenhuma ruptura no período.</div>';
+    if(dlBtn) dlBtn.style.display='none'; return;
+  }
+  if(dlBtn) dlBtn.style.display='block';
+  Object.entries(byCat).forEach(([cat,items],i)=>{
+    const entries=Object.entries(items).sort((a,b)=>b[1]-a[1]);
+    const total=entries.reduce((s,e)=>s+e[1],0);
+    const id='pie_'+cat.replace(/[^a-z0-9]/gi,'_');
+    const legendHTML=entries.map((e,j)=>`<div class="dash-rup-legend-item"><div class="dash-rup-legend-dot" style="background:${COLORS[j%COLORS.length]}"></div><div class="dash-rup-legend-name" title="${e[0]}">${e[0]}</div><div class="dash-rup-legend-pct">${((e[1]/total)*100).toFixed(1)}%</div></div>`).join('');
+    const card=document.createElement('div'); card.className='dash-chart-card dark';
+    card.innerHTML=`<div class="dash-chart-title">🚨 ${cat}</div><canvas id="${id}" height="200"></canvas><div class="dash-rup-legend">${legendHTML}</div>`;
+    pc.appendChild(card);
+    requestAnimationFrame(()=>{
+      _charts['p'+i]=new Chart(document.getElementById(id),{type:'doughnut',data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:COLORS.slice(0,entries.length),borderWidth:0,hoverOffset:6}]},options:{responsive:true,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${((ctx.parsed/total)*100).toFixed(1)}%`}}}}});
+    });
+  });
+}
+
+function downloadRupturasCSV() {
+  const rows=[['Data','Unidade','Categoria','Ruptura','%']];
+  _dashFiltered.forEach(q=>{
+    Object.entries(q.rupturas||{}).forEach(([cat,arr])=>{
+      if(!(arr||[]).length)return;
+      const total=arr.length;
+      const count={};
+      arr.forEach(item=>{ if(item) count[item]=(count[item]||0)+1; });
+      Object.entries(count).forEach(([item,n])=>{
+        rows.push([q.data||'',q.unidade||'',cat,item,((n/total)*100).toFixed(1)+'%']);
+      });
+    });
+  });
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
+  a.download=`rupturas_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
 }
 
 // ─── ACESSO AO DASHBOARD ───────────────────────────────────────────────────
@@ -855,8 +1136,7 @@ function checkDashPin() {
   if (val === DASH_SENHA) {
     closeDashPin();
     showScreen("dashboard");
-    renderDashboard();
-    setTimeout(() => renderCharts(history), 250);
+    applyDashFilters();
   } else {
     document.getElementById("dash-pin-error").style.display = "block";
     document.getElementById("dash-pin-input").value = "";
@@ -1019,9 +1299,6 @@ function getPosicoes(setor) {
 }
 
 function renderPosicoes() {
-  const colaboradores = (COLABORADORES[currentUnit] || []).slice().sort((a, b) => a.localeCompare(b, "pt-BR"));
-  const opcoesHTML = colaboradores.map(c => `<option value="${c}">${c}</option>`).join("");
-
   ["salao","cozinha"].forEach(setor => {
     const posicoes = getPosicoes(setor);
     const el = document.getElementById("posicoes-" + setor);
@@ -1033,15 +1310,38 @@ function renderPosicoes() {
       `<div class="pos-row">
         <span class="pos-num">${i+1}</span>
         <span class="pos-label">${p}</span>
-        <select class="pos-input" id="pos-${setor}-${i}" onchange="onSelectChange(this)">
-          <option value="">— vazio —</option>
-          <option value="__freela__">★ Freela</option>
-          ${opcoesHTML}
-        </select>
+        <div class="pos-input ruptura-search-wrap">
+          <input type="text" id="pos-${setor}-${i}" placeholder="— vazio —" autocomplete="off"
+            oninput="filterColab('${setor}',${i},this.value)"
+            onfocus="filterColab('${setor}',${i},this.value)">
+          <div id="pos-dd-${setor}-${i}" class="ruptura-dropdown"></div>
+        </div>
       </div>`
     ).join("");
   });
   updateFreelaCounter();
+}
+
+function filterColab(setor, idx, query) {
+  const colaboradores = (COLABORADORES[currentUnit] || []).slice().sort((a,b) => a.localeCompare(b,'pt-BR'));
+  const q = query.toLowerCase();
+  const all = [{val:'__freela__',label:'★ Freela'}, ...colaboradores.map(c => ({val:c,label:c}))];
+  const filtered = q ? all.filter(c => c.label.toLowerCase().includes(q)) : all;
+  const dd = document.getElementById(`pos-dd-${setor}-${idx}`);
+  dd.innerHTML = filtered.map(c =>
+    `<div class="ruptura-dropdown-item" onmousedown="selectColab('${setor}',${idx},'${c.val.replace(/'/g,"&#39;")}','${c.label.replace(/'/g,"&#39;")}')">${c.label}</div>`
+  ).join('');
+  dd.style.display = filtered.length ? 'block' : 'none';
+}
+
+function selectColab(setor, idx, val, label) {
+  const inp = document.getElementById(`pos-${setor}-${idx}`);
+  inp.dataset.selected = val;
+  inp.value = label;
+  inp.classList.toggle('freela-on', val === '__freela__');
+  document.getElementById(`pos-dd-${setor}-${idx}`).style.display = 'none';
+  updateFreelaCounter();
+  resetConfirmBtn();
 }
 
 // ─── RUPTURAS ──────────────────────────────────────────────────────────────
@@ -1051,6 +1351,7 @@ function getRupturasProdutos(campo) {
 }
 
 function renderRupturas() {
+  if (UNIDADES_CASCADE.has(currentUnit)) { renderRupturasCascade(); return; }
   const campos = RUPTURAS_CONFIG[currentUnit] || ["Produção","Insumo"];
   rupturasTags = {};
   campos.forEach(c => { rupturasTags[c] = []; });
@@ -1104,6 +1405,7 @@ function renderRupturaTags(campo) {
 }
 
 function getRupturasData() {
+  if (UNIDADES_CASCADE.has(currentUnit)) return { ...rupturasTags };
   const campos = RUPTURAS_CONFIG[currentUnit] || ["Produção","Insumo"];
   const result = {};
   campos.forEach(campo => {
@@ -1122,16 +1424,10 @@ function countTotalRupturas(rupturasObj) {
   return Object.values(rupturasObj || {}).reduce((sum, arr) => sum + (arr||[]).length, 0);
 }
 
-function onSelectChange(el) {
-  el.classList.toggle("freela-on", el.value === "__freela__");
-  updateFreelaCounter();
-  resetConfirmBtn();
-}
-
 function countFreelaInForm() {
   let count = 0;
-  document.querySelectorAll("#posicoes-salao select, #posicoes-cozinha select").forEach(sel => {
-    if (sel.value === "__freela__") count++;
+  document.querySelectorAll("#posicoes-salao input[id^='pos-'], #posicoes-cozinha input[id^='pos-']").forEach(inp => {
+    if (inp.dataset.selected === "__freela__") count++;
   });
   return count;
 }
@@ -1151,7 +1447,7 @@ function updateFreelaCounter() {
 function getEscalacao(setor) {
   return getPosicoes(setor).map((p, i) => {
     const el = document.getElementById(`pos-${setor}-${i}`);
-    const val = el ? el.value : "";
+    const val = el ? (el.dataset.selected || "") : "";
     return { cargo: p, nome: val === "__freela__" ? "Freela ★" : val };
   });
 }
@@ -1172,11 +1468,11 @@ function saveQuadro(confirmed) {
   // Vazio = valor "" (Freela conta como preenchido)
   const vaziosSalao = posicoesSalao.filter((p, i) => {
     const el = document.getElementById(`pos-salao-${i}`);
-    return !el || !el.value;
+    return !el || !(el.dataset.selected || "");
   });
   const vaziosCozinha = posicoesCozinha.filter((p, i) => {
     const el = document.getElementById(`pos-cozinha-${i}`);
-    return !el || !el.value;
+    return !el || !(el.dataset.selected || "");
   });
   const totalVazios = vaziosSalao.length + vaziosCozinha.length;
   const totalPos = posicoesSalao.length + posicoesCozinha.length;
@@ -1247,6 +1543,10 @@ function saveQuadro(confirmed) {
     freelaMonthly[mesKey] = (freelaMonthly[mesKey] || 0) + freelasCount;
     try { localStorage.setItem("qo_freela_monthly", JSON.stringify(freelaMonthly)); } catch(e) {}
   }
+
+  // Salva no Firestore (sem o campo _id local)
+  const { _id, ...qFirestore } = q;
+  db.collection("quadros").add(qFirestore).catch(e => console.warn("Erro Firestore:", e.message));
 
   currentViewIdx = history.length - 1;
   viewQuadro(currentViewIdx);
@@ -1538,21 +1838,17 @@ function resetConfirmBtn() {
 }
 
 // ─── DASHBOARD ─────────────────────────────────────────────────────────────
-function renderDashboard() {
+function renderDashboard(filteredData) {
   const filterUnit = document.getElementById("dash-filter-unit").value;
 
   // Populate unit filter options (once)
   const filterEl = document.getElementById("dash-filter-unit");
   const units = [...new Set(history.map(q => q.unidade))].sort();
   if (filterEl.options.length <= 1) {
-    units.forEach(u => {
-      const opt = document.createElement("option");
-      opt.value = u; opt.textContent = u;
-      filterEl.appendChild(opt);
-    });
+    units.forEach(u => { const opt = document.createElement("option"); opt.value = u; opt.textContent = u; filterEl.appendChild(opt); });
   }
 
-  const data = filterUnit ? history.filter(q => q.unidade === filterUnit) : history;
+  const data = filteredData !== undefined ? filteredData : filterByPeriod(filterUnit ? history.filter(q => q.unidade === filterUnit) : history);
 
   // KPIs
   const totalAlerta = data.filter(q => q.alerta_escala || q.alerta_rupturas).length;
@@ -1598,6 +1894,8 @@ function renderDashboard() {
 renderUnitList();
 renderHistory();
 renderFreelaStats();
+loadFromFirestore();
+if (location.hash === '#dashboard') openDashboard();
 </script>
 </body>
 </html>
