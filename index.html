@@ -321,15 +321,16 @@
     <button class="turno-tab" onclick="selectTurno('Dia/Noite', this)">Dia/Noite</button>
   </div>
 
-  <div class="section-title">Intensidade do turno</div>
-  <div class="int-buttons" id="int-buttons"></div>
-
   <div id="escala-section">
-    <div class="section-title">Escalação — Salão</div>
+    <div class="section-title">Intensidade — Salão</div>
+    <div class="int-buttons" id="int-buttons-salao"></div>
+    <div class="section-title" style="margin-top:12px;">Escalação — Salão</div>
     <div id="posicoes-salao"><div class="empty">Selecione a intensidade acima.</div></div>
     <div id="extras-salao"></div>
     <button type="button" id="btn-extra-salao" onclick="addExtraRow('salao')" class="btn btn-secondary" style="display:none;width:100%;padding:7px;margin-bottom:14px;font-size:13px;">+ Extra Salão</button>
-    <div class="section-title">Escalação — Cozinha</div>
+    <div class="section-title" style="margin-top:12px;">Intensidade — Cozinha</div>
+    <div class="int-buttons" id="int-buttons-cozinha"></div>
+    <div class="section-title" style="margin-top:12px;">Escalação — Cozinha</div>
     <div id="posicoes-cozinha"><div class="empty">Selecione a intensidade acima.</div></div>
     <div id="extras-cozinha"></div>
     <button type="button" id="btn-extra-cozinha" onclick="addExtraRow('cozinha')" class="btn btn-secondary" style="display:none;width:100%;padding:7px;margin-bottom:14px;font-size:13px;">+ Extra Cozinha</button>
@@ -970,7 +971,8 @@ function removeRupturaTagCascade(btn) {
 // ─── ESTADO ────────────────────────────────────────────────────────────────
 let currentUnit = null;
 let currentTurno = "Dia";
-let currentIntensidade = null;
+let currentIntSalao = null;
+let currentIntCozinha = null;
 let currentViewIdx = null;
 let history = [];
 let freelaMonthly = {}; // { "2026-04": 12 }
@@ -1311,7 +1313,7 @@ function renderHistory() {
 function startForm(unit) {
   currentUnit = unit;
   currentTurno = "Dia";
-  currentIntensidade = null;
+  currentIntSalao = null; currentIntCozinha = null;
   document.getElementById("form-unidade-tag").textContent = unit + " · " + UNITS[unit].setor;
   const today = new Date().toISOString().split("T")[0];
   document.getElementById("f-data").value = today;
@@ -1332,7 +1334,7 @@ function selectTurno(t, el) {
   currentTurno = t;
   document.querySelectorAll(".turno-tab").forEach(b => b.classList.remove("active"));
   el.classList.add("active");
-  currentIntensidade = null;
+  currentIntSalao = null; currentIntCozinha = null;
   renderIntButtons();
   renderPosicoes();
 }
@@ -1340,29 +1342,32 @@ function selectTurno(t, el) {
 function renderIntButtons() {
   const unit = UNITS[currentUnit];
   const ordem = ["Fraquíssima","Fraca","Média","Forte","Fortíssima"];
-  const available = new Set();
-  ["salao","cozinha"].forEach(s => {
-    if (unit.escalas[s]) Object.keys(unit.escalas[s]).forEach(k => available.add(k));
+  ["salao","cozinha"].forEach(setor => {
+    const available = new Set();
+    if (unit.escalas[setor]) Object.keys(unit.escalas[setor]).forEach(k => available.add(k));
+    const cur = setor === "salao" ? currentIntSalao : currentIntCozinha;
+    const el = document.getElementById("int-buttons-" + setor);
+    if (!el) return;
+    el.innerHTML = ordem.filter(i => available.has(i)).map(i =>
+      `<button class="int-btn${cur === i ? " selected" : ""}" onclick="selectInt('${setor}','${i}',this)">${i}</button>`
+    ).join("");
   });
-  const el = document.getElementById("int-buttons");
-  el.innerHTML = ordem.filter(i => available.has(i)).map(i =>
-    `<button class="int-btn${currentIntensidade === i ? " selected" : ""}" onclick="selectInt('${i}', this)">${i}</button>`
-  ).join("");
 }
 
-function selectInt(i, el) {
-  currentIntensidade = i;
-  document.querySelectorAll(".int-btn").forEach(b => b.classList.remove("selected"));
+function selectInt(setor, i, el) {
+  if (setor === "salao") currentIntSalao = i; else currentIntCozinha = i;
+  el.closest(".int-buttons").querySelectorAll(".int-btn").forEach(b => b.classList.remove("selected"));
   el.classList.add("selected");
   document.getElementById("alert-intensidade").style.display = "none";
   renderPosicoes();
 }
 
 function getPosicoes(setor) {
-  if (!currentUnit || !currentIntensidade) return [];
+  const int = setor === "salao" ? currentIntSalao : currentIntCozinha;
+  if (!currentUnit || !int) return [];
   const escalas = UNITS[currentUnit].escalas[setor];
-  if (!escalas || !escalas[currentIntensidade]) return [];
-  const byInt = escalas[currentIntensidade];
+  if (!escalas || !escalas[int]) return [];
+  const byInt = escalas[int];
   return byInt[currentTurno] || byInt["Dia/Noite"] || byInt["Dia"] || byInt["Noite"] || Object.values(byInt)[0] || [];
 }
 
@@ -1575,7 +1580,7 @@ function getEscalacao(setor) {
 function saveQuadro(confirmed) {
   ["alert-intensidade","alert-escala","alert-rupturas"].forEach(id => document.getElementById(id).style.display = "none");
 
-  if (!currentIntensidade) {
+  if (!currentIntSalao && !currentIntCozinha) {
     document.getElementById("alert-intensidade").style.display = "block";
     document.getElementById("alert-intensidade").scrollIntoView({ behavior: "smooth" });
     return;
@@ -1640,7 +1645,9 @@ function saveQuadro(confirmed) {
     unidade: currentUnit,
     data: dataStr,
     turno: currentTurno,
-    intensidade: currentIntensidade,
+    intensidade: currentIntSalao || currentIntCozinha,
+    intensidade_salao: currentIntSalao,
+    intensidade_cozinha: currentIntCozinha,
     salao: getEscalacao("salao"),
     cozinha: getEscalacao("cozinha"),
     rupturas: rupturasData,
@@ -1824,7 +1831,8 @@ function formatQuadroHTML(q) {
       <div class="rp-infobar">
         <div class="rp-info-item"><div class="rp-info-label">Data</div><div class="rp-info-value">${dataFmt}</div></div>
         <div class="rp-info-item"><div class="rp-info-label">Turno</div><div class="rp-info-value">${q.turno}</div></div>
-        <div class="rp-info-item"><div class="rp-info-label">Intensidade</div><div class="rp-info-value" style="color:${intColor}">${q.intensidade}</div></div>
+        <div class="rp-info-item"><div class="rp-info-label">Salão</div><div class="rp-info-value" style="color:${intColor}">${q.intensidade_salao||q.intensidade||'—'}</div></div>
+        <div class="rp-info-item"><div class="rp-info-label">Cozinha</div><div class="rp-info-value" style="color:${({'Fraquíssima':'#3b6d11','Fraca':'#1D9E75','Média':'#c97a00','Forte':'#dc3545','Fortíssima':'#a32d2d'})[q.intensidade_cozinha]||'#555'}">${q.intensidade_cozinha||q.intensidade||'—'}</div></div>
       </div>
       <div class="rp-body">
         ${alertsHTML}
