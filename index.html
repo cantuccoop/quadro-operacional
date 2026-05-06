@@ -60,6 +60,13 @@
   .pos-num { font-size: 11px; color: #aaa; min-width: 18px; }
   .pos-input { flex: 1; }
 
+  /* Extra row */
+  .pos-row.extra { border-left:3px solid #e0874a; background:#fff8f3; border-radius:6px; padding-left:6px; }
+  .pos-row.extra .pos-num { color:#e0874a; font-weight:700; }
+  .pos-extra-cargo { flex:0 0 110px; border:1px solid #e0ddd7; border-radius:6px; padding:8px 8px; font-size:13px; font-family:inherit; color:#1a1a1a; background:#fff; }
+  .btn-remove-extra { background:none; border:none; color:#aaa; font-size:18px; cursor:pointer; padding:0 4px; line-height:1; }
+  .btn-remove-extra:hover { color:#a32d2d; }
+
   /* Freela input highlight */
   input.freela-on {
     border-color: #185fa5 !important;
@@ -320,8 +327,12 @@
   <div id="escala-section">
     <div class="section-title">Escalação — Salão</div>
     <div id="posicoes-salao"><div class="empty">Selecione a intensidade acima.</div></div>
+    <div id="extras-salao"></div>
+    <button type="button" id="btn-extra-salao" onclick="addExtraRow('salao')" class="btn btn-secondary" style="display:none;width:100%;padding:7px;margin-bottom:14px;font-size:13px;">+ Extra Salão</button>
     <div class="section-title">Escalação — Cozinha</div>
     <div id="posicoes-cozinha"><div class="empty">Selecione a intensidade acima.</div></div>
+    <div id="extras-cozinha"></div>
+    <button type="button" id="btn-extra-cozinha" onclick="addExtraRow('cozinha')" class="btn btn-secondary" style="display:none;width:100%;padding:7px;margin-bottom:14px;font-size:13px;">+ Extra Cozinha</button>
   </div>
 
   <div id="freela-counter" class="freela-counter">
@@ -1320,6 +1331,56 @@ function renderPosicoes() {
     ).join("");
   });
   updateFreelaCounter();
+  // mostrar botões extra e limpar extras anteriores
+  ['salao','cozinha'].forEach(s => {
+    const btn = document.getElementById('btn-extra-' + s);
+    const ext = document.getElementById('extras-' + s);
+    const hasPosicoes = getPosicoes(s).length > 0;
+    if (btn) btn.style.display = hasPosicoes ? 'block' : 'none';
+    if (ext) ext.innerHTML = '';
+  });
+  _extraIdx = { salao: 0, cozinha: 0 };
+}
+
+let _extraIdx = { salao: 0, cozinha: 0 };
+
+function addExtraRow(setor) {
+  const idx = 'x' + (_extraIdx[setor]++);
+  const container = document.getElementById('extras-' + setor);
+  const basePosLen = getPosicoes(setor).length;
+  const num = basePosLen + container.children.length + 1;
+  const row = document.createElement('div');
+  row.className = 'pos-row extra';
+  row.id = 'extra-row-' + setor + '-' + idx;
+  row.innerHTML = `
+    <span class="pos-num">+${num}</span>
+    <input class="pos-extra-cargo" placeholder="Cargo extra" value="Extra">
+    <div class="pos-input ruptura-search-wrap">
+      <input type="text" id="pos-${setor}-${idx}" placeholder="— funcionário —" autocomplete="off"
+        oninput="filterColab('${setor}','${idx}',this.value)"
+        onfocus="filterColab('${setor}','${idx}',this.value)">
+      <div id="pos-dd-${setor}-${idx}" class="ruptura-dropdown"></div>
+    </div>
+    <button type="button" class="btn-remove-extra" onclick="removeExtraRow('${setor}','${idx}')">×</button>`;
+  container.appendChild(row);
+  resetConfirmBtn();
+}
+
+function removeExtraRow(setor, idx) {
+  const row = document.getElementById('extra-row-' + setor + '-' + idx);
+  if (row) row.remove();
+  resetConfirmBtn();
+}
+
+function getExtras(setor) {
+  const container = document.getElementById('extras-' + setor);
+  if (!container) return [];
+  return Array.from(container.children).map(row => {
+    const cargo = row.querySelector('.pos-extra-cargo')?.value || 'Extra';
+    const inp = row.querySelector('input[id^="pos-"]');
+    const nome = inp?.dataset.selected || '';
+    return { cargo, nome: nome === '__freela__' ? 'Freela ★' : nome, extra: true };
+  });
 }
 
 function filterColab(setor, idx, query) {
@@ -1445,11 +1506,12 @@ function updateFreelaCounter() {
 }
 
 function getEscalacao(setor) {
-  return getPosicoes(setor).map((p, i) => {
+  const base = getPosicoes(setor).map((p, i) => {
     const el = document.getElementById(`pos-${setor}-${i}`);
     const val = el ? (el.dataset.selected || "") : "";
     return { cargo: p, nome: val === "__freela__" ? "Freela ★" : val };
   });
+  return base.concat(getExtras(setor));
 }
 
 // ─── SALVAR ────────────────────────────────────────────────────────────────
