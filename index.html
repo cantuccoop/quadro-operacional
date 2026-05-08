@@ -234,7 +234,8 @@
 <div id="screen-dashboard" class="screen">
   <button class="back" onclick="goHome()">← voltar</button>
   <div class="header-title" style="margin-bottom:4px;">Dashboard</div>
-  <div class="header-eyebrow" style="margin-bottom:16px;">Histórico de quadros</div>
+  <div class="header-eyebrow" style="margin-bottom:4px;">Histórico de quadros</div>
+  <div id="dash-firestore-status" style="font-size:11px;color:#888;margin-bottom:12px;"></div>
   <div id="dash-summary" class="dash-summary"></div>
 
 
@@ -1030,6 +1031,9 @@ async function loadFromFirestore() {
     freelaMonthly = calcFreelaMonthly(history);
     try { localStorage.setItem("qo_history", JSON.stringify(history)); } catch(e) {}
     try { localStorage.setItem("qo_freela_monthly", JSON.stringify(freelaMonthly)); } catch(e) {}
+    const unidsNoFirestore = [...new Set(history.map(q => q.unidade))].join(", ");
+    const statusEl = document.getElementById("dash-firestore-status");
+    if (statusEl) statusEl.textContent = `🔥 ${history.length} registros no Firestore · Unidades: ${unidsNoFirestore || "nenhuma"}`;
     renderUnitList();
     renderHistory();
     renderFreelaStats();
