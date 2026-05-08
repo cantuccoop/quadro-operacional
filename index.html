@@ -1005,21 +1005,36 @@ function calcFreelaMonthly(hist) {
   return m;
 }
 
+async function migrateLocalToFirestore(firestoreKeys) {
+  // Sobe para o Firestore registros do localStorage que ainda não estão lá
+  const local = history; // já carregado do localStorage
+  if (!local.length) return;
+  const toMigrate = local.filter(q => !firestoreKeys.has(q.saved_at + "_" + q.unidade));
+  for (const q of toMigrate) {
+    const { _id, ...qF } = q;
+    try { await db.collection("quadros").add(qF); } catch(e) {}
+  }
+  if (toMigrate.length) console.log(`Migrados ${toMigrate.length} registros locais para o Firestore.`);
+}
+
 async function loadFromFirestore() {
   try {
     const snap = await db.collection("quadros").orderBy("saved_at", "asc").get();
-    if (!snap.empty) {
-      history = snap.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
-      freelaMonthly = calcFreelaMonthly(history);
-      try { localStorage.setItem("qo_history", JSON.stringify(history)); } catch(e) {}
-      try { localStorage.setItem("qo_freela_monthly", JSON.stringify(freelaMonthly)); } catch(e) {}
-      renderUnitList();
-      renderHistory();
-      renderFreelaStats();
-      // Se o dashboard já está aberto, atualiza com os dados do Firestore
-      if (document.getElementById("screen-dashboard").classList.contains("active")) {
-        applyDashFilters();
-      }
+    // Monta chave de deduplicação dos registros já no Firestore
+    const firestoreKeys = new Set(snap.docs.map(d => d.data().saved_at + "_" + d.data().unidade));
+    // Migra registros locais que não estão no Firestore
+    await migrateLocalToFirestore(firestoreKeys);
+    // Recarrega após possível migração
+    const snap2 = await db.collection("quadros").orderBy("saved_at", "asc").get();
+    history = snap2.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+    freelaMonthly = calcFreelaMonthly(history);
+    try { localStorage.setItem("qo_history", JSON.stringify(history)); } catch(e) {}
+    try { localStorage.setItem("qo_freela_monthly", JSON.stringify(freelaMonthly)); } catch(e) {}
+    renderUnitList();
+    renderHistory();
+    renderFreelaStats();
+    if (document.getElementById("screen-dashboard").classList.contains("active")) {
+      applyDashFilters();
     }
   } catch(e) {
     console.warn("Firestore indisponível, usando dados locais:", e.message);
