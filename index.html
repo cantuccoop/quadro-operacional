@@ -322,12 +322,14 @@
   </div>
 
   <div id="escala-section">
+    <div id="salao-section">
     <div class="section-title">Intensidade — Salão</div>
     <div class="int-buttons" id="int-buttons-salao"></div>
     <div class="section-title" style="margin-top:12px;">Escalação — Salão</div>
     <div id="posicoes-salao"><div class="empty">Selecione a intensidade acima.</div></div>
     <div id="extras-salao"></div>
     <button type="button" id="btn-extra-salao" onclick="addExtraRow('salao')" class="btn btn-secondary" style="display:none;width:100%;padding:7px;margin-bottom:14px;font-size:13px;">+ Extra Salão</button>
+    </div>
     <div class="section-title" style="margin-top:12px;">Intensidade — Cozinha</div>
     <div class="int-buttons" id="int-buttons-cozinha"></div>
     <div class="section-title" style="margin-top:12px;">Escalação — Cozinha</div>
@@ -343,14 +345,18 @@
   <div class="section-title">Rupturas</div>
   <div id="rupturas-section"></div>
 
+  <div id="meta-section">
   <div class="section-title">Meta de vendas (R$)</div>
   <div class="form-card" style="padding:10px 14px;">
     <input type="text" id="f-meta" placeholder="Ex: 8.500">
   </div>
+  </div>
 
+  <div id="reservas-section">
   <div class="section-title">Reservas</div>
   <div class="form-card" style="padding:10px 14px;">
     <textarea id="f-reservas" placeholder="Ex: 18:30 — Mesa 5, 8 pessoas"></textarea>
+  </div>
   </div>
 
   <div class="section-title">Observações</div>
@@ -473,15 +479,23 @@ const UNITS = {
       }
     }
   },
-  "Mané Carne": {
+  "Véi Chico": {
     setor: "Carne",
     escalas: {
-      salao: {
-        "Fraca": { "Dia/Noite": ["Gerente","Atendimento 1","Atendimento 2","Atendimento 3","Bar","Caixa"] },
-        "Média": { "Dia/Noite": ["Gerente","Subgerente/Chefe de fila","Atendimento 1","Atendimento 2","Atendimento 3","Bar","Caixa"] },
-        "Forte": { "Dia/Noite": ["Gerente","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4","Atendimento 5","Atendimento 6","Bar","Caixa"] },
-        "Fortíssima": { "Dia/Noite": ["Gerente","Subgerente","Atendimento 1","Atendimento 2","Atendimento 3","Atendimento 4","Atendimento 5","Atendimento 6","Atendimento 7","Bar","Caixa"] }
-      },
+      cozinha: {
+        "Fraquíssima": { "Noite": ["Boqueta/Gard","Fogão","ASG","Parrilheiro 1"] },
+        "Fraca": {
+          "Dia": ["Boqueta/Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"],
+          "Noite": ["Boqueta/Gard","Fogão","ASG","Parrilheiro 1","Boqueta Parrilla"]
+        },
+        "Média": { "Dia": ["Boqueta","Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"] },
+        "Forte": { "Dia": ["Boqueta","Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1","Parrilheiro 2"] }
+      }
+    }
+  },
+  "Superquadra Mané": {
+    setor: "Carne",
+    escalas: {
       cozinha: {
         "Fraquíssima": { "Noite": ["Boqueta/Gard","Fogão","ASG","Parrilheiro 1"] },
         "Fraca": {
@@ -579,16 +593,16 @@ const COLABORADORES = {
     "Thales Moraes","Valdecy Rodrigues","Vinicius Costa",
     "Walison Calazans","Yanier Guerrero"
   ],
-  "Mané Carne": [
-    // Superquadra Mané
-    "Ana Letícia Pires","Apollo Miranda","Ítalo Marques",
-    "Jeane Costa","João Pedro Dantas","Lorena Ramos",
-    "Lucas da Silva","Maxsuel Costa","Rosyane Abreu",
-    "Sueli Macedo","Thays Cristina Gonçalves","Walmir Silva",
-    // Vai Chico
+  "Véi Chico": [
     "Alexander Silva","Eber Nascimento","Fernando Santos",
     "Geovanny Silva","Jaliane Lacerda","Thiago Miranda",
     "Victor Canella"
+  ],
+  "Superquadra Mané": [
+    "Ana Letícia Pires","Apollo Miranda","Ítalo Marques",
+    "Jeane Costa","João Pedro Dantas","Lorena Ramos",
+    "Lucas da Silva","Maxsuel Costa","Rosyane Abreu",
+    "Sueli Macedo","Thays Cristina Gonçalves","Walmir Silva"
   ],
   "Superquadra Norte": [
     "Antonio Portela","Cicero da Silva","Debora de Moura",
@@ -621,7 +635,8 @@ const RUPTURAS_CONFIG = {
   "Asa Sul":          ["Cantucci","Inforno","Grano","Bar","Insumo"],
   "Asa Norte":        ["Cantucci","Inforno","Grano","Bar","Insumo"],
   "Águas Claras":     ["Cantucci","Inforno","Grano","Bar","Insumo"],
-  "Mané Carne":       ["Vei","Superquadra","Insumo"],
+  "Véi Chico":        ["Véi Chico","Insumo"],
+  "Superquadra Mané": ["Superquadra","Insumo"],
   "Superquadra Norte":["Pratos","Insumo"],
   "Koji":             ["Produção","Insumo"]
 };
@@ -759,7 +774,7 @@ const RUPTURAS_PRODUTOS = {
 };
 
 // ─── CASCADE RUPTURAS ──────────────────────────────────────────────────────
-const UNIDADES_CASCADE = new Set(["Asa Sul","Asa Norte","Águas Claras","Mané Carne","Superquadra Norte"]);
+const UNIDADES_CASCADE = new Set(["Asa Sul","Asa Norte","Águas Claras","Véi Chico","Superquadra Mané","Superquadra Norte"]);
 
 const PDV_IAN = {
   "Cantucci": ["POLPETONE ANGUS","RISOTO FUNGHI PORCINI E FILE","FILETTO AL TARTUFI","STEAK AL FUNGHI","GNOCCHI DA SORTE","FILE WELLINGTON","CARBONARA CLASSICO","STEAK TRES MOSTARDAS","SALMONE AO MEDITERRANEO","FILE PARME ARROZ/FRITAS","FILETTO PARMEGIANA COM MASSA","RISOTO DE CAMARAO","RAVIOLI DI BUFALA","CAMARAO AO BRIE","PICADINHO CLASSICO CASA","PESCE SICILIANO","LASAGNA BOLOGNESE","POLLO PARMEGIANA","RISOTO DI GORGONZOLA","FONDUTA DE FILE","BRUSCHETTAS","ARANCINI TOSCANO","BRIE AL CARAMELLO","FETTUCCINI AO BISQUE","BROWNIE I GELATO","SFOLIA LORDA DI ZUCCA","BURRATA SPECIALE","POLLO PARMEGIANA COM MASSA","RISOTO MARGHERITE AO PESTO","FRANGO CORDON BLEU","POLLO CEASERE","CARPACCIO IN CROSTA","BRUSCHETTA HAPPY HOUR","SALTIMBOCA DI POLLO","CHEESECAKE FRUTAS VERMELHAS","CARPACCIO HAPPY HOUR","RONDELLI RICOTA FIGO E NOZES","POLLO CAESERE","TORTELLINI DI SALMONE PICATTA","RIGATONI AMATRICIANA","INSALATA","PEIXE BRANCO MOLHO TOMATE","ARANCINI HAPPY HOUR","BANOFEE","PEIXE BRANCO COM LEGUMES","INFORNITO DE NUTELLA","ROTOLINA","PARMIGIANA DELLA FAMIGLIA","CROSTINI","CHEESECAKE GOIABADA","STRACCIATELLA","DOBRO DE CARNE 160G","ARANCINI DE FUNGHI","CHEESECAKE DOCE DE LEITE","MELANZANI PARMEGIANA COM MASSA","CROSTINI HAPPY HOUR","ACOMPANHAMENTO POLENTA FRITA","INFORNITO DE DOCE DE LEITE","CHEESECAKE CHOCOLATE","CHEESECAKE PISTACHE","BATATA CHIPS","TORTA DI CAPRI","AMARENA SOUR","PIRARUCU A LAGAREIRO","CHEESECAKE BASCA","BRUSCHETTAS EXECUTIVO","MINI CREPE MUSSARELA","MELANZANI PARMEGIANA","KIR AMARENA","PARMEGIANA CANTUCCI FRANGO","DOBRO DE CARNE 100G","BAMBINI FRANGO MOLHO VERMELHO","CHEESECAKE BASCA EXECUTIVO","DUPLA DE ARANCINI","INFORNITO DE PISTACHE","ACOMPANHAMENTO BATATA FRITA","ACOMPANHAMENTO NUGGETS","ADICIONAL TORRADAS","CROQUETA DE PEPPERONI"],
@@ -843,8 +858,8 @@ const INSUMOS_SPQN = {
 };
 
 // Lookup por unidade
-const PDV_BY_UNIT = { "Asa Sul": PDV_IAN, "Asa Norte": PDV_IAN, "Águas Claras": PDV_IAN, "Mané Carne": PDV_MANE, "Superquadra Norte": PDV_SPQN };
-const INSUMOS_BY_UNIT = { "Asa Sul": INSUMOS_IAN, "Asa Norte": INSUMOS_IAN, "Águas Claras": INSUMOS_IAN, "Mané Carne": INSUMOS_MANE, "Superquadra Norte": INSUMOS_SPQN };
+const PDV_BY_UNIT = { "Asa Sul": PDV_IAN, "Asa Norte": PDV_IAN, "Águas Claras": PDV_IAN, "Véi Chico": {"Véi Chico": PDV_MANE["Véi Chico"]}, "Superquadra Mané": {"Superquadra": PDV_MANE["Superquadra"]}, "Superquadra Norte": PDV_SPQN };
+const INSUMOS_BY_UNIT = { "Asa Sul": INSUMOS_IAN, "Asa Norte": INSUMOS_IAN, "Águas Claras": INSUMOS_IAN, "Véi Chico": INSUMOS_MANE, "Superquadra Mané": INSUMOS_MANE, "Superquadra Norte": INSUMOS_SPQN };
 
 function renderRupturasCascade() {
   rupturasTags = {};
@@ -1321,6 +1336,10 @@ function startForm(unit) {
   document.getElementById("f-meta").value = "";
   document.getElementById("f-reservas").value = "";
   document.getElementById("f-obs").value = "";
+  const carneUnits = new Set(["Véi Chico","Superquadra Mané"]);
+  document.getElementById("salao-section").style.display = carneUnits.has(unit) ? "none" : "";
+  document.getElementById("meta-section").style.display = carneUnits.has(unit) ? "none" : "";
+  document.getElementById("reservas-section").style.display = carneUnits.has(unit) ? "none" : "";
   ["alert-intensidade","alert-escala","alert-rupturas"].forEach(id => document.getElementById(id).style.display = "none");
   document.querySelectorAll(".turno-tab").forEach((t, i) => t.classList.toggle("active", i === 0));
   updateFreelaCounter();
