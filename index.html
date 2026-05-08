@@ -1959,12 +1959,13 @@ function resetConfirmBtn() {
 function renderDashboard(filteredData) {
   const filterUnit = document.getElementById("dash-filter-unit").value;
 
-  // Populate unit filter options (once)
+  // Populate unit filter options (always rebuild to catch new units after Firestore loads)
   const filterEl = document.getElementById("dash-filter-unit");
   const units = [...new Set(history.map(q => q.unidade))].sort();
-  if (filterEl.options.length <= 1) {
-    units.forEach(u => { const opt = document.createElement("option"); opt.value = u; opt.textContent = u; filterEl.appendChild(opt); });
-  }
+  const prevVal = filterEl.value;
+  filterEl.innerHTML = '<option value="">Todas as unidades</option>';
+  units.forEach(u => { const opt = document.createElement("option"); opt.value = u; opt.textContent = u; filterEl.appendChild(opt); });
+  if (prevVal) filterEl.value = prevVal;
 
   const data = filteredData !== undefined ? filteredData : filterByPeriod(filterUnit ? history.filter(q => q.unidade === filterUnit) : history);
 
