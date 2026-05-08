@@ -229,19 +229,6 @@
   <button type="button" onclick="openDashboard()" style="width:100%;margin-top:16px;padding:13px;border-radius:10px;border:1.5px solid #185fa5;background:#f0f6ff;color:#185fa5;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:0.02em;">📊 Acessar Dashboard</button>
 </div>
 
-<!-- PIN OVERLAY -->
-<div id="dash-pin-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:999;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:320px;width:90%;margin:auto;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
-    <div style="font-size:17px;font-weight:700;margin-bottom:6px;">🔒 Acesso restrito</div>
-    <div style="font-size:13px;color:#888;margin-bottom:16px;">Digite a senha para acessar o dashboard.</div>
-    <input id="dash-pin-input" type="password" placeholder="Senha" style="margin-bottom:8px;" onkeydown="if(event.key==='Enter')checkDashPin()">
-    <div id="dash-pin-error" style="color:#a32d2d;font-size:12px;margin-bottom:10px;display:none;">Senha incorreta. Tente novamente.</div>
-    <div style="display:flex;gap:8px;margin-top:4px;">
-      <button onclick="closeDashPin()" style="flex:1;padding:10px;border-radius:8px;border:1px solid #e0ddd7;background:#fff;font-size:14px;cursor:pointer;">Cancelar</button>
-      <button onclick="checkDashPin()" style="flex:1;padding:10px;border-radius:8px;border:none;background:#1a1a1a;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">Entrar</button>
-    </div>
-  </div>
-</div>
 
 <!-- DASHBOARD -->
 <div id="screen-dashboard" class="screen">
@@ -1207,30 +1194,9 @@ function downloadRupturasCSV() {
 }
 
 // ─── ACESSO AO DASHBOARD ───────────────────────────────────────────────────
-const DASH_SENHA = "cantucci2026"; // ← altere aqui para mudar a senha
-
 function openDashboard() {
-  document.getElementById("dash-pin-input").value = "";
-  document.getElementById("dash-pin-error").style.display = "none";
-  document.getElementById("dash-pin-overlay").style.display = "flex";
-  setTimeout(() => document.getElementById("dash-pin-input").focus(), 100);
-}
-
-function closeDashPin() {
-  document.getElementById("dash-pin-overlay").style.display = "none";
-}
-
-function checkDashPin() {
-  const val = document.getElementById("dash-pin-input").value;
-  if (val === DASH_SENHA) {
-    closeDashPin();
-    showScreen("dashboard");
-    applyDashFilters();
-  } else {
-    document.getElementById("dash-pin-error").style.display = "block";
-    document.getElementById("dash-pin-input").value = "";
-    document.getElementById("dash-pin-input").focus();
-  }
+  showScreen("dashboard");
+  applyDashFilters();
 }
 
 // ─── NAVEGAÇÃO ─────────────────────────────────────────────────────────────
