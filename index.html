@@ -1029,6 +1029,10 @@ async function loadFromFirestore() {
       renderUnitList();
       renderHistory();
       renderFreelaStats();
+      // Se o dashboard já está aberto, atualiza com os dados do Firestore
+      if (document.getElementById("dashboard").classList.contains("active")) {
+        applyDashFilters();
+      }
     }
   } catch(e) {
     console.warn("Firestore indisponível, usando dados locais:", e.message);
