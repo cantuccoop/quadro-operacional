@@ -1194,8 +1194,18 @@ function downloadRupturasCSV() {
 }
 
 // ─── ACESSO AO DASHBOARD ───────────────────────────────────────────────────
-function openDashboard() {
+async function openDashboard() {
   showScreen("dashboard");
+  applyDashFilters();
+  // Busca dados frescos do Firestore sempre que o dashboard é aberto
+  try {
+    const snap = await db.collection("quadros").orderBy("saved_at", "asc").get();
+    if (!snap.empty) {
+      history = snap.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+      freelaMonthly = calcFreelaMonthly(history);
+      try { localStorage.setItem("qo_history", JSON.stringify(history)); } catch(e) {}
+    }
+  } catch(e) { console.warn("Firestore:", e.message); }
   applyDashFilters();
 }
 
