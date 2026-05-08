@@ -1017,7 +1017,7 @@ async function loadFromFirestore() {
       renderHistory();
       renderFreelaStats();
       // Se o dashboard já está aberto, atualiza com os dados do Firestore
-      if (document.getElementById("dashboard").classList.contains("active")) {
+      if (document.getElementById("screen-dashboard").classList.contains("active")) {
         applyDashFilters();
       }
     }
