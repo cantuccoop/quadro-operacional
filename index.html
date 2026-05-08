@@ -563,7 +563,7 @@ const COLABORADORES = {
     "Vitor Queiroz","Wanderlley Almeida","Whin Milena Alves"
   ],
   "Águas Claras": [
-    "Addson Sá","Adolphe St Prix","Alef Silva","Anderson",
+    "Addson Sá","Adolphe St Prix","Alef Silva","Anderson","Luiza Aimy",
     "Alef Tiago","Alexandre Nunes","Aline Souza",
     "Ana Karolina Lima","Angela Tabosa","Anne Caroline Batista",
     "Bryan Horsth","Camilla Alves","Carla Juliao",
@@ -1448,7 +1448,7 @@ function getExtras(setor) {
 function filterColab(setor, idx, query) {
   const colaboradores = (COLABORADORES[currentUnit] || []).slice().sort((a,b) => a.localeCompare(b,'pt-BR'));
   const q = query.toLowerCase();
-  const all = [{val:'__freela__',label:'★ Freela'}, ...colaboradores.map(c => ({val:c,label:c}))];
+  const all = [{val:'__freela__',label:'★ Freela'},{val:'__atestado__',label:'🏥 Atestado'},{val:'__folga__',label:'🏖️ Folga'}, ...colaboradores.map(c => ({val:c,label:c}))];
   const filtered = q ? all.filter(c => c.label.toLowerCase().includes(q)) : all;
   const dd = document.getElementById(`pos-dd-${setor}-${idx}`);
   dd.innerHTML = filtered.map(c =>
@@ -1462,6 +1462,7 @@ function selectColab(setor, idx, val, label) {
   inp.dataset.selected = val;
   inp.value = label;
   inp.classList.toggle('freela-on', val === '__freela__');
+  inp.style.color = val === '__atestado__' ? '#854f0b' : val === '__folga__' ? '#1D9E75' : '';
   document.getElementById(`pos-dd-${setor}-${idx}`).style.display = 'none';
   updateFreelaCounter();
   resetConfirmBtn();
@@ -1571,7 +1572,8 @@ function getEscalacao(setor) {
   const base = getPosicoes(setor).map((p, i) => {
     const el = document.getElementById(`pos-${setor}-${i}`);
     const val = el ? (el.dataset.selected || "") : "";
-    return { cargo: p, nome: val === "__freela__" ? "Freela ★" : val };
+    const nome = val === "__freela__" ? "Freela ★" : val === "__atestado__" ? "Atestado 🏥" : val === "__folga__" ? "Folga 🏖️" : val;
+    return { cargo: p, nome };
   });
   return base.concat(getExtras(setor));
 }
