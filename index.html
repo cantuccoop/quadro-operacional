@@ -290,8 +290,9 @@
           <tr>
             <th>Unidade</th>
             <th>Data · Turno</th>
-            <th>Intens.</th>
-            <th>Meta</th>
+            <th>Intens. Salão</th>
+            <th>Intens. Cozinha</th>
+            <th>Rupturas</th>
             <th>Alertas</th>
           </tr>
         </thead>
@@ -2037,20 +2038,23 @@ function renderDashboard(filteredData) {
   const sorted = data.slice().sort((a, b) => b.data.localeCompare(a.data));
   const tbody = document.getElementById("dash-tbody");
   if (!sorted.length) {
-    tbody.innerHTML = `<tr><td colspan="5" class="dash-empty">Nenhum quadro registrado.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="dash-empty">Nenhum quadro registrado.</td></tr>`;
     return;
   }
   tbody.innerHTML = sorted.map(q => {
     const idx = history.indexOf(q);
     const dataFmt = q.data ? q.data.split("-").reverse().join("/") : "—";
     const alertIcons = (q.alerta_escala ? "⚠️" : "") + (q.alerta_rupturas ? "🚨" : "");
-    const intBadge = `<span class="badge badge-${badgeClass(q.intensidade)}">${q.intensidade}</span>`;
-    const metaFmt = q.meta ? `R$ ${Number(q.meta).toLocaleString('pt-BR')}` : "—";
+    const intSalaoBadge = q.intensidade ? `<span class="badge badge-${badgeClass(q.intensidade)}">${q.intensidade}</span>` : "<span style='color:#aaa'>—</span>";
+    const intCozinhaBadge = q.intensidade_cozinha ? `<span class="badge badge-${badgeClass(q.intensidade_cozinha)}">${q.intensidade_cozinha}</span>` : "<span style='color:#aaa'>—</span>";
+    const rupCount = Object.values(q.rupturas || {}).reduce((s, arr) => s + (arr || []).length, 0);
+    const rupCell = rupCount > 0 ? `<span style="background:#fcebeb;color:#a32d2d;font-weight:600;padding:2px 8px;border-radius:6px;font-size:12px;">${rupCount}</span>` : "<span style='color:#aaa'>—</span>";
     return `<tr onclick="viewQuadro(${idx})">
       <td><div class="dash-row-unit">${q.unidade}</div></td>
       <td><div>${dataFmt}</div><div class="dash-row-sub">${q.turno}</div></td>
-      <td>${intBadge}</td>
-      <td class="dash-meta">${metaFmt}</td>
+      <td>${intSalaoBadge}</td>
+      <td>${intCozinhaBadge}</td>
+      <td>${rupCell}</td>
       <td style="font-size:15px;">${alertIcons || "<span style='color:#aaa;font-size:11px;'>—</span>"}</td>
     </tr>`;
   }).join("");
