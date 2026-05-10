@@ -206,7 +206,7 @@
   .ref-int-producao { background:#4a235a; color:#fff; }
   .ref-int-min { background:#e3f2fd; color:#1565c0; }
 
-  .dash-charts-top { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:14px; }
+  .dash-charts-top { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:14px; }
   .dash-charts-top .dash-chart-card { margin-bottom:0; }
   .dash-ruptura-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
   .dash-chart-card { background:#fff; border:1px solid #e8e6e0; border-radius:12px; padding:14px 16px; margin-bottom:14px; }
@@ -297,10 +297,6 @@
         <div class="dash-chart-sub">Por unidade — clique para ver detalhes</div>
         <canvas id="chart-fora-escala" height="140" style="cursor:pointer"></canvas>
         <div id="fora-escala-detail" class="rup-detail-panel" style="display:none"></div>
-      </div>
-      <div class="dash-chart-card">
-        <div class="dash-chart-title">🕳️ Posições vazias</div>
-        <canvas id="chart-vazios" height="140"></canvas>
       </div>
       <div class="dash-chart-card">
         <div class="dash-chart-title">📈 Freelas</div>
@@ -1290,7 +1286,7 @@ function applyDashFilters() {
 }
 
 function destroyCharts() {
-  ['chart-freelas','chart-vazios','chart-fora-escala'].forEach(id => {
+  ['chart-freelas','chart-fora-escala'].forEach(id => {
     try { Chart.getChart(document.getElementById(id))?.destroy(); } catch(e){}
   });
   Object.values(_charts).forEach(c => { try { c.destroy(); } catch(e){} });
@@ -1320,12 +1316,6 @@ function renderCharts(data) {
   data.forEach(q=>{ if(!q.data)return; const k=isWeek?q.data:q.data.slice(0,7); fMap[k]=(fMap[k]||0)+(q.freelas||0); });
   const fKeys=timeKeys(fMap);
   _charts.freelas=new Chart(document.getElementById('chart-freelas'),{ type:'bar', data:{labels:fKeys.map(isWeek?fmtDay:fmtMes),datasets:[{data:fKeys.map(k=>fMap[k]||0),backgroundColor:'#185fa5',borderRadius:4}]}, options:barOpts });
-
-  // 2. Vazios
-  const vMap={};
-  data.forEach(q=>{ if(!q.data)return; const k=isWeek?q.data:q.data.slice(0,7); const v=(q.salao||[]).filter(r=>!r.nome||r.nome==='—').length+(q.cozinha||[]).filter(r=>!r.nome||r.nome==='—').length; vMap[k]=(vMap[k]||0)+v; });
-  const vKeys=timeKeys(vMap);
-  _charts.vazios=new Chart(document.getElementById('chart-vazios'),{ type:'bar', data:{labels:vKeys.map(isWeek?fmtDay:fmtMes),datasets:[{data:vKeys.map(k=>vMap[k]||0),backgroundColor:'#e0874a',borderRadius:4}]}, options:barOpts });
 
   // 3. Turnos fora da escala mínima por unidade
   const dowToIdx = d => d===0?6:d-1; // Dom=6, Seg=0…Sáb=5
