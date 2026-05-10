@@ -393,16 +393,16 @@ const UNITS = {
       },
       cozinha: {
         "Fraca": {
-          "Dia": ["Líder","Cozinheiro I","Aux Cozinha","ASG"],
-          "Noite": ["Pizza Líder","Auxiliar de pizza","Cozinheiro iniciante","Cozinheiro pleno","ASG"]
+          "Dia": ["Líder","Aux Cozinha","ASG"],
+          "Noite": ["Cantucci","Piz Líder","Auxiliar de pizza","Cozinheiro iniciante","ASG"]
         },
         "Média": {
           "Dia": ["Líder","Cozinheiro I","Aux Cozinha","ASG"],
-          "Noite": ["Pizza Líder","Auxiliar de pizza","Cozinheiro iniciante","Cozinheiro pleno","Aux Pizza","ASG"]
+          "Noite": ["Cantucci","Piz Líder","Piz Pleno","Cozinheiro iniciante","Aux Pizza","ASG"]
         },
         "Forte": {
           "Dia": ["Líder","Souchefe","Cozinheiro I","Aux Cozinha","Grano","ASG"],
-          "Noite": ["Cozinheiro Iniciante","Auxiliar de coz","Piz Líder","Piz Pleno","Aux Pizza","ASG"]
+          "Noite": ["Cantucci","Cozinheiro Iniciante","Auxiliar de coz","Piz Líder","Piz Pleno","Aux Pizza","ASG"]
         }
       }
     }
@@ -535,13 +535,11 @@ const UNITS = {
 // ─── COLABORADORES POR UNIDADE ─────────────────────────────────────────────
 const COLABORADORES = {
   "Asa Sul": [
-    "Alexandre Ribeiro","Amanda Fernandes","Ana Clara Vaz",
     "André Luis Corrêa Batista","Antonio Filho","Danillo de Almeida",
     "Evaristo Junior","Fabio Alves","Francisca Silva",
     "Geovani Vergilio","Israel Rocha","Jenifer Barbosa",
     "Jerfeson Teixeira","Leonardo Almeida","Leticia Vidal",
-    "Lucas Andrade","Lucas Riquelme","Marcivon Ferreira",
-    "Maria Deusimar","Maria Suene","Poliane Soares",
+    "Lucas Andrade","Maria Deusimar","Maria Suene","Poliane Soares",
     "Ricardo Silva","Richard Novais","Samuel Sousa",
     "Shantiel Martins","Wellington Dias","Wesley Gomes","Wallerson","Clebson","Gabriel Marcelino","Letícia Sousa","Wallace Livan"
   ],
@@ -1466,7 +1464,7 @@ function getExtras(setor) {
 function filterColab(setor, idx, query) {
   const colaboradores = (COLABORADORES[currentUnit] || []).slice().sort((a,b) => a.localeCompare(b,'pt-BR'));
   const q = query.toLowerCase();
-  const all = [{val:'__freela__',label:'★ Freela'},{val:'__atestado__',label:'🏥 Atestado'},{val:'__folga__',label:'🏖️ Folga'}, ...colaboradores.map(c => ({val:c,label:c}))];
+  const all = [{val:'__freela__',label:'★ Freela'},{val:'__atestado__',label:'Atestado'},{val:'__folga__',label:'Folga'},{val:'__Semanateste__',label:'Semana Teste'}, ...colaboradores.map(c => ({val:c,label:c}))];
   const filtered = q ? all.filter(c => c.label.toLowerCase().includes(q)) : all;
   const dd = document.getElementById(`pos-dd-${setor}-${idx}`);
   dd.innerHTML = filtered.map(c =>
