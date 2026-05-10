@@ -190,9 +190,9 @@
   .dash-kpi.alert .dash-kpi-val { color:#a32d2d; }
   .dash-kpi.freela { background:#e6f1fb; border-color:#c8dff7; }
   .dash-kpi.freela .dash-kpi-val { color:#185fa5; }
-  .dash-charts-top { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:14px; }
+  .dash-charts-top { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:14px; }
   .dash-charts-top .dash-chart-card { margin-bottom:0; }
-  .dash-ruptura-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:14px; }
+  .dash-ruptura-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
   .dash-chart-card { background:#fff; border:1px solid #e8e6e0; border-radius:12px; padding:14px 16px; margin-bottom:14px; }
   .dash-chart-title { font-size:13px; font-weight:700; margin-bottom:4px; color:#1a1a1a; }
   .dash-rup-legend { margin-top:10px; display:flex; flex-direction:column; gap:4px; }
@@ -265,18 +265,18 @@
   <div id="dash-charts">
     <div class="dash-charts-top">
       <div class="dash-chart-card">
-        <div class="dash-chart-title">📈 Freelas</div>
-        <canvas id="chart-freelas" height="140"></canvas>
+        <div class="dash-chart-title">⚠️ Escala abaixo do mínimo</div>
+        <div class="dash-chart-sub">Por dia da semana</div>
+        <canvas id="chart-escala-min" height="140"></canvas>
       </div>
       <div class="dash-chart-card">
         <div class="dash-chart-title">🕳️ Posições vazias</div>
         <canvas id="chart-vazios" height="140"></canvas>
       </div>
-    </div>
-    <div class="dash-chart-card">
-      <div class="dash-chart-title">⚠️ Escala abaixo do mínimo</div>
-      <div class="dash-chart-sub">Por dia da semana</div>
-      <canvas id="chart-escala-min" height="110"></canvas>
+      <div class="dash-chart-card">
+        <div class="dash-chart-title">📈 Freelas</div>
+        <canvas id="chart-freelas" height="140"></canvas>
+      </div>
     </div>
     <div id="dash-ruptura-pies"></div>
     <button type="button" class="btn btn-secondary" id="btn-download-rupturas" onclick="downloadRupturasCSV()" style="width:100%;margin-top:4px;display:none;">⬇ Baixar Rupturas (.csv)</button>
@@ -1196,7 +1196,7 @@ function renderCharts(data) {
     const id='pie_'+cat.replace(/[^a-z0-9]/gi,'_');
     const detailId='detail_'+cat.replace(/[^a-z0-9]/gi,'_');
     const card=document.createElement('div'); card.className='dash-chart-card';
-    card.innerHTML=`<div class="dash-chart-title">🚨 ${cat}</div><canvas id="${id}" height="180" style="cursor:pointer"></canvas><div id="${detailId}" class="rup-detail-panel" style="display:none"></div>`;
+    card.innerHTML=`<div class="dash-chart-title">🚨 ${cat}</div><canvas id="${id}" height="120" style="cursor:pointer"></canvas><div id="${detailId}" class="rup-detail-panel" style="display:none"></div>`;
     rupGrid.appendChild(card);
     requestAnimationFrame(()=>{
       const chart=new Chart(document.getElementById(id),{type:'doughnut',data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:COLORS.slice(0,entries.length),borderWidth:0,hoverOffset:6}]},options:{responsive:true,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed}x (${((ctx.parsed/total)*100).toFixed(1)}%)`}}},onClick:(evt,els)=>{
