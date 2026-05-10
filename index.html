@@ -1182,7 +1182,9 @@ function renderCharts(data) {
   const byCat={};
   // byCatOcorrencias guarda {cat: {item: [{data, turno, unidade}]}}
   const byCatOcorrencias={};
-  data.forEach(q=>{ Object.entries(q.rupturas||{}).forEach(([cat,arr])=>{ if(!(arr||[]).length)return; if(!byCat[cat])byCat[cat]={}; if(!byCatOcorrencias[cat])byCatOcorrencias[cat]={}; arr.forEach(item=>{ if(item){ byCat[cat][item]=(byCat[cat][item]||0)+1; if(!byCatOcorrencias[cat][item])byCatOcorrencias[cat][item]=[]; byCatOcorrencias[cat][item].push({data:q.data,turno:q.turno,unidade:q.unidade}); } }); }); });
+  const SKIP_CATS = new Set(["Hortifruti"]);
+  const normCat = cat => /vinho|adega|espumante/i.test(cat) ? "Adega" : cat;
+  data.forEach(q=>{ Object.entries(q.rupturas||{}).forEach(([rawCat,arr])=>{ if(!(arr||[]).length)return; const cat=normCat(rawCat); if(SKIP_CATS.has(cat))return; if(!byCat[cat])byCat[cat]={}; if(!byCatOcorrencias[cat])byCatOcorrencias[cat]={}; arr.forEach(item=>{ if(item){ byCat[cat][item]=(byCat[cat][item]||0)+1; if(!byCatOcorrencias[cat][item])byCatOcorrencias[cat][item]=[]; byCatOcorrencias[cat][item].push({data:q.data,turno:q.turno,unidade:q.unidade}); } }); }); });
   const pc=document.getElementById('dash-ruptura-pies');
   const dlBtn=document.getElementById('btn-download-rupturas');
   if(!Object.keys(byCat).length){
