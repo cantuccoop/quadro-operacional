@@ -365,10 +365,12 @@
     <button type="button" id="btn-extra-cozinha" onclick="addExtraRow('cozinha')" class="btn btn-secondary" style="display:none;width:100%;padding:7px;margin-bottom:14px;font-size:13px;">+ Extra Cozinha</button>
   </div>
   <div id="grano-section" style="display:none;">
-    <div class="section-title" style="margin-top:12px;">Grano / Inforno — Nº de pessoas</div>
-    <div class="form-card" style="padding:10px 14px;">
-      <input type="number" id="f-grano-pessoas" placeholder="Ex: 4" min="0" style="width:100%;">
-    </div>
+    <div class="section-title" style="margin-top:12px;">Intensidade — Grano/Inforno</div>
+    <div class="int-buttons" id="int-buttons-grano"></div>
+    <div class="section-title" style="margin-top:12px;">Escalação — Grano/Inforno</div>
+    <div id="posicoes-grano"><div class="empty">Selecione a intensidade acima.</div></div>
+    <div id="extras-grano"></div>
+    <button type="button" id="btn-extra-grano" onclick="addExtraRow('grano')" class="btn btn-secondary" style="display:none;width:100%;padding:7px;margin-bottom:14px;font-size:13px;">+ Extra Grano/Inforno</button>
   </div>
 
   <div id="freela-counter" class="freela-counter">
@@ -604,6 +606,12 @@ const UNITS = {
         },
         "Média": { "Dia": ["Boqueta","Fogão","Forno","Gard 1","Gard 2","ASG 1","Pia 1","Pia 2"] },
         "Forte": { "Dia": ["Boqueta","Fogão 1","Fogão 2","Forno","Gard (entradas)","Gard (sobr.)","Pia 1","Pia 2","Aux Cozinha"] }
+      },
+      grano: {
+        "MIN 3": { "Dia/Noite": ["Forno/Despacho (L)","Abertura/Recheio","Chapa"] },
+        "MIN 4": { "Dia/Noite": ["Despacho (L)","Abertura","Montagem/Forno","Chapa"] },
+        "MIN 5": { "Dia/Noite": ["Despacho (L)","Abertura","Montagem","Forno","Chapa"] },
+        "MIN 6": { "Dia/Noite": ["Despacho (L)","Abertura","Montagem","Forno","Mont. Burg.","Chapa"] }
       }
     }
   },
@@ -1143,6 +1151,8 @@ let currentUnit = null;
 let currentTurno = "Dia";
 let currentIntSalao = null;
 let currentIntCozinha = null;
+let currentIntGrano = null;
+const GRANO_ORDER = ["MIN 3","MIN 4","MIN 5","MIN 6"];
 let currentViewIdx = null;
 let history = [];
 let freelaMonthly = {}; // { "2026-04": 12 }
@@ -1537,7 +1547,7 @@ function renderHistory() {
 function startForm(unit) {
   currentUnit = unit;
   currentTurno = "Dia";
-  currentIntSalao = null; currentIntCozinha = null;
+  currentIntSalao = null; currentIntCozinha = null; currentIntGrano = null;
   document.getElementById("form-unidade-tag").textContent = unit + " · " + UNITS[unit].setor;
   // Tabela de referência no formulário
   const refWrap = document.getElementById("form-ref-wrap");
@@ -1573,7 +1583,7 @@ function selectTurno(t, el) {
   currentTurno = t;
   document.querySelectorAll(".turno-tab").forEach(b => b.classList.remove("active"));
   el.classList.add("active");
-  currentIntSalao = null; currentIntCozinha = null;
+  currentIntSalao = null; currentIntCozinha = null; currentIntGrano = null;
   renderIntButtons();
   renderPosicoes();
 }
@@ -1591,10 +1601,19 @@ function renderIntButtons() {
       `<button class="int-btn${cur === i ? " selected" : ""}" onclick="selectInt('${setor}','${i}',this)">${i}</button>`
     ).join("");
   });
+  // Grano
+  const elG = document.getElementById("int-buttons-grano");
+  if (elG && unit.escalas.grano) {
+    elG.innerHTML = GRANO_ORDER.map(i =>
+      `<button class="int-btn${currentIntGrano === i ? " selected" : ""}" onclick="selectInt('grano','${i}',this)">${i}</button>`
+    ).join("");
+  }
 }
 
 function selectInt(setor, i, el) {
-  if (setor === "salao") currentIntSalao = i; else currentIntCozinha = i;
+  if (setor === "salao") currentIntSalao = i;
+  else if (setor === "cozinha") currentIntCozinha = i;
+  else if (setor === "grano") currentIntGrano = i;
   el.closest(".int-buttons").querySelectorAll(".int-btn").forEach(b => b.classList.remove("selected"));
   el.classList.add("selected");
   document.getElementById("alert-intensidade").style.display = "none";
@@ -1602,7 +1621,7 @@ function selectInt(setor, i, el) {
 }
 
 function getPosicoes(setor) {
-  const int = setor === "salao" ? currentIntSalao : currentIntCozinha;
+  const int = setor === "grano" ? currentIntGrano : (setor === "salao" ? currentIntSalao : currentIntCozinha);
   if (!currentUnit || !int) return [];
   const escalas = UNITS[currentUnit].escalas[setor];
   if (!escalas || !escalas[int]) return [];
@@ -1611,9 +1630,10 @@ function getPosicoes(setor) {
 }
 
 function renderPosicoes() {
-  ["salao","cozinha"].forEach(setor => {
+  ["salao","cozinha","grano"].forEach(setor => {
     const posicoes = getPosicoes(setor);
     const el = document.getElementById("posicoes-" + setor);
+    if (!el) return;
     if (!posicoes.length) {
       el.innerHTML = '<div class="empty" style="margin-bottom:8px;">Selecione a intensidade acima.</div>';
       return;
@@ -1889,9 +1909,10 @@ function saveQuadro(confirmed) {
     intensidade: currentIntSalao || currentIntCozinha,
     intensidade_salao: currentIntSalao,
     intensidade_cozinha: currentIntCozinha,
-    grano_pessoas: currentUnit === "Asa Norte" ? (parseInt(document.getElementById("f-grano-pessoas").value)||0) : null,
+    intensidade_grano: currentUnit === "Asa Norte" ? currentIntGrano : null,
     salao: getEscalacao("salao"),
     cozinha: getEscalacao("cozinha"),
+    grano: currentUnit === "Asa Norte" ? getEscalacao("grano") : null,
     rupturas: rupturasData,
     meta: document.getElementById("f-meta").value,
     reservas: document.getElementById("f-reservas").value,
@@ -2075,7 +2096,7 @@ function formatQuadroHTML(q) {
         <div class="rp-info-item"><div class="rp-info-label">Turno</div><div class="rp-info-value">${q.turno}</div></div>
         <div class="rp-info-item"><div class="rp-info-label">Salão</div><div class="rp-info-value" style="color:${intColor}">${q.intensidade_salao||q.intensidade||'—'}</div></div>
         <div class="rp-info-item"><div class="rp-info-label">Cozinha</div><div class="rp-info-value" style="color:${({'Fraquíssima':'#3b6d11','Fraca':'#1D9E75','Média':'#c97a00','Forte':'#dc3545','Fortíssima':'#a32d2d'})[q.intensidade_cozinha]||'#555'}">${q.intensidade_cozinha||q.intensidade||'—'}</div></div>
-        ${q.grano_pessoas != null && q.grano_pessoas > 0 ? `<div class="rp-info-item"><div class="rp-info-label">Grano/Inforno</div><div class="rp-info-value" style="color:#185fa5">${q.grano_pessoas} pessoa${q.grano_pessoas>1?'s':''}</div></div>` : ''}
+        ${q.intensidade_grano ? `<div class="rp-info-item"><div class="rp-info-label">Grano/Inforno</div><div class="rp-info-value" style="color:#185fa5">${q.intensidade_grano}</div></div>` : ''}
       </div>
       <div class="rp-body">
         ${alertsHTML}
@@ -2087,6 +2108,7 @@ function formatQuadroHTML(q) {
           <div class="rp-section-title">👨‍🍳 Cozinha</div>
           <div class="rp-team-grid">${teamGrid(q.cozinha)}</div>
         </div>
+        ${q.grano && q.grano.length ? `<div class="rp-section"><div class="rp-section-title">🍕 Grano/Inforno</div><div class="rp-team-grid">${teamGrid(q.grano)}</div></div>` : ''}
         ${metricsHTML}
         ${rupturasHTML}
         ${obsHTML}
