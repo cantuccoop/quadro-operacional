@@ -334,7 +334,11 @@
 <div id="screen-form" class="screen">
   <button class="back" onclick="goHome()">← voltar</button>
   <div class="header-eyebrow" id="form-unidade-tag"></div>
-  <div class="header-title" style="margin-bottom:20px;">Novo Quadro</div>
+  <div class="header-title" style="margin-bottom:12px;">Novo Quadro</div>
+  <div id="form-ref-wrap" style="overflow-x:auto;margin-bottom:18px;display:none;">
+    <div class="section-title" style="margin-top:0;">Escala mínima de referência</div>
+    <div id="form-ref-table"></div>
+  </div>
 
   <div class="form-card">
     <div class="section-title" style="margin-top:0;">Data</div>
@@ -495,11 +499,9 @@ function refIntClass(val) {
   return "";
 }
 
-function renderReferencia(unitName) {
+function renderRefTableHTML(unitName) {
   const ref = ESCALA_REF[unitName];
-  document.getElementById("ref-eyebrow").textContent = unitName;
-  document.getElementById("ref-title").textContent = "Escalas de Referência";
-  if (!ref) { document.getElementById("ref-table-wrap").innerHTML = ""; return; }
+  if (!ref) return "";
   const turnos = ["Dia","Noite"];
   let html = `<table class="ref-table"><thead><tr><th class="col-label">Turno</th><th class="col-label">Setor</th>`;
   DIAS_SEMANA.forEach(d => html += `<th>${d}</th>`);
@@ -515,7 +517,7 @@ function renderReferencia(unitName) {
     });
   });
   html += `</tbody></table>`;
-  document.getElementById("ref-table-wrap").innerHTML = html;
+  return html;
 }
 
 function openUnitRef(unitName) {
@@ -1426,7 +1428,7 @@ function badgeClass(i) {
 function renderUnitList() {
   const el = document.getElementById("unit-list");
   el.innerHTML = Object.keys(UNITS).map(u =>
-    `<div class="card" onclick="openUnitRef('${u}')">
+    `<div class="card" onclick="startForm('${u}')">
       <div class="card-row">
         <div>
           <div class="card-title">${u}</div>
@@ -1505,6 +1507,15 @@ function startForm(unit) {
   currentTurno = "Dia";
   currentIntSalao = null; currentIntCozinha = null;
   document.getElementById("form-unidade-tag").textContent = unit + " · " + UNITS[unit].setor;
+  // Tabela de referência no formulário
+  const refWrap = document.getElementById("form-ref-wrap");
+  const refTable = document.getElementById("form-ref-table");
+  if (ESCALA_REF[unit]) {
+    refTable.innerHTML = renderRefTableHTML(unit);
+    refWrap.style.display = "block";
+  } else {
+    refWrap.style.display = "none";
+  }
   const today = new Date().toISOString().split("T")[0];
   document.getElementById("f-data").value = today;
   
