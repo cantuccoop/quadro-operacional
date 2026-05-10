@@ -364,6 +364,12 @@
     <div id="extras-cozinha"></div>
     <button type="button" id="btn-extra-cozinha" onclick="addExtraRow('cozinha')" class="btn btn-secondary" style="display:none;width:100%;padding:7px;margin-bottom:14px;font-size:13px;">+ Extra Cozinha</button>
   </div>
+  <div id="grano-section" style="display:none;">
+    <div class="section-title" style="margin-top:12px;">Grano / Inforno — Nº de pessoas</div>
+    <div class="form-card" style="padding:10px 14px;">
+      <input type="number" id="f-grano-pessoas" placeholder="Ex: 4" min="0" style="width:100%;">
+    </div>
+  </div>
 
   <div id="freela-counter" class="freela-counter">
     ★ <span id="freela-counter-text"></span>
@@ -1552,6 +1558,8 @@ function startForm(unit) {
   document.getElementById("salao-section").style.display = carneUnits.has(unit) ? "none" : "";
   document.getElementById("meta-section").style.display = carneUnits.has(unit) ? "none" : "";
   document.getElementById("reservas-section").style.display = carneUnits.has(unit) ? "none" : "";
+  document.getElementById("grano-section").style.display = unit === "Asa Norte" ? "block" : "none";
+  document.getElementById("f-grano-pessoas").value = "";
   ["alert-intensidade","alert-escala","alert-rupturas"].forEach(id => document.getElementById(id).style.display = "none");
   document.querySelectorAll(".turno-tab").forEach((t, i) => t.classList.toggle("active", i === 0));
   updateFreelaCounter();
@@ -1881,6 +1889,7 @@ function saveQuadro(confirmed) {
     intensidade: currentIntSalao || currentIntCozinha,
     intensidade_salao: currentIntSalao,
     intensidade_cozinha: currentIntCozinha,
+    grano_pessoas: currentUnit === "Asa Norte" ? (parseInt(document.getElementById("f-grano-pessoas").value)||0) : null,
     salao: getEscalacao("salao"),
     cozinha: getEscalacao("cozinha"),
     rupturas: rupturasData,
@@ -2066,6 +2075,7 @@ function formatQuadroHTML(q) {
         <div class="rp-info-item"><div class="rp-info-label">Turno</div><div class="rp-info-value">${q.turno}</div></div>
         <div class="rp-info-item"><div class="rp-info-label">Salão</div><div class="rp-info-value" style="color:${intColor}">${q.intensidade_salao||q.intensidade||'—'}</div></div>
         <div class="rp-info-item"><div class="rp-info-label">Cozinha</div><div class="rp-info-value" style="color:${({'Fraquíssima':'#3b6d11','Fraca':'#1D9E75','Média':'#c97a00','Forte':'#dc3545','Fortíssima':'#a32d2d'})[q.intensidade_cozinha]||'#555'}">${q.intensidade_cozinha||q.intensidade||'—'}</div></div>
+        ${q.grano_pessoas != null && q.grano_pessoas > 0 ? `<div class="rp-info-item"><div class="rp-info-label">Grano/Inforno</div><div class="rp-info-value" style="color:#185fa5">${q.grano_pessoas} pessoa${q.grano_pessoas>1?'s':''}</div></div>` : ''}
       </div>
       <div class="rp-body">
         ${alertsHTML}
