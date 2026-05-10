@@ -1569,7 +1569,6 @@ function startForm(unit) {
   document.getElementById("meta-section").style.display = carneUnits.has(unit) ? "none" : "";
   document.getElementById("reservas-section").style.display = carneUnits.has(unit) ? "none" : "";
   document.getElementById("grano-section").style.display = unit === "Asa Norte" ? "block" : "none";
-  document.getElementById("f-grano-pessoas").value = "";
   ["alert-intensidade","alert-escala","alert-rupturas"].forEach(id => document.getElementById(id).style.display = "none");
   document.querySelectorAll(".turno-tab").forEach((t, i) => t.classList.toggle("active", i === 0));
   updateFreelaCounter();
