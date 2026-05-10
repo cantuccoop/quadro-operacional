@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -190,16 +190,24 @@
   .dash-kpi.alert .dash-kpi-val { color:#a32d2d; }
   .dash-kpi.freela { background:#e6f1fb; border-color:#c8dff7; }
   .dash-kpi.freela .dash-kpi-val { color:#185fa5; }
+  .dash-charts-top { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:14px; }
+  .dash-charts-top .dash-chart-card { margin-bottom:0; }
+  .dash-ruptura-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:14px; }
   .dash-chart-card { background:#fff; border:1px solid #e8e6e0; border-radius:12px; padding:14px 16px; margin-bottom:14px; }
   .dash-chart-title { font-size:13px; font-weight:700; margin-bottom:4px; color:#1a1a1a; }
-  .dash-chart-card.dark { background:#1e1b3a; border-color:#2d2a50; }
-  .dash-chart-card.dark .dash-chart-title { color:#fff; }
   .dash-rup-legend { margin-top:10px; display:flex; flex-direction:column; gap:4px; }
-  .dash-rup-legend-item { display:flex; align-items:center; gap:8px; font-size:12px; color:#ddd; }
+  .dash-rup-legend-item { display:flex; align-items:center; gap:8px; font-size:12px; color:#555; }
   .dash-rup-legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
   .dash-rup-legend-name { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .dash-rup-legend-pct { font-weight:700; color:#fff; min-width:36px; text-align:right; }
-  .dash-chart-sub { font-size:10px; color:#aaa; margin-bottom:10px; }
+  .dash-rup-legend-pct { font-weight:700; color:#1a1a1a; min-width:36px; text-align:right; }
+  .dash-chart-sub { font-size:10px; color:#999; margin-bottom:10px; }
+  .rup-detail-panel { margin-top:12px; border:1px solid #e8e6e0; border-radius:8px; overflow:hidden; font-size:12px; }
+  .rup-detail-header { background:#f5f4f0; padding:8px 12px; font-size:12px; color:#1a1a1a; border-bottom:1px solid #e8e6e0; }
+  .rup-detail-row { display:grid; grid-template-columns:80px 1fr 1fr; gap:6px; padding:7px 12px; border-bottom:1px solid #f0eeea; align-items:center; }
+  .rup-detail-row:last-child { border-bottom:none; }
+  .rup-detail-date { font-weight:600; color:#1a1a1a; }
+  .rup-detail-turno { color:#185fa5; font-weight:500; }
+  .rup-detail-unit { color:#888; font-size:11px; }
   .dash-empty-chart { text-align:center; color:#bbb; font-size:12px; padding:20px 0; display:none; }
   .dash-filter { display:flex; gap:8px; margin-bottom:12px; align-items:center; }
   .dash-filter select { flex:1; }
@@ -255,18 +263,20 @@
     </select>
   </div>
   <div id="dash-charts">
-    <div class="dash-chart-card">
-      <div class="dash-chart-title">📈 Freelas</div>
-      <canvas id="chart-freelas" height="120"></canvas>
-    </div>
-    <div class="dash-chart-card">
-      <div class="dash-chart-title">🕳️ Posições vazias</div>
-      <canvas id="chart-vazios" height="120"></canvas>
+    <div class="dash-charts-top">
+      <div class="dash-chart-card">
+        <div class="dash-chart-title">📈 Freelas</div>
+        <canvas id="chart-freelas" height="140"></canvas>
+      </div>
+      <div class="dash-chart-card">
+        <div class="dash-chart-title">🕳️ Posições vazias</div>
+        <canvas id="chart-vazios" height="140"></canvas>
+      </div>
     </div>
     <div class="dash-chart-card">
       <div class="dash-chart-title">⚠️ Escala abaixo do mínimo</div>
       <div class="dash-chart-sub">Por dia da semana</div>
-      <canvas id="chart-escala-min" height="130"></canvas>
+      <canvas id="chart-escala-min" height="110"></canvas>
     </div>
     <div id="dash-ruptura-pies"></div>
     <button type="button" class="btn btn-secondary" id="btn-download-rupturas" onclick="downloadRupturasCSV()" style="width:100%;margin-top:4px;display:none;">⬇ Baixar Rupturas (.csv)</button>
@@ -1166,10 +1176,12 @@ function renderCharts(data) {
   data.forEach(q=>{ if(!q.data||!q.intensidade)return; const dow=new Date(q.data+'T12:00:00').getDay(); total[dow]++; if(INT_ORDER.indexOf(q.intensidade)<INT_ORDER.indexOf(ESCALA_MIN_DIA[dow]))abaixo[dow]++; });
   _charts.escala=new Chart(document.getElementById('chart-escala-min'),{ type:'bar', data:{labels:DIAS,datasets:[{label:'Abaixo',data:abaixo,backgroundColor:'#a32d2d',borderRadius:4},{label:'Total',data:total,backgroundColor:'#e8e6e0',borderRadius:4}]}, options:{responsive:true,plugins:{legend:{display:true,labels:{boxWidth:10,font:{size:10}}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}} });
 
-  // 4. Donut por categoria de ruptura (tema escuro)
-  const COLORS=['#e05c5c','#e0874a','#4a9fe0','#1D9E75','#b07d3a','#9b59b6','#1abc9c','#f1c40f','#e74c3c','#3498db','#2ecc71','#e67e22','#1abc9c','#8e44ad','#16a085','#d35400'];
+  // 4. Donut por categoria de ruptura
+  const COLORS=['#a32d2d','#185fa5','#1D9E75','#c97a00','#6d4c9e','#2d7a6e','#b04a1a','#3d6ea8','#7a2d5a','#4a7a3d','#8a5a1a','#1a5a7a','#7a3d2d','#3d7a5a','#6a3d8a','#5a7a1a'];
   const byCat={};
-  data.forEach(q=>{ Object.entries(q.rupturas||{}).forEach(([cat,arr])=>{ if(!(arr||[]).length)return; if(!byCat[cat])byCat[cat]={}; arr.forEach(item=>{ if(item)byCat[cat][item]=(byCat[cat][item]||0)+1; }); }); });
+  // byCatOcorrencias guarda {cat: {item: [{data, turno, unidade}]}}
+  const byCatOcorrencias={};
+  data.forEach(q=>{ Object.entries(q.rupturas||{}).forEach(([cat,arr])=>{ if(!(arr||[]).length)return; if(!byCat[cat])byCat[cat]={}; if(!byCatOcorrencias[cat])byCatOcorrencias[cat]={}; arr.forEach(item=>{ if(item){ byCat[cat][item]=(byCat[cat][item]||0)+1; if(!byCatOcorrencias[cat][item])byCatOcorrencias[cat][item]=[]; byCatOcorrencias[cat][item].push({data:q.data,turno:q.turno,unidade:q.unidade}); } }); }); });
   const pc=document.getElementById('dash-ruptura-pies');
   const dlBtn=document.getElementById('btn-download-rupturas');
   if(!Object.keys(byCat).length){
@@ -1177,16 +1189,26 @@ function renderCharts(data) {
     if(dlBtn) dlBtn.style.display='none'; return;
   }
   if(dlBtn) dlBtn.style.display='block';
+  const rupGrid=document.createElement('div'); rupGrid.className='dash-ruptura-grid'; pc.appendChild(rupGrid);
   Object.entries(byCat).forEach(([cat,items],i)=>{
     const entries=Object.entries(items).sort((a,b)=>b[1]-a[1]);
     const total=entries.reduce((s,e)=>s+e[1],0);
     const id='pie_'+cat.replace(/[^a-z0-9]/gi,'_');
-    const legendHTML=entries.map((e,j)=>`<div class="dash-rup-legend-item"><div class="dash-rup-legend-dot" style="background:${COLORS[j%COLORS.length]}"></div><div class="dash-rup-legend-name" title="${e[0]}">${e[0]}</div><div class="dash-rup-legend-pct">${((e[1]/total)*100).toFixed(1)}%</div></div>`).join('');
-    const card=document.createElement('div'); card.className='dash-chart-card dark';
-    card.innerHTML=`<div class="dash-chart-title">🚨 ${cat}</div><canvas id="${id}" height="200"></canvas><div class="dash-rup-legend">${legendHTML}</div>`;
-    pc.appendChild(card);
+    const detailId='detail_'+cat.replace(/[^a-z0-9]/gi,'_');
+    const card=document.createElement('div'); card.className='dash-chart-card';
+    card.innerHTML=`<div class="dash-chart-title">🚨 ${cat}</div><canvas id="${id}" height="180" style="cursor:pointer"></canvas><div id="${detailId}" class="rup-detail-panel" style="display:none"></div>`;
+    rupGrid.appendChild(card);
     requestAnimationFrame(()=>{
-      _charts['p'+i]=new Chart(document.getElementById(id),{type:'doughnut',data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:COLORS.slice(0,entries.length),borderWidth:0,hoverOffset:6}]},options:{responsive:true,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${((ctx.parsed/total)*100).toFixed(1)}%`}}}}});
+      const chart=new Chart(document.getElementById(id),{type:'doughnut',data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:COLORS.slice(0,entries.length),borderWidth:0,hoverOffset:6}]},options:{responsive:true,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed}x (${((ctx.parsed/total)*100).toFixed(1)}%)`}}},onClick:(evt,els)=>{
+        const panel=document.getElementById(detailId);
+        if(!els.length){panel.style.display='none';return;}
+        const label=entries[els[0].index][0];
+        const ocorr=(byCatOcorrencias[cat][label]||[]).sort((a,b)=>a.data>b.data?1:-1);
+        const rows=ocorr.map(o=>`<div class="rup-detail-row"><span class="rup-detail-date">${o.data.split('-').reverse().join('/')}</span><span class="rup-detail-turno">${o.turno}</span><span class="rup-detail-unit">${o.unidade||''}</span></div>`).join('');
+        panel.innerHTML=`<div class="rup-detail-header"><strong>${label}</strong> <span style="color:#888;font-size:11px;">${ocorr.length}x</span> <button onclick="this.parentElement.parentElement.style.display='none'" style="float:right;background:none;border:none;cursor:pointer;font-size:16px;line-height:1;color:#888">×</button></div>${rows}`;
+        panel.style.display='block';
+      }}}});
+      _charts['p'+i]=chart;
     });
   });
 }
@@ -2009,10 +2031,7 @@ function renderDashboard(filteredData) {
       <div class="dash-kpi-val">${totalAlerta}</div>
       <div class="dash-kpi-lbl">Com alerta</div>
     </div>
-    <div class="dash-kpi freela">
-      <div class="dash-kpi-val">${totalFreelas}</div>
-      <div class="dash-kpi-lbl">Freelas</div>
-    </div>`;
+    `;
 
   // Table rows — most recent first
   const sorted = data.slice().sort((a, b) => b.data.localeCompare(a.data));
@@ -2048,3 +2067,4 @@ if (location.hash === '#dashboard') openDashboard();
 </html>
 
 <!-- deployed -->
+
