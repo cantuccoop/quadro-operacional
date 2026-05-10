@@ -190,6 +190,22 @@
   .dash-kpi.alert .dash-kpi-val { color:#a32d2d; }
   .dash-kpi.freela { background:#e6f1fb; border-color:#c8dff7; }
   .dash-kpi.freela .dash-kpi-val { color:#185fa5; }
+  /* Tabela de referência */
+  .ref-table { border-collapse:collapse; font-size:11px; min-width:600px; width:100%; }
+  .ref-table th { background:#f5f4f0; padding:6px 8px; text-align:center; font-size:10px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.04em; border:1px solid #e0ddd7; white-space:nowrap; }
+  .ref-table th.col-label { text-align:left; }
+  .ref-table td { padding:6px 8px; border:1px solid #e0ddd7; text-align:center; font-size:11px; font-weight:600; white-space:nowrap; }
+  .ref-table td.col-label { text-align:left; color:#555; font-weight:500; background:#faf9f7; }
+  .ref-table td.turno-label { font-weight:700; color:#1a1a1a; background:#f5f4f0; }
+  .ref-int-fraquissima { background:#e8f5e9; color:#2e7d32; }
+  .ref-int-fraca { background:#f1f8e9; color:#558b2f; }
+  .ref-int-media { background:#fff8e1; color:#f57f17; }
+  .ref-int-forte { background:#fce4ec; color:#c62828; }
+  .ref-int-fortissima { background:#b71c1c; color:#fff; }
+  .ref-int-fechada { background:#1a1a1a; color:#fff; }
+  .ref-int-producao { background:#4a235a; color:#fff; }
+  .ref-int-min { background:#e3f2fd; color:#1565c0; }
+
   .dash-charts-top { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:14px; }
   .dash-charts-top .dash-chart-card { margin-bottom:0; }
   .dash-ruptura-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
@@ -225,6 +241,18 @@
 </head>
 <body>
 <div class="app">
+
+<!-- ESCALA REFERÊNCIA -->
+<div id="screen-referencia" class="screen">
+  <button class="back" onclick="goHome()">← voltar</button>
+  <div class="header">
+    <div class="header-eyebrow" id="ref-eyebrow">Grupo 3V</div>
+    <div class="header-title" id="ref-title"></div>
+  </div>
+  <div class="section-title">Escala mínima de referência</div>
+  <div id="ref-table-wrap" style="overflow-x:auto;margin-bottom:18px;"></div>
+  <button class="btn btn-primary" onclick="startFormFromRef()" style="width:100%;">Preencher quadro →</button>
+</div>
 
 <!-- HOME -->
 <div id="screen-home" class="screen active">
@@ -380,6 +408,130 @@
 </div>
 
 <script>
+// ─── ESCALA MÍNIMA DE REFERÊNCIA ───────────────────────────────────────────
+const DIAS_SEMANA = ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
+const ESCALA_REF = {
+  "Asa Sul": {
+    setores: ["Salão","Cozinha"],
+    turnos: {
+      "Dia": {
+        "Salão":   ["Fechada","Fraca","Fraca","Média","Forte","Forte","Fortíssima"],
+        "Cozinha": ["Produção","Média","Média","Média","Forte","Forte","Forte"]
+      },
+      "Noite": {
+        "Salão":   ["Fraca","Fraca","Fraca","Forte","Forte","Fortíssima","Fortíssima"],
+        "Cozinha": ["Fraca","Média","Média","Forte","Forte","Forte","Forte"]
+      }
+    }
+  },
+  "Asa Norte": {
+    setores: ["Salão","Cozinha","Grano/Inforno"],
+    turnos: {
+      "Dia": {
+        "Salão":        ["Fraquíssima","Fraquíssima","Fraca","Fraca","Média","Forte","Forte"],
+        "Cozinha":      ["Média","Fraca","Média","Média","Forte","Forte","Fortíssima"],
+        "Grano/Inforno":["Fechada","Fechada","Fechada","Fechada","MIN: 1","MIN: 1","MIN: 1"]
+      },
+      "Noite": {
+        "Salão":        ["Fraca","Fraca","Média","Média","Forte","Forte","Média"],
+        "Cozinha":      ["Fraca","Fraca","Média","Média","Fortíssima","Fortíssima","Média"],
+        "Grano/Inforno":["MIN: 4","MIN: 3","MIN: 4","MIN: 4","MIN: 6","MIN: 6","MIN: 6"]
+      }
+    }
+  },
+  "Águas Claras": {
+    setores: ["Salão","Cozinha"],
+    turnos: {
+      "Dia": {
+        "Salão":   ["Fraquíssima","Fraquíssima","Fraca","Fraca","Média","Forte","Forte"],
+        "Cozinha": ["Fraquíssima","Fraca","Fraca","Fraca","Média","Forte","Forte"]
+      },
+      "Noite": {
+        "Salão":   ["Fraca","Fraca","Média","Média","Forte","Forte","Média"],
+        "Cozinha": ["Fraca","Fraca","Média","Média","Forte","Forte","Média"]
+      }
+    }
+  },
+  "Superquadra Norte": {
+    setores: ["Salão","Cozinha"],
+    turnos: {
+      "Dia": {
+        "Salão":   ["Fechada","Fraca","Fraca","Média","Forte","Forte","Fortíssima"],
+        "Cozinha": ["Fechada","Fraca","Média","Média","Média","Forte","Forte"]
+      },
+      "Noite": {
+        "Salão":   ["Fechada","Fraca","Fraca","Fraca","Média","Média","Fechada"],
+        "Cozinha": ["Fechada","Fraquíssima","Fraquíssima","Fraquíssima","Fraca","Fraca","Fechada"]
+      }
+    }
+  },
+  "Superquadra Mané": {
+    setores: ["Cozinha"],
+    turnos: {
+      "Dia":   { "Cozinha": ["Fraca","Média","Média","Forte","Forte","Forte","Forte"] },
+      "Noite": { "Cozinha": ["Fraca","Média","Média","Forte","Forte","Forte","Fraca"] }
+    }
+  },
+  "Véi Chico": {
+    setores: ["Cozinha"],
+    turnos: {
+      "Dia":   { "Cozinha": ["Fraca","Média","Média","Forte","Forte","Forte","Forte"] },
+      "Noite": { "Cozinha": ["Fraca","Média","Média","Forte","Forte","Forte","Fraca"] }
+    }
+  }
+};
+
+function refIntClass(val) {
+  if (!val) return "";
+  const v = val.toLowerCase();
+  if (v === "fechada") return "ref-int-fechada";
+  if (v === "produção" || v === "producao") return "ref-int-producao";
+  if (v.startsWith("min:")) return "ref-int-min";
+  if (v === "fraquíssima" || v === "fraquissima") return "ref-int-fraquissima";
+  if (v === "fraca") return "ref-int-fraca";
+  if (v === "média" || v === "media") return "ref-int-media";
+  if (v === "forte") return "ref-int-forte";
+  if (v === "fortíssima" || v === "fortissima") return "ref-int-fortissima";
+  return "";
+}
+
+function renderReferencia(unitName) {
+  const ref = ESCALA_REF[unitName];
+  document.getElementById("ref-eyebrow").textContent = unitName;
+  document.getElementById("ref-title").textContent = "Escalas de Referência";
+  if (!ref) { document.getElementById("ref-table-wrap").innerHTML = ""; return; }
+  const turnos = ["Dia","Noite"];
+  let html = `<table class="ref-table"><thead><tr><th class="col-label">Turno</th><th class="col-label">Setor</th>`;
+  DIAS_SEMANA.forEach(d => html += `<th>${d}</th>`);
+  html += `</tr></thead><tbody>`;
+  turnos.forEach(turno => {
+    ref.setores.forEach((setor, si) => {
+      const vals = ref.turnos[turno]?.[setor] || [];
+      html += `<tr>`;
+      if (si === 0) html += `<td class="turno-label" rowspan="${ref.setores.length}">${turno}</td>`;
+      html += `<td class="col-label">${setor}</td>`;
+      vals.forEach(v => html += `<td class="${refIntClass(v)}">${v || "—"}</td>`);
+      html += `</tr>`;
+    });
+  });
+  html += `</tbody></table>`;
+  document.getElementById("ref-table-wrap").innerHTML = html;
+}
+
+function openUnitRef(unitName) {
+  currentUnit = unitName;
+  if (ESCALA_REF[unitName]) {
+    renderReferencia(unitName);
+    showScreen("referencia");
+  } else {
+    startForm(unitName);
+  }
+}
+
+function startFormFromRef() {
+  startForm(currentUnit);
+}
+
 // ─── UNIDADES E ESCALAS ────────────────────────────────────────────────────
 const UNITS = {
   "Asa Sul": {
@@ -1274,7 +1426,7 @@ function badgeClass(i) {
 function renderUnitList() {
   const el = document.getElementById("unit-list");
   el.innerHTML = Object.keys(UNITS).map(u =>
-    `<div class="card" onclick="startForm('${u}')">
+    `<div class="card" onclick="openUnitRef('${u}')">
       <div class="card-row">
         <div>
           <div class="card-title">${u}</div>
