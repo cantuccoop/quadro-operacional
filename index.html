@@ -208,7 +208,8 @@
 
   .dash-charts-top { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:14px; }
   .dash-charts-top .dash-chart-card { margin-bottom:0; }
-  .dash-ruptura-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+  .dash-ruptura-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+  .dash-ruptura-grid .dash-chart-card { padding:10px 10px; }
   .dash-chart-card { background:#fff; border:1px solid #e8e6e0; border-radius:12px; padding:14px 16px; margin-bottom:14px; }
   .dash-chart-title { font-size:13px; font-weight:700; margin-bottom:4px; color:#1a1a1a; }
   .dash-rup-legend { margin-top:10px; display:flex; flex-direction:column; gap:4px; }
@@ -1395,7 +1396,7 @@ function renderCharts(data) {
     const id='pie_'+cat.replace(/[^a-z0-9]/gi,'_');
     const detailId='detail_'+cat.replace(/[^a-z0-9]/gi,'_');
     const card=document.createElement('div'); card.className='dash-chart-card';
-    card.innerHTML=`<div class="dash-chart-title">🚨 ${cat}</div><canvas id="${id}" height="120" style="cursor:pointer"></canvas><div id="${detailId}" class="rup-detail-panel" style="display:none"></div>`;
+    card.innerHTML=`<div class="dash-chart-title">🚨 ${cat}</div><canvas id="${id}" height="90" style="cursor:pointer"></canvas><div id="${detailId}" class="rup-detail-panel" style="display:none"></div>`;
     rupGrid.appendChild(card);
     requestAnimationFrame(()=>{
       const chart=new Chart(document.getElementById(id),{type:'doughnut',data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:COLORS.slice(0,entries.length),borderWidth:0,hoverOffset:6}]},options:{responsive:true,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed}x (${((ctx.parsed/total)*100).toFixed(1)}%)`}}},onClick:(evt,els)=>{
