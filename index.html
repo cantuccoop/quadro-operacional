@@ -1113,11 +1113,9 @@ function addRupturaFromCascade(type) {
   const prodVal = inp.dataset.selected || "";
   if (!catVal || !prodVal) return;
   if (!rupturasTags[catVal]) rupturasTags[catVal] = [];
-  if (!rupturasTags[catVal].includes(prodVal)) {
-    rupturasTags[catVal].push(prodVal);
-    renderRupturaTagsCascade(type);
-    resetConfirmBtn();
-  }
+  rupturasTags[catVal].push(prodVal);
+  renderRupturaTagsCascade(type);
+  resetConfirmBtn();
   inp.value = ""; inp.dataset.selected = "";
   document.getElementById(`rc-dropdown-${type}`).style.display = "none";
 }
@@ -1769,11 +1767,9 @@ function addRupturaTag(campo, selectEl) {
   const val = selectEl.value;
   if (!val) return;
   if (!rupturasTags[campo]) rupturasTags[campo] = [];
-  if (!rupturasTags[campo].includes(val)) {
-    rupturasTags[campo].push(val);
-    renderRupturaTags(campo);
-    resetConfirmBtn();
-  }
+  rupturasTags[campo].push(val);
+  renderRupturaTags(campo);
+  resetConfirmBtn();
   selectEl.value = "";
 }
 
