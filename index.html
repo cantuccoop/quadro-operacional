@@ -1781,15 +1781,44 @@ function getExtras(setor) {
   });
 }
 
+// Retorna os valores já selecionados em todas as posições, exceto a atual
+function getUsedColabs(excludeSetor, excludeIdx) {
+  const SPECIAL = new Set(['__freela__','__atestado__','__folga__','__Semanateste__','__naescalado__']);
+  const used = new Set();
+  document.querySelectorAll('input[id^="pos-"]').forEach(el => {
+    const rest = el.id.slice(4); // remove "pos-"
+    const dash1 = rest.indexOf('-');
+    const setor = rest.slice(0, dash1);
+    const idxStr = rest.slice(dash1 + 1);
+    if (setor === String(excludeSetor) && idxStr === String(excludeIdx)) return;
+    const v = el.dataset.selected || '';
+    if (v && !SPECIAL.has(v)) used.add(v);
+  });
+  return used;
+}
+
 function filterColab(setor, idx, query) {
   const colaboradores = (COLABORADORES[currentUnit] || []).slice().sort((a,b) => a.localeCompare(b,'pt-BR'));
   const q = query.toLowerCase();
-  const all = [{val:'__freela__',label:'★ Freela'},{val:'__atestado__',label:'Atestado'},{val:'__folga__',label:'Folga'},{val:'__Semanateste__',label:'Semana Teste'}, ...colaboradores.map(c => ({val:c,label:c}))];
+  const SPECIAL = [
+    {val:'__freela__',    label:'★ Freela'},
+    {val:'__naescalado__',label:'✗ Não escalado'},
+    {val:'__atestado__',  label:'Atestado'},
+    {val:'__folga__',     label:'Folga'},
+    {val:'__Semanateste__',label:'Semana Teste'},
+  ];
+  const usedColabs = getUsedColabs(setor, idx);
+  const colabOpts = colaboradores
+    .filter(c => !usedColabs.has(c))
+    .map(c => ({val:c, label:c}));
+  const all = [...SPECIAL, ...colabOpts];
   const filtered = q ? all.filter(c => c.label.toLowerCase().includes(q)) : all;
   const dd = document.getElementById(`pos-dd-${setor}-${idx}`);
-  dd.innerHTML = filtered.map(c =>
-    `<div class="ruptura-dropdown-item" onmousedown="selectColab('${setor}',${idx},'${c.val.replace(/'/g,"&#39;")}','${c.label.replace(/'/g,"&#39;")}')">${c.label}</div>`
-  ).join('');
+  dd.innerHTML = filtered.map(c => {
+    const isNaoEsc = c.val === '__naescalado__';
+    const style = isNaoEsc ? 'color:#a32d2d;font-weight:600;' : '';
+    return `<div class="ruptura-dropdown-item" style="${style}" onmousedown="selectColab('${setor}',${JSON.stringify(idx)},'${c.val.replace(/'/g,"&#39;")}','${c.label.replace(/'/g,"&#39;")}')">${c.label}</div>`;
+  }).join('');
   dd.style.display = filtered.length ? 'block' : 'none';
 }
 
@@ -1798,7 +1827,11 @@ function selectColab(setor, idx, val, label) {
   inp.dataset.selected = val;
   inp.value = label;
   inp.classList.toggle('freela-on', val === '__freela__');
-  inp.style.color = val === '__atestado__' ? '#854f0b' : val === '__folga__' ? '#1D9E75' : '';
+  inp.style.color = val === '__atestado__' ? '#854f0b'
+    : val === '__folga__' ? '#1D9E75'
+    : val === '__naescalado__' ? '#a32d2d'
+    : '';
+  inp.style.fontWeight = val === '__naescalado__' ? '600' : '';
   document.getElementById(`pos-dd-${setor}-${idx}`).style.display = 'none';
   updateFreelaCounter();
   resetConfirmBtn();
