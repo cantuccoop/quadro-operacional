@@ -441,26 +441,34 @@
 </div>
 
 
+<!-- GERENCIAR EQUIPE — Escolher Unidade -->
+<div id="screen-equipe-select" class="screen">
+  <button class="back" onclick="goHome()">← voltar</button>
+  <div class="header-title" style="margin-bottom:4px;">Gerenciar Equipe</div>
+  <div class="header-eyebrow" style="margin-bottom:18px;">Selecione sua unidade</div>
+  <div id="eq-unit-select-list"></div>
+</div>
+
 <!-- GERENCIAR EQUIPE — Senha -->
 <div id="screen-equipe-pass" class="screen">
-  <button class="back" onclick="goHome()">← voltar</button>
+  <button class="back" onclick="showScreen('equipe-select')">← voltar</button>
   <div class="eq-pass-wrap">
-    <div style="font-size:32px;text-align:center;margin-bottom:8px;">👥</div>
-    <div class="eq-pass-title">Gerenciar Equipe</div>
-    <div class="eq-pass-sub">Digite a senha para continuar</div>
+    <div style="font-size:32px;text-align:center;margin-bottom:8px;">🔒</div>
+    <div class="eq-pass-title" id="eq-pass-unit-title">Unidade</div>
+    <div class="eq-pass-sub">Digite a senha da unidade</div>
     <input type="password" id="eq-pass-input" class="eq-pass-input" placeholder="Senha"
       onkeydown="if(event.key==='Enter') eqTryAuth()">
     <div id="eq-pass-error" class="eq-pass-error">Senha incorreta.</div>
     <button class="btn btn-primary" onclick="eqTryAuth()">Entrar</button>
-    <button class="btn btn-secondary" onclick="goHome()">Cancelar</button>
+    <button class="btn btn-secondary" onclick="showScreen('equipe-select')">Cancelar</button>
   </div>
 </div>
 
 <!-- GERENCIAR EQUIPE — Editor -->
 <div id="screen-equipe" class="screen">
-  <button class="back" onclick="goHome()">← voltar</button>
-  <div class="header-title" style="margin-bottom:4px;">Gerenciar Equipe</div>
-  <div class="header-eyebrow" style="margin-bottom:18px;">Adicione ou remova funcionários por unidade</div>
+  <button class="back" onclick="showScreen('equipe-select')">← voltar</button>
+  <div class="header-eyebrow" id="eq-editor-eyebrow" style="margin-bottom:2px;">Gerenciar Equipe</div>
+  <div class="header-title" id="eq-editor-title" style="margin-bottom:18px;"></div>
   <div id="eq-unit-list"></div>
   <div style="height:70px;"></div>
   <button class="eq-save-btn" id="eq-save-btn" onclick="eqSave()">✓ Salvar alterações</button>
@@ -2338,18 +2346,56 @@ function renderDashboard(filteredData) {
 // ─── GERENCIAR EQUIPE ──────────────────────────────────────────────────────
 const EQ_COL = 'config';
 const EQ_DOC = 'responsaveis';
-let eqData = {}; // {unitName: [names]}
+let eqData = {};       // {unitName: [names]} — carregado do Firebase
+let eqCurrentUnit = null; // unidade selecionada
+
+// Senhas por unidade (+ master)
+const EQ_PASSWORDS = {
+  "Asa Sul":           "sul3v",
+  "Asa Norte":         "norte3v",
+  "Águas Claras":      "aguas3v",
+  "Superquadra Norte": "sqn3v",
+  "Véi Chico":         "veichico3v",
+  "Superquadra Mané":  "mane3v",
+  "Koji":              "koji3v"
+};
+const EQ_MASTER = "grupo3v";
 
 function openEquipe() {
-  showScreen("equipe-pass");
+  eqCurrentUnit = null;
+  eqRenderSelectList();
+  showScreen("equipe-select");
+}
+
+function eqRenderSelectList() {
+  const el = document.getElementById("eq-unit-select-list");
+  el.innerHTML = Object.keys(UNITS).map(uName =>
+    `<div class="card" onclick="eqSelectUnit('${uName.replace(/'/g,"\\'")}')">
+      <div class="card-row">
+        <div>
+          <div class="card-title">${uName}</div>
+          <div class="card-sub">${UNITS[uName].setor}</div>
+        </div>
+        <div style="font-size:18px;color:#ccc;">›</div>
+      </div>
+    </div>`
+  ).join("");
+}
+
+function eqSelectUnit(uName) {
+  eqCurrentUnit = uName;
+  document.getElementById("eq-pass-unit-title").textContent = uName;
   document.getElementById("eq-pass-input").value = "";
   document.getElementById("eq-pass-error").style.display = "none";
   document.getElementById("eq-pass-input").classList.remove("err");
+  showScreen("equipe-pass");
+  setTimeout(() => document.getElementById("eq-pass-input").focus(), 200);
 }
 
 function eqTryAuth() {
   const val = document.getElementById("eq-pass-input").value;
-  if (val === "grupo3v") {
+  const ok = val === EQ_MASTER || val === EQ_PASSWORDS[eqCurrentUnit];
+  if (ok) {
     eqLoadAndOpen();
   } else {
     const inp = document.getElementById("eq-pass-input");
@@ -2365,54 +2411,51 @@ async function eqLoadAndOpen() {
     const doc = await db.collection(EQ_COL).doc(EQ_DOC).get();
     eqData = doc.exists ? doc.data() : {};
   } catch(e) { eqData = {}; }
+  document.getElementById("eq-editor-title").textContent = eqCurrentUnit;
   eqRender();
   showScreen("equipe");
 }
 
 function eqRender() {
   const container = document.getElementById("eq-unit-list");
-  const unitNames = Object.keys(UNITS);
-  container.innerHTML = unitNames.map(uName => {
-    const names = eqData[uName] || [];
-    const nameRows = names.length
-      ? names.map((n, i) => `<div class="eq-name-row">
-          <span class="eq-name-text">${n}</span>
-          <button class="eq-remove-btn" onclick="eqRemove('${uName}',${i})">Remover</button>
-        </div>`).join("")
-      : `<div class="eq-empty-msg">Nenhum funcionário cadastrado</div>`;
-    return `<div class="eq-unit-card">
-      <div class="eq-unit-header">
-        <div class="eq-unit-dot">${uName[0]}</div>
-        <div class="eq-unit-name">${uName}</div>
-      </div>
-      <div class="eq-name-list" id="eq-list-${CSS.escape(uName)}">${nameRows}</div>
-      <div class="eq-add-row">
-        <input type="text" class="eq-add-input" id="eq-inp-${CSS.escape(uName)}"
-          placeholder="Nome do funcionário"
-          onkeydown="if(event.key==='Enter') eqAdd('${uName}')">
-        <button class="eq-add-btn" onclick="eqAdd('${uName}')">+ Adicionar</button>
-      </div>
-    </div>`;
-  }).join("");
+  const uName = eqCurrentUnit;
+  const names = eqData[uName] || [];
+  const nameRows = names.length
+    ? names.map((n, i) => `<div class="eq-name-row">
+        <span class="eq-name-text">${n}</span>
+        <button class="eq-remove-btn" onclick="eqRemove(${i})">Remover</button>
+      </div>`).join("")
+    : `<div class="eq-empty-msg">Nenhum funcionário cadastrado</div>`;
+  container.innerHTML = `<div class="eq-unit-card">
+    <div class="eq-unit-header">
+      <div class="eq-unit-dot">${uName[0]}</div>
+      <div class="eq-unit-name">${uName}</div>
+    </div>
+    <div class="eq-name-list" id="eq-name-list">${nameRows}</div>
+    <div class="eq-add-row">
+      <input type="text" class="eq-add-input" id="eq-inp"
+        placeholder="Nome do funcionário"
+        onkeydown="if(event.key==='Enter') eqAdd()">
+      <button class="eq-add-btn" onclick="eqAdd()">+ Adicionar</button>
+    </div>
+  </div>`;
 }
 
-function eqAdd(uName) {
-  const safeId = CSS.escape(uName);
-  const inp = document.getElementById("eq-inp-" + safeId);
-  const n = inp.value.trim();
+function eqAdd() {
+  const inp = document.getElementById("eq-inp");
+  const n = (inp.value || "").trim();
   if (!n) return;
-  if (!eqData[uName]) eqData[uName] = [];
-  eqData[uName].push(n);
+  if (!eqData[eqCurrentUnit]) eqData[eqCurrentUnit] = [];
+  eqData[eqCurrentUnit].push(n);
   inp.value = "";
   eqRender();
-  // re-focus the input for this unit after rerender
-  const newInp = document.getElementById("eq-inp-" + safeId);
+  const newInp = document.getElementById("eq-inp");
   if (newInp) newInp.focus();
 }
 
-function eqRemove(uName, idx) {
-  if (!eqData[uName]) return;
-  eqData[uName].splice(idx, 1);
+function eqRemove(idx) {
+  if (!eqData[eqCurrentUnit]) return;
+  eqData[eqCurrentUnit].splice(idx, 1);
   eqRender();
 }
 
@@ -2421,7 +2464,11 @@ async function eqSave() {
   btn.disabled = true;
   btn.textContent = "Salvando...";
   try {
-    await db.collection(EQ_COL).doc(EQ_DOC).set(eqData);
+    // Salva apenas a unidade atual (merge para não apagar outras)
+    await db.collection(EQ_COL).doc(EQ_DOC).set(
+      { [eqCurrentUnit]: eqData[eqCurrentUnit] || [] },
+      { merge: true }
+    );
     btn.textContent = "✓ Salvo!";
     setTimeout(() => {
       btn.disabled = false;
