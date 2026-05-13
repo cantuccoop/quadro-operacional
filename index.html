@@ -1679,7 +1679,7 @@ function selectInt(setor, i, el) {
   el.closest(".int-buttons").querySelectorAll(".int-btn").forEach(b => b.classList.remove("selected"));
   el.classList.add("selected");
   document.getElementById("alert-intensidade").style.display = "none";
-  renderPosicoes();
+  renderPosicoes(setor); // só re-renderiza o setor alterado
 }
 
 function getPosicoes(setor) {
@@ -1691,13 +1691,20 @@ function getPosicoes(setor) {
   return byInt[currentTurno] || byInt["Dia/Noite"] || byInt["Dia"] || byInt["Noite"] || Object.values(byInt)[0] || [];
 }
 
-function renderPosicoes() {
-  ["salao","cozinha","grano"].forEach(setor => {
+function renderPosicoes(somenteSetor) {
+  const setores = somenteSetor ? [somenteSetor] : ["salao","cozinha","grano"];
+  setores.forEach(setor => {
     const posicoes = getPosicoes(setor);
     const el = document.getElementById("posicoes-" + setor);
     if (!el) return;
     if (!posicoes.length) {
       el.innerHTML = '<div class="empty" style="margin-bottom:8px;">Selecione a intensidade acima.</div>';
+      // limpar extras do setor alterado
+      const ext = document.getElementById('extras-' + setor);
+      if (ext) ext.innerHTML = '';
+      const btn = document.getElementById('btn-extra-' + setor);
+      if (btn) btn.style.display = 'none';
+      if (somenteSetor) { _extraIdx[setor] = 0; }
       return;
     }
     el.innerHTML = posicoes.map((p, i) =>
@@ -1712,17 +1719,25 @@ function renderPosicoes() {
         </div>
       </div>`
     ).join("");
-  });
-  updateFreelaCounter();
-  // mostrar botões extra e limpar extras anteriores
-  ['salao','cozinha'].forEach(s => {
-    const btn = document.getElementById('btn-extra-' + s);
-    const ext = document.getElementById('extras-' + s);
-    const hasPosicoes = getPosicoes(s).length > 0;
-    if (btn) btn.style.display = hasPosicoes ? 'block' : 'none';
+    // extras: limpar só o setor alterado
+    const ext = document.getElementById('extras-' + setor);
     if (ext) ext.innerHTML = '';
+    const btn = document.getElementById('btn-extra-' + setor);
+    if (btn) btn.style.display = 'block';
+    if (somenteSetor) { _extraIdx[setor] = 0; }
   });
-  _extraIdx = { salao: 0, cozinha: 0 };
+  if (!somenteSetor) {
+    // chamada de inicialização: resetar tudo
+    ['salao','cozinha'].forEach(s => {
+      const btn = document.getElementById('btn-extra-' + s);
+      const ext = document.getElementById('extras-' + s);
+      const hasPosicoes = getPosicoes(s).length > 0;
+      if (btn) btn.style.display = hasPosicoes ? 'block' : 'none';
+      if (ext) ext.innerHTML = '';
+    });
+    _extraIdx = { salao: 0, cozinha: 0 };
+  }
+  updateFreelaCounter();
 }
 
 let _extraIdx = { salao: 0, cozinha: 0 };
@@ -1938,11 +1953,11 @@ function saveQuadro(confirmed) {
     hasAlerta = true;
   }
 
-  if (totalRupturas > 5) {
+  // Rupturas: só exibe info, nunca bloqueia o save
+  if (totalRupturas > 0) {
     const el = document.getElementById("alert-rupturas");
-    el.innerHTML = `🚨 ${totalRupturas} rupturas registradas. Alta quantidade pode comprometer o serviço.`;
+    el.innerHTML = `ℹ️ ${totalRupturas} ruptura(s) registrada(s).`;
     el.style.display = "block";
-    hasAlerta = true;
   }
 
   if (hasAlerta && !confirmed) {
