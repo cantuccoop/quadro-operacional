@@ -238,6 +238,30 @@
   .dash-row-sub { font-size:11px; color:#888; margin-top:1px; }
   .dash-meta { font-weight:600; color:#1D9E75; }
   .dash-empty { text-align:center; padding:40px 0; color:#aaa; font-size:14px; }
+
+  /* Gerenciar Equipe */
+  .eq-unit-card { background:#fff; border:1px solid #e8e6e0; border-radius:12px; padding:14px 16px; margin-bottom:12px; }
+  .eq-unit-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .eq-unit-dot { width:32px; height:32px; border-radius:8px; background:#1a1a1a; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:14px; flex-shrink:0; }
+  .eq-unit-name { font-weight:700; font-size:15px; color:#1a1a1a; }
+  .eq-name-list { display:flex; flex-direction:column; gap:6px; margin-bottom:10px; min-height:4px; }
+  .eq-name-row { display:flex; align-items:center; justify-content:space-between; background:#f5f4f0; border-radius:8px; padding:8px 12px; }
+  .eq-name-text { font-size:13px; color:#1a1a1a; }
+  .eq-remove-btn { background:none; border:none; color:#aaa; font-size:13px; cursor:pointer; font-weight:600; padding:0 4px; font-family:inherit; }
+  .eq-remove-btn:hover { color:#a32d2d; }
+  .eq-add-row { display:flex; gap:8px; }
+  .eq-add-input { flex:1; border:1px solid #e0ddd7; border-radius:8px; padding:8px 12px; font-size:13px; font-family:inherit; outline:none; }
+  .eq-add-input:focus { border-color:#1a1a1a; }
+  .eq-add-btn { background:#1a1a1a; color:#fff; border:none; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
+  .eq-empty-msg { font-size:12px; color:#aaa; font-style:italic; }
+  .eq-pass-wrap { background:#fff; border:1px solid #e8e6e0; border-radius:12px; padding:24px 20px; margin-top:60px; }
+  .eq-pass-title { font-size:18px; font-weight:700; text-align:center; margin-bottom:4px; }
+  .eq-pass-sub { font-size:13px; color:#888; text-align:center; margin-bottom:18px; }
+  .eq-pass-input { width:100%; border:1px solid #e0ddd7; border-radius:8px; padding:10px 12px; font-size:14px; margin-bottom:8px; font-family:inherit; outline:none; }
+  .eq-pass-input.err { border-color:#a32d2d; }
+  .eq-pass-error { font-size:12px; color:#a32d2d; margin-bottom:10px; display:none; }
+  .eq-save-btn { position:fixed; bottom:16px; left:16px; right:16px; max-width:408px; margin:0 auto; background:#1D9E75; color:#fff; border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; display:block; }
+  .eq-save-btn:disabled { opacity:0.6; }
 </style>
 </head>
 <body>
@@ -264,6 +288,7 @@
   <div class="section-title">Unidades</div>
   <div id="unit-list"></div>
   <button type="button" onclick="openDashboard()" style="width:100%;margin-top:16px;padding:13px;border-radius:10px;border:1.5px solid #185fa5;background:#f0f6ff;color:#185fa5;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:0.02em;">📊 Acessar Dashboard</button>
+  <button type="button" onclick="openEquipe()" style="width:100%;margin-top:10px;padding:13px;border-radius:10px;border:1.5px solid #e0ddd7;background:#fff;color:#1a1a1a;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:0.02em;">👥 Gerenciar Equipe</button>
 </div>
 
 
@@ -413,6 +438,32 @@
   <button class="btn btn-wa" onclick="sendWhatsapp()">WhatsApp</button>
   <button class="btn btn-green" onclick="printQuadro()">Imprimir / PDF</button>
   <button class="btn btn-secondary" onclick="goHome()">Fechar</button>
+</div>
+
+
+<!-- GERENCIAR EQUIPE — Senha -->
+<div id="screen-equipe-pass" class="screen">
+  <button class="back" onclick="goHome()">← voltar</button>
+  <div class="eq-pass-wrap">
+    <div style="font-size:32px;text-align:center;margin-bottom:8px;">👥</div>
+    <div class="eq-pass-title">Gerenciar Equipe</div>
+    <div class="eq-pass-sub">Digite a senha para continuar</div>
+    <input type="password" id="eq-pass-input" class="eq-pass-input" placeholder="Senha"
+      onkeydown="if(event.key==='Enter') eqTryAuth()">
+    <div id="eq-pass-error" class="eq-pass-error">Senha incorreta.</div>
+    <button class="btn btn-primary" onclick="eqTryAuth()">Entrar</button>
+    <button class="btn btn-secondary" onclick="goHome()">Cancelar</button>
+  </div>
+</div>
+
+<!-- GERENCIAR EQUIPE — Editor -->
+<div id="screen-equipe" class="screen">
+  <button class="back" onclick="goHome()">← voltar</button>
+  <div class="header-title" style="margin-bottom:4px;">Gerenciar Equipe</div>
+  <div class="header-eyebrow" style="margin-bottom:18px;">Adicione ou remova funcionários por unidade</div>
+  <div id="eq-unit-list"></div>
+  <div style="height:70px;"></div>
+  <button class="eq-save-btn" id="eq-save-btn" onclick="eqSave()">✓ Salvar alterações</button>
 </div>
 
 </div>
@@ -2282,6 +2333,106 @@ function renderDashboard(filteredData) {
       <td style="font-size:15px;">${alertIcons || "<span style='color:#aaa;font-size:11px;'>—</span>"}</td>
     </tr>`;
   }).join("");
+}
+
+// ─── GERENCIAR EQUIPE ──────────────────────────────────────────────────────
+const EQ_COL = 'config';
+const EQ_DOC = 'responsaveis';
+let eqData = {}; // {unitName: [names]}
+
+function openEquipe() {
+  showScreen("equipe-pass");
+  document.getElementById("eq-pass-input").value = "";
+  document.getElementById("eq-pass-error").style.display = "none";
+  document.getElementById("eq-pass-input").classList.remove("err");
+}
+
+function eqTryAuth() {
+  const val = document.getElementById("eq-pass-input").value;
+  if (val === "grupo3v") {
+    eqLoadAndOpen();
+  } else {
+    const inp = document.getElementById("eq-pass-input");
+    const err = document.getElementById("eq-pass-error");
+    inp.classList.add("err");
+    err.style.display = "block";
+    setTimeout(() => { inp.classList.remove("err"); err.style.display = "none"; }, 2000);
+  }
+}
+
+async function eqLoadAndOpen() {
+  try {
+    const doc = await db.collection(EQ_COL).doc(EQ_DOC).get();
+    eqData = doc.exists ? doc.data() : {};
+  } catch(e) { eqData = {}; }
+  eqRender();
+  showScreen("equipe");
+}
+
+function eqRender() {
+  const container = document.getElementById("eq-unit-list");
+  const unitNames = Object.keys(UNITS);
+  container.innerHTML = unitNames.map(uName => {
+    const names = eqData[uName] || [];
+    const nameRows = names.length
+      ? names.map((n, i) => `<div class="eq-name-row">
+          <span class="eq-name-text">${n}</span>
+          <button class="eq-remove-btn" onclick="eqRemove('${uName}',${i})">Remover</button>
+        </div>`).join("")
+      : `<div class="eq-empty-msg">Nenhum funcionário cadastrado</div>`;
+    return `<div class="eq-unit-card">
+      <div class="eq-unit-header">
+        <div class="eq-unit-dot">${uName[0]}</div>
+        <div class="eq-unit-name">${uName}</div>
+      </div>
+      <div class="eq-name-list" id="eq-list-${CSS.escape(uName)}">${nameRows}</div>
+      <div class="eq-add-row">
+        <input type="text" class="eq-add-input" id="eq-inp-${CSS.escape(uName)}"
+          placeholder="Nome do funcionário"
+          onkeydown="if(event.key==='Enter') eqAdd('${uName}')">
+        <button class="eq-add-btn" onclick="eqAdd('${uName}')">+ Adicionar</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function eqAdd(uName) {
+  const safeId = CSS.escape(uName);
+  const inp = document.getElementById("eq-inp-" + safeId);
+  const n = inp.value.trim();
+  if (!n) return;
+  if (!eqData[uName]) eqData[uName] = [];
+  eqData[uName].push(n);
+  inp.value = "";
+  eqRender();
+  // re-focus the input for this unit after rerender
+  const newInp = document.getElementById("eq-inp-" + safeId);
+  if (newInp) newInp.focus();
+}
+
+function eqRemove(uName, idx) {
+  if (!eqData[uName]) return;
+  eqData[uName].splice(idx, 1);
+  eqRender();
+}
+
+async function eqSave() {
+  const btn = document.getElementById("eq-save-btn");
+  btn.disabled = true;
+  btn.textContent = "Salvando...";
+  try {
+    await db.collection(EQ_COL).doc(EQ_DOC).set(eqData);
+    btn.textContent = "✓ Salvo!";
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = "✓ Salvar alterações";
+      goHome();
+    }, 1200);
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = "✓ Salvar alterações";
+    alert("Erro ao salvar. Tente novamente.");
+  }
 }
 
 // ─── INIT ──────────────────────────────────────────────────────────────────
