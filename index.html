@@ -1819,7 +1819,11 @@ function getUsedColabs(excludeSetor, excludeIdx) {
 }
 
 function filterColab(setor, idx, query) {
-  const colaboradores = (COLABORADORES[currentUnit] || []).slice().sort((a,b) => a.localeCompare(b,'pt-BR'));
+  // Prefere lista dinâmica do Firestore (eqData) se existir; senão usa COLABORADORES hardcoded
+  const base = (eqData[currentUnit] && eqData[currentUnit].length)
+    ? eqData[currentUnit]
+    : (COLABORADORES[currentUnit] || []);
+  const colaboradores = base.slice().sort((a,b) => a.localeCompare(b,'pt-BR'));
   const q = query.toLowerCase();
   const SPECIAL = [
     {val:'__freela__',    label:'★ Freela'},
@@ -2469,8 +2473,7 @@ const EQ_PASSWORDS = {
   "Asa Norte":         "norte3v",
   "Águas Claras":      "aguas3v",
   "Superquadra Norte": "sqn3v",
-  "Véi Chico":         "veichico3v",
-  "Superquadra Mané":  "mane3v",
+  "Mané":              "mane3v",
   "Koji":              "koji3v"
 };
 const EQ_MASTER = "grupo3v";
@@ -2518,6 +2521,13 @@ function eqTryAuth() {
     err.style.display = "block";
     setTimeout(() => { inp.classList.remove("err"); err.style.display = "none"; }, 2000);
   }
+}
+
+async function eqLoadAll() {
+  try {
+    const doc = await db.collection(EQ_COL).doc(EQ_DOC).get();
+    if (doc.exists) { eqData = doc.data(); }
+  } catch(e) {}
 }
 
 async function eqLoadAndOpen() {
@@ -2583,6 +2593,8 @@ async function eqSave() {
       { [eqCurrentUnit]: eqData[eqCurrentUnit] || [] },
       { merge: true }
     );
+    // Sincroniza eqData com COLABORADORES para que filterColab use a lista atualizada imediatamente
+    COLABORADORES[eqCurrentUnit] = [...(eqData[eqCurrentUnit] || [])];
     btn.textContent = "✓ Salvo!";
     setTimeout(() => {
       btn.disabled = false;
@@ -2601,6 +2613,7 @@ renderUnitList();
 renderHistory();
 renderFreelaStats();
 loadFromFirestore();
+eqLoadAll(); // carrega lista de equipes do Firestore para o autocomplete usar desde o início
 if (location.hash === '#dashboard') openDashboard();
 </script>
 </body>
