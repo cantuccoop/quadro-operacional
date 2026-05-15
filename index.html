@@ -3,7 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Quadro Operacional — Grupo 3V</title>
+<script>
+  // Auto-reload quando uma nova versão é detectada (funciona em mobile sem Ctrl+Shift+R)
+  (function() {
+    var VERSION = '20260515-1800';
+    var stored = localStorage.getItem('qo_app_version');
+    if (stored && stored !== VERSION) {
+      localStorage.setItem('qo_app_version', VERSION);
+      // Força busca no servidor ignorando cache
+      window.location.replace(window.location.pathname + '?v=' + VERSION);
+    } else {
+      localStorage.setItem('qo_app_version', VERSION);
+    }
+  })();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -2615,6 +2632,23 @@ renderFreelaStats();
 loadFromFirestore();
 eqLoadAll(); // carrega lista de equipes do Firestore para o autocomplete usar desde o início
 if (location.hash === '#dashboard') openDashboard();
+
+// Reload automático quando o app volta do background (mobile: usuário troca de aba/app e volta)
+(function() {
+  var APP_VERSION = '20260515-1800';
+  var hiddenAt = null;
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+      hiddenAt = Date.now();
+    } else {
+      // Se ficou em background por mais de 5 minutos, recarrega para pegar atualizações
+      if (hiddenAt && (Date.now() - hiddenAt) > 5 * 60 * 1000) {
+        window.location.replace(window.location.pathname + '?v=' + APP_VERSION + '-' + Date.now());
+      }
+      hiddenAt = null;
+    }
+  });
+})();
 </script>
 </body>
 </html>
