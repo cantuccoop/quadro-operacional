@@ -10,7 +10,7 @@
 <script>
   // Auto-reload quando uma nova versão é detectada (funciona em mobile sem Ctrl+Shift+R)
   (function() {
-    var VERSION = '20260515-1800';
+    var VERSION = '20260515-1900';
     var stored = localStorage.getItem('qo_app_version');
     if (stored && stored !== VERSION) {
       localStorage.setItem('qo_app_version', VERSION);
@@ -424,8 +424,9 @@
         <span class="pos-label">Líder</span>
         <div class="pos-input ruptura-search-wrap">
           <input type="text" id="pos-lider-0" placeholder="— vazio —" autocomplete="off"
-            oninput="filterColab('lider',0,this.value)"
-            onfocus="filterColab('lider',0,this.value)">
+            oninput="filterColab('lider','0',this.value)"
+            onfocus="filterColab('lider','0',this.value)"
+            onblur="setTimeout(()=>{const d=document.getElementById('pos-dd-lider-0');if(d)d.style.display='none';},150)">
           <div id="pos-dd-lider-0" class="ruptura-dropdown"></div>
         </div>
       </div>
@@ -1131,7 +1132,8 @@ function renderRupturasCascade() {
         <div class="ruptura-search-wrap">
           <input type="text" id="rc-search-pdv" placeholder="— produto —" disabled autocomplete="off"
             oninput="filterRupturaProds('pdv',this.value)"
-            onfocus="filterRupturaProds('pdv',this.value)">
+            onfocus="filterRupturaProds('pdv',this.value)"
+            onblur="setTimeout(()=>{const d=document.getElementById('rc-dropdown-pdv');if(d)d.style.display='none';},150)">
           <div id="rc-dropdown-pdv" class="ruptura-dropdown"></div>
         </div>
       </div>
@@ -1148,7 +1150,8 @@ function renderRupturasCascade() {
         <div class="ruptura-search-wrap">
           <input type="text" id="rc-search-ins" placeholder="— produto —" disabled autocomplete="off"
             oninput="filterRupturaProds('ins',this.value)"
-            onfocus="filterRupturaProds('ins',this.value)">
+            onfocus="filterRupturaProds('ins',this.value)"
+            onblur="setTimeout(()=>{const d=document.getElementById('rc-dropdown-ins');if(d)d.style.display='none';},150)">
           <div id="rc-dropdown-ins" class="ruptura-dropdown"></div>
         </div>
       </div>
@@ -1753,8 +1756,9 @@ function renderPosicoes(somenteSetor) {
         <span class="pos-label">${p}</span>
         <div class="pos-input ruptura-search-wrap">
           <input type="text" id="pos-${setor}-${i}" placeholder="— vazio —" autocomplete="off"
-            oninput="filterColab('${setor}',${i},this.value)"
-            onfocus="filterColab('${setor}',${i},this.value)">
+            oninput="filterColab('${setor}','${i}',this.value)"
+            onfocus="filterColab('${setor}','${i}',this.value)"
+            onblur="setTimeout(()=>{const d=document.getElementById('pos-dd-${setor}-${i}');if(d)d.style.display='none';},150)">
           <div id="pos-dd-${setor}-${i}" class="ruptura-dropdown"></div>
         </div>
       </div>`
@@ -1794,7 +1798,8 @@ function addExtraRow(setor) {
     <div class="pos-input ruptura-search-wrap">
       <input type="text" id="pos-${setor}-${idx}" placeholder="— funcionário —" autocomplete="off"
         oninput="filterColab('${setor}','${idx}',this.value)"
-        onfocus="filterColab('${setor}','${idx}',this.value)">
+        onfocus="filterColab('${setor}','${idx}',this.value)"
+        onblur="setTimeout(()=>{const d=document.getElementById('pos-dd-${setor}-${idx}');if(d)d.style.display='none';},150)">
       <div id="pos-dd-${setor}-${idx}" class="ruptura-dropdown"></div>
     </div>
     <button type="button" class="btn-remove-extra" onclick="removeExtraRow('${setor}','${idx}')">×</button>`;
@@ -1859,7 +1864,7 @@ function filterColab(setor, idx, query) {
   dd.innerHTML = filtered.map(c => {
     const isNaoEsc = c.val === '__naescalado__';
     const style = isNaoEsc ? 'color:#a32d2d;font-weight:600;' : '';
-    return `<div class="ruptura-dropdown-item" style="${style}" onmousedown="selectColab('${setor}',${JSON.stringify(idx)},'${c.val.replace(/'/g,"&#39;")}','${c.label.replace(/'/g,"&#39;")}')">${c.label}</div>`;
+    return `<div class="ruptura-dropdown-item" style="${style}" onmousedown="selectColab('${setor}','${idx}','${c.val.replace(/'/g,"&#39;")}','${c.label.replace(/'/g,"&#39;")}')">${c.label}</div>`;
   }).join('');
   dd.style.display = filtered.length ? 'block' : 'none';
 }
@@ -2635,7 +2640,7 @@ if (location.hash === '#dashboard') openDashboard();
 
 // Reload automático quando o app volta do background (mobile: usuário troca de aba/app e volta)
 (function() {
-  var APP_VERSION = '20260515-1800';
+  var APP_VERSION = '20260515-1900';
   var hiddenAt = null;
   document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
