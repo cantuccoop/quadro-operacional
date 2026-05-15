@@ -399,6 +399,36 @@
     <button type="button" id="btn-extra-grano" onclick="addExtraRow('grano')" class="btn btn-secondary" style="display:none;width:100%;padding:7px;margin-bottom:14px;font-size:13px;">+ Extra Grano/Inforno</button>
   </div>
 
+  <div id="mane-section" style="display:none;">
+    <div class="section-title" style="margin-top:12px;">Líder do turno</div>
+    <div class="form-card" style="padding:10px 14px;margin-bottom:10px;">
+      <div class="pos-row" style="margin-bottom:0;">
+        <span class="pos-num">1</span>
+        <span class="pos-label">Líder</span>
+        <div class="pos-input ruptura-search-wrap">
+          <input type="text" id="pos-lider-0" placeholder="— vazio —" autocomplete="off"
+            oninput="filterColab('lider',0,this.value)"
+            onfocus="filterColab('lider',0,this.value)">
+          <div id="pos-dd-lider-0" class="ruptura-dropdown"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:12px;">Intensidade — Superquadra</div>
+    <div class="int-buttons" id="int-buttons-superquadra"></div>
+    <div class="section-title" style="margin-top:12px;">Escalação — Superquadra</div>
+    <div id="posicoes-superquadra"><div class="empty">Selecione a intensidade acima.</div></div>
+    <div id="extras-superquadra"></div>
+    <button type="button" id="btn-extra-superquadra" onclick="addExtraRow('superquadra')" class="btn btn-secondary" style="display:none;width:100%;padding:7px;margin-bottom:14px;font-size:13px;">+ Extra Superquadra</button>
+
+    <div class="section-title" style="margin-top:12px;">Intensidade — Véi Chico</div>
+    <div class="int-buttons" id="int-buttons-veichico"></div>
+    <div class="section-title" style="margin-top:12px;">Escalação — Véi Chico</div>
+    <div id="posicoes-veichico"><div class="empty">Selecione a intensidade acima.</div></div>
+    <div id="extras-veichico"></div>
+    <button type="button" id="btn-extra-veichico" onclick="addExtraRow('veichico')" class="btn btn-secondary" style="display:none;width:100%;padding:7px;margin-bottom:14px;font-size:13px;">+ Extra Véi Chico</button>
+  </div>
+
   <div id="freela-counter" class="freela-counter">
     ★ <span id="freela-counter-text"></span>
   </div>
@@ -534,18 +564,17 @@ const ESCALA_REF = {
       }
     }
   },
-  "Superquadra Mané": {
-    setores: ["Cozinha"],
+  "Mané": {
+    setores: ["Superquadra", "Véi Chico"],
     turnos: {
-      "Dia":   { "Cozinha": ["Fraca","Média","Média","Forte","Forte","Forte","Forte"] },
-      "Noite": { "Cozinha": ["Fraca","Média","Média","Forte","Forte","Forte","Fraca"] }
-    }
-  },
-  "Véi Chico": {
-    setores: ["Cozinha"],
-    turnos: {
-      "Dia":   { "Cozinha": ["Fraca","Média","Média","Forte","Forte","Forte","Forte"] },
-      "Noite": { "Cozinha": ["Fraca","Média","Média","Forte","Forte","Forte","Fraca"] }
+      "Dia": {
+        "Superquadra": ["Fraca","Média","Forte","Forte","Fortíssima","Fortíssima","Forte"],
+        "Véi Chico":   ["Fraca","Fraca","Média","Média","Média","Forte","Forte"]
+      },
+      "Noite": {
+        "Superquadra": ["Fraca","Média","Forte","Forte","Forte","Forte","Fraca"],
+        "Véi Chico":   ["Fraca","Fraca","Fraca","Média","Média","Média","Fraca"]
+      }
     }
   }
 };
@@ -704,31 +733,19 @@ const UNITS = {
       }
     }
   },
-  "Véi Chico": {
+  "Mané": {
     setor: "Carne",
     escalas: {
-      cozinha: {
-        "Fraquíssima": { "Noite": ["Boqueta/Gard","Fogão","ASG","Parrilheiro 1"] },
-        "Fraca": {
-          "Dia": ["Boqueta/Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"],
-          "Noite": ["Boqueta/Gard","Fogão","ASG","Parrilheiro 1","Boqueta Parrilla"]
-        },
-        "Média": { "Dia": ["Boqueta","Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"] },
-        "Forte": { "Dia": ["Boqueta","Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1","Parrilheiro 2"] }
-      }
-    }
-  },
-  "Superquadra Mané": {
-    setor: "Carne",
-    escalas: {
-      cozinha: {
-        "Fraquíssima": { "Noite": ["Boqueta/Gard","Fogão","ASG","Parrilheiro 1"] },
-        "Fraca": {
-          "Dia": ["Boqueta/Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"],
-          "Noite": ["Boqueta/Gard","Fogão","ASG","Parrilheiro 1","Boqueta Parrilla"]
-        },
-        "Média": { "Dia": ["Boqueta","Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1"] },
-        "Forte": { "Dia": ["Boqueta","Gard","Fogão","Auxiliar","ASG","Boqueta Parrilla","Parrilheiro 1","Parrilheiro 2"] }
+      superquadra: {
+        "Fraca":      { "Dia": ["Parrilleiro","Fogão","ASG1"], "Noite": ["Parrilleiro","Fogão","ASG1"] },
+        "Média":      { "Dia": ["Parrilleiro","Fogão","Garde","ASG1"], "Noite": ["Parrilleiro","Fogão","Garde","ASG1"] },
+        "Forte":      { "Dia": ["Boqueta","Parrilleiro","Fogão","Garde","ASG1"], "Noite": ["Boqueta","Parrilleiro","Fogão","Garde","ASG1"] },
+        "Fortíssima": { "Dia": ["Boqueta","Parrilleiro","Fogão","Garde","ASG1","ASG2"] }
+      },
+      veichico: {
+        "Fraca": { "Dia": ["Parrilleiro","Fogão","ASG"], "Noite": ["Parrilleiro","Fogão","ASG"] },
+        "Média": { "Dia": ["Parrilleiro","Galeto","Fogão","ASG"], "Noite": ["Boqueta","Parrilleiro","Fogão","ASG"] },
+        "Forte": { "Dia": ["Boqueta","Parrilleiro","Galeto","Fogão","ASG"] }
       }
     }
   },
@@ -816,15 +833,7 @@ const COLABORADORES = {
     "Thales Moraes","Valdecy Rodrigues","Vinicius Costa",
     "Walison Calazans","Yanier Guerrero"
   ],
-  "Véi Chico": [
-    "Alexander Silva","Apollo Miranda","Gledson Puff",
-    "Glencio","Ítalo Marques","Jeane Costa",
-    "João Pedro Dantas","Kennedy","Lorena Ramos",
-    "Marcelo","Maxsuel Costa","Rosyane Abreu",
-    "Sueli Macedo","Thiago Miranda","Thays Cristina Gonçalves",
-    "Victor Canella","Virgilio","Walmir Silva","Wellington"
-  ],
-  "Superquadra Mané": [
+  "Mané": [
     "Alexander Silva","Apollo Miranda","Gledson Puff",
     "Glencio","Ítalo Marques","Jeane Costa",
     "João Pedro Dantas","Kennedy","Lorena Ramos",
@@ -863,8 +872,7 @@ const RUPTURAS_CONFIG = {
   "Asa Sul":          ["Cantucci","Inforno","Grano","Bar","Insumo"],
   "Asa Norte":        ["Cantucci","Inforno","Grano","Bar","Insumo"],
   "Águas Claras":     ["Cantucci","Inforno","Grano","Bar","Insumo"],
-  "Véi Chico":        ["Véi Chico","Insumo"],
-  "Superquadra Mané": ["Superquadra","Insumo"],
+  "Mané":             ["Véi Chico","Superquadra","Insumo"],
   "Superquadra Norte":["Pratos","Insumo"],
   "Koji":             ["Produção","Insumo"]
 };
@@ -1002,7 +1010,7 @@ const RUPTURAS_PRODUTOS = {
 };
 
 // ─── CASCADE RUPTURAS ──────────────────────────────────────────────────────
-const UNIDADES_CASCADE = new Set(["Asa Sul","Asa Norte","Águas Claras","Véi Chico","Superquadra Mané","Superquadra Norte"]);
+const UNIDADES_CASCADE = new Set(["Asa Sul","Asa Norte","Águas Claras","Mané","Superquadra Norte"]);
 
 const PDV_IAN = {
   "Cantucci": ["POLPETONE ANGUS","RISOTO FUNGHI PORCINI E FILE","FILETTO AL TARTUFI","STEAK AL FUNGHI","GNOCCHI DA SORTE","FILE WELLINGTON","CARBONARA CLASSICO","STEAK TRES MOSTARDAS","SALMONE AO MEDITERRANEO","FILE PARME ARROZ/FRITAS","FILETTO PARMEGIANA COM MASSA","RISOTO DE CAMARAO","RAVIOLI DI BUFALA","CAMARAO AO BRIE","PICADINHO CLASSICO CASA","PESCE SICILIANO","LASAGNA BOLOGNESE","POLLO PARMEGIANA","RISOTO DI GORGONZOLA","FONDUTA DE FILE","BRUSCHETTAS","ARANCINI TOSCANO","BRIE AL CARAMELLO","FETTUCCINI AO BISQUE","BROWNIE I GELATO","SFOLIA LORDA DI ZUCCA","BURRATA SPECIALE","POLLO PARMEGIANA COM MASSA","RISOTO MARGHERITE AO PESTO","FRANGO CORDON BLEU","POLLO CEASERE","CARPACCIO IN CROSTA","BRUSCHETTA HAPPY HOUR","SALTIMBOCA DI POLLO","CHEESECAKE FRUTAS VERMELHAS","CARPACCIO HAPPY HOUR","RONDELLI RICOTA FIGO E NOZES","POLLO CAESERE","TORTELLINI DI SALMONE PICATTA","RIGATONI AMATRICIANA","INSALATA","PEIXE BRANCO MOLHO TOMATE","ARANCINI HAPPY HOUR","BANOFEE","PEIXE BRANCO COM LEGUMES","INFORNITO DE NUTELLA","ROTOLINA","PARMIGIANA DELLA FAMIGLIA","CROSTINI","CHEESECAKE GOIABADA","STRACCIATELLA","DOBRO DE CARNE 160G","ARANCINI DE FUNGHI","CHEESECAKE DOCE DE LEITE","MELANZANI PARMEGIANA COM MASSA","CROSTINI HAPPY HOUR","ACOMPANHAMENTO POLENTA FRITA","INFORNITO DE DOCE DE LEITE","CHEESECAKE CHOCOLATE","CHEESECAKE PISTACHE","BATATA CHIPS","TORTA DI CAPRI","AMARENA SOUR","PIRARUCU A LAGAREIRO","CHEESECAKE BASCA","BRUSCHETTAS EXECUTIVO","MINI CREPE MUSSARELA","MELANZANI PARMEGIANA","KIR AMARENA","PARMEGIANA CANTUCCI FRANGO","DOBRO DE CARNE 100G","BAMBINI FRANGO MOLHO VERMELHO","CHEESECAKE BASCA EXECUTIVO","DUPLA DE ARANCINI","INFORNITO DE PISTACHE","ACOMPANHAMENTO BATATA FRITA","ACOMPANHAMENTO NUGGETS","ADICIONAL TORRADAS","CROQUETA DE PEPPERONI"],
@@ -1086,8 +1094,8 @@ const INSUMOS_SPQN = {
 };
 
 // Lookup por unidade
-const PDV_BY_UNIT = { "Asa Sul": PDV_IAN, "Asa Norte": PDV_IAN, "Águas Claras": PDV_IAN, "Véi Chico": {"Véi Chico": PDV_MANE["Véi Chico"]}, "Superquadra Mané": {"Superquadra": PDV_MANE["Superquadra"]}, "Superquadra Norte": PDV_SPQN };
-const INSUMOS_BY_UNIT = { "Asa Sul": INSUMOS_IAN, "Asa Norte": INSUMOS_IAN, "Águas Claras": INSUMOS_IAN, "Véi Chico": INSUMOS_MANE, "Superquadra Mané": INSUMOS_MANE, "Superquadra Norte": INSUMOS_SPQN };
+const PDV_BY_UNIT = { "Asa Sul": PDV_IAN, "Asa Norte": PDV_IAN, "Águas Claras": PDV_IAN, "Mané": {"Véi Chico": PDV_MANE["Véi Chico"], "Superquadra": PDV_MANE["Superquadra"]}, "Superquadra Norte": PDV_SPQN };
+const INSUMOS_BY_UNIT = { "Asa Sul": INSUMOS_IAN, "Asa Norte": INSUMOS_IAN, "Águas Claras": INSUMOS_IAN, "Mané": INSUMOS_MANE, "Superquadra Norte": INSUMOS_SPQN };
 
 function renderRupturasCascade() {
   rupturasTags = {};
@@ -1215,6 +1223,8 @@ let currentTurno = "Dia";
 let currentIntSalao = null;
 let currentIntCozinha = null;
 let currentIntGrano = null;
+let currentIntSuperquadra = null;
+let currentIntVeiChico = null;
 const GRANO_ORDER = ["MIN 3","MIN 4","MIN 5","MIN 6"];
 let currentViewIdx = null;
 let history = [];
@@ -1610,7 +1620,7 @@ function renderHistory() {
 function startForm(unit) {
   currentUnit = unit;
   currentTurno = "Dia";
-  currentIntSalao = null; currentIntCozinha = null; currentIntGrano = null;
+  currentIntSalao = null; currentIntCozinha = null; currentIntGrano = null; currentIntSuperquadra = null; currentIntVeiChico = null;
   document.getElementById("form-unidade-tag").textContent = unit + " · " + UNITS[unit].setor;
   // Tabela de referência no formulário
   const refWrap = document.getElementById("form-ref-wrap");
@@ -1627,11 +1637,13 @@ function startForm(unit) {
   document.getElementById("f-meta").value = "";
   document.getElementById("f-reservas").value = "";
   document.getElementById("f-obs").value = "";
-  const carneUnits = new Set(["Véi Chico","Superquadra Mané"]);
+  const carneUnits = new Set(["Mané"]);
   document.getElementById("salao-section").style.display = carneUnits.has(unit) ? "none" : "";
   document.getElementById("meta-section").style.display = carneUnits.has(unit) ? "none" : "";
   document.getElementById("reservas-section").style.display = carneUnits.has(unit) ? "none" : "";
   document.getElementById("grano-section").style.display = unit === "Asa Norte" ? "block" : "none";
+  document.getElementById("escala-section").style.display = unit === "Mané" ? "none" : "";
+  document.getElementById("mane-section").style.display = unit === "Mané" ? "" : "none";
   ["alert-intensidade","alert-escala","alert-rupturas"].forEach(id => document.getElementById(id).style.display = "none");
   document.querySelectorAll(".turno-tab").forEach((t, i) => t.classList.toggle("active", i === 0));
   updateFreelaCounter();
@@ -1645,18 +1657,27 @@ function selectTurno(t, el) {
   currentTurno = t;
   document.querySelectorAll(".turno-tab").forEach(b => b.classList.remove("active"));
   el.classList.add("active");
-  currentIntSalao = null; currentIntCozinha = null; currentIntGrano = null;
+  currentIntSalao = null; currentIntCozinha = null; currentIntGrano = null; currentIntSuperquadra = null; currentIntVeiChico = null;
   renderIntButtons();
   renderPosicoes();
+}
+
+function getIntForSetor(setor) {
+  if (setor === "salao") return currentIntSalao;
+  if (setor === "cozinha") return currentIntCozinha;
+  if (setor === "grano") return currentIntGrano;
+  if (setor === "superquadra") return currentIntSuperquadra;
+  if (setor === "veichico") return currentIntVeiChico;
+  return null;
 }
 
 function renderIntButtons() {
   const unit = UNITS[currentUnit];
   const ordem = ["Fraquíssima","Fraca","Média","Forte","Fortíssima"];
-  ["salao","cozinha"].forEach(setor => {
+  ["salao","cozinha","superquadra","veichico"].forEach(setor => {
     const available = new Set();
     if (unit.escalas[setor]) Object.keys(unit.escalas[setor]).forEach(k => available.add(k));
-    const cur = setor === "salao" ? currentIntSalao : currentIntCozinha;
+    const cur = getIntForSetor(setor);
     const el = document.getElementById("int-buttons-" + setor);
     if (!el) return;
     el.innerHTML = ordem.filter(i => available.has(i)).map(i =>
@@ -1676,6 +1697,8 @@ function selectInt(setor, i, el) {
   if (setor === "salao") currentIntSalao = i;
   else if (setor === "cozinha") currentIntCozinha = i;
   else if (setor === "grano") currentIntGrano = i;
+  else if (setor === "superquadra") currentIntSuperquadra = i;
+  else if (setor === "veichico") currentIntVeiChico = i;
   el.closest(".int-buttons").querySelectorAll(".int-btn").forEach(b => b.classList.remove("selected"));
   el.classList.add("selected");
   document.getElementById("alert-intensidade").style.display = "none";
@@ -1683,7 +1706,7 @@ function selectInt(setor, i, el) {
 }
 
 function getPosicoes(setor) {
-  const int = setor === "grano" ? currentIntGrano : (setor === "salao" ? currentIntSalao : currentIntCozinha);
+  const int = getIntForSetor(setor);
   if (!currentUnit || !int) return [];
   const escalas = UNITS[currentUnit].escalas[setor];
   if (!escalas || !escalas[int]) return [];
@@ -1692,14 +1715,14 @@ function getPosicoes(setor) {
 }
 
 function renderPosicoes(somenteSetor) {
-  const setores = somenteSetor ? [somenteSetor] : ["salao","cozinha","grano"];
+  const todosSetores = ["salao","cozinha","grano","superquadra","veichico"];
+  const setores = somenteSetor ? [somenteSetor] : todosSetores;
   setores.forEach(setor => {
     const posicoes = getPosicoes(setor);
     const el = document.getElementById("posicoes-" + setor);
     if (!el) return;
     if (!posicoes.length) {
       el.innerHTML = '<div class="empty" style="margin-bottom:8px;">Selecione a intensidade acima.</div>';
-      // limpar extras do setor alterado
       const ext = document.getElementById('extras-' + setor);
       if (ext) ext.innerHTML = '';
       const btn = document.getElementById('btn-extra-' + setor);
@@ -1719,7 +1742,6 @@ function renderPosicoes(somenteSetor) {
         </div>
       </div>`
     ).join("");
-    // extras: limpar só o setor alterado
     const ext = document.getElementById('extras-' + setor);
     if (ext) ext.innerHTML = '';
     const btn = document.getElementById('btn-extra-' + setor);
@@ -1727,15 +1749,14 @@ function renderPosicoes(somenteSetor) {
     if (somenteSetor) { _extraIdx[setor] = 0; }
   });
   if (!somenteSetor) {
-    // chamada de inicialização: resetar tudo
-    ['salao','cozinha'].forEach(s => {
+    ['salao','cozinha','superquadra','veichico'].forEach(s => {
       const btn = document.getElementById('btn-extra-' + s);
       const ext = document.getElementById('extras-' + s);
       const hasPosicoes = getPosicoes(s).length > 0;
       if (btn) btn.style.display = hasPosicoes ? 'block' : 'none';
       if (ext) ext.innerHTML = '';
     });
-    _extraIdx = { salao: 0, cozinha: 0 };
+    _extraIdx = { salao: 0, cozinha: 0, superquadra: 0, veichico: 0 };
   }
   updateFreelaCounter();
 }
@@ -1917,7 +1938,7 @@ function countTotalRupturas(rupturasObj) {
 
 function countFreelaInForm() {
   let count = 0;
-  document.querySelectorAll("#posicoes-salao input[id^='pos-'], #posicoes-cozinha input[id^='pos-']").forEach(inp => {
+  document.querySelectorAll("#posicoes-salao input[id^='pos-'], #posicoes-cozinha input[id^='pos-'], #posicoes-superquadra input[id^='pos-'], #posicoes-veichico input[id^='pos-']").forEach(inp => {
     if (inp.dataset.selected === "__freela__") count++;
   });
   return count;
@@ -1949,7 +1970,13 @@ function getEscalacao(setor) {
 function saveQuadro(confirmed) {
   ["alert-intensidade","alert-escala","alert-rupturas"].forEach(id => document.getElementById(id).style.display = "none");
 
-  if (!currentIntSalao && !currentIntCozinha) {
+  const isMane = currentUnit === "Mané";
+  if (!isMane && !currentIntSalao && !currentIntCozinha) {
+    document.getElementById("alert-intensidade").style.display = "block";
+    document.getElementById("alert-intensidade").scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+  if (isMane && !currentIntSuperquadra && !currentIntVeiChico) {
     document.getElementById("alert-intensidade").style.display = "block";
     document.getElementById("alert-intensidade").scrollIntoView({ behavior: "smooth" });
     return;
@@ -1957,6 +1984,8 @@ function saveQuadro(confirmed) {
 
   const posicoesSalao = getPosicoes("salao");
   const posicoesCozinha = getPosicoes("cozinha");
+  const posicoesSuperquadra = getPosicoes("superquadra");
+  const posicoesVeiChico = getPosicoes("veichico");
 
   // Vazio = valor "" (Freela conta como preenchido)
   const vaziosSalao = posicoesSalao.filter((p, i) => {
@@ -1967,8 +1996,20 @@ function saveQuadro(confirmed) {
     const el = document.getElementById(`pos-cozinha-${i}`);
     return !el || !(el.dataset.selected || "");
   });
-  const totalVazios = vaziosSalao.length + vaziosCozinha.length;
-  const totalPos = posicoesSalao.length + posicoesCozinha.length;
+  const vaziosSuperquadra = posicoesSuperquadra.filter((p, i) => {
+    const el = document.getElementById(`pos-superquadra-${i}`);
+    return !el || !(el.dataset.selected || "");
+  });
+  const vaziosVeiChico = posicoesVeiChico.filter((p, i) => {
+    const el = document.getElementById(`pos-veichico-${i}`);
+    return !el || !(el.dataset.selected || "");
+  });
+  const totalVazios = isMane
+    ? vaziosSuperquadra.length + vaziosVeiChico.length
+    : vaziosSalao.length + vaziosCozinha.length;
+  const totalPos = isMane
+    ? posicoesSuperquadra.length + posicoesVeiChico.length
+    : posicoesSalao.length + posicoesCozinha.length;
 
   const rupturasData = getRupturasData();
   const totalRupturas = countTotalRupturas(rupturasData);
@@ -1980,6 +2021,8 @@ function saveQuadro(confirmed) {
     const msgs = [];
     if (vaziosSalao.length) msgs.push(`Salão: ${vaziosSalao.join(", ")}`);
     if (vaziosCozinha.length) msgs.push(`Cozinha: ${vaziosCozinha.join(", ")}`);
+    if (vaziosSuperquadra.length) msgs.push(`Superquadra: ${vaziosSuperquadra.join(", ")}`);
+    if (vaziosVeiChico.length) msgs.push(`Véi Chico: ${vaziosVeiChico.join(", ")}`);
     const el = document.getElementById("alert-escala");
     el.innerHTML = `⚠ Escala incompleta — ${totalVazios} posição(ões) sem colaborador (${pct}% preenchido).<br><small style="opacity:0.8">${msgs.join(" · ")}</small>`;
     el.style.display = "block";
@@ -2014,13 +2057,18 @@ function saveQuadro(confirmed) {
     unidade: currentUnit,
     data: dataStr,
     turno: currentTurno,
-    intensidade: currentIntSalao || currentIntCozinha,
+    intensidade: currentIntSalao || currentIntCozinha || currentIntSuperquadra || currentIntVeiChico,
     intensidade_salao: currentIntSalao,
     intensidade_cozinha: currentIntCozinha,
     intensidade_grano: currentUnit === "Asa Norte" ? currentIntGrano : null,
+    intensidade_superquadra: isMane ? currentIntSuperquadra : null,
+    intensidade_veichico: isMane ? currentIntVeiChico : null,
     salao: getEscalacao("salao"),
     cozinha: getEscalacao("cozinha"),
     grano: currentUnit === "Asa Norte" ? getEscalacao("grano") : null,
+    superquadra: isMane ? getEscalacao("superquadra") : null,
+    veichico: isMane ? getEscalacao("veichico") : null,
+    lider: isMane ? (() => { const el = document.getElementById("pos-lider-0"); return el ? (el.dataset.selected && el.dataset.selected !== "__freela__" ? el.value : el.value) : ""; })() : null,
     rupturas: rupturasData,
     meta: document.getElementById("f-meta").value,
     reservas: document.getElementById("f-reservas").value,
@@ -2070,20 +2118,41 @@ function formatQuadro(q) {
   lines.push(dbl);
   lines.push(`  Data:         ${q.data}`);
   lines.push(`  Turno:        ${q.turno}`);
-  lines.push(`  Intensidade:  ${q.intensidade}`);
+  if (q.intensidade_superquadra || q.intensidade_veichico) {
+    lines.push(`  Superquadra:  ${q.intensidade_superquadra || "—"}`);
+    lines.push(`  Véi Chico:    ${q.intensidade_veichico || "—"}`);
+  } else {
+    lines.push(`  Intensidade:  ${q.intensidade}`);
+  }
   if (q.freelas > 0) lines.push(`  Freelas:      ${q.freelas}`);
   lines.push(sep);
-  lines.push("  SALÃO");
-  lines.push(sep);
-  (q.salao || []).forEach((r, i) =>
-    lines.push(`  ${pad(i+1+".", 4)}${pad(r.cargo, 22)}${r.nome || "—"}`)
-  );
-  lines.push(sep);
-  lines.push("  COZINHA");
-  lines.push(sep);
-  (q.cozinha || []).forEach((r, i) =>
-    lines.push(`  ${pad(i+1+".", 4)}${pad(r.cargo, 22)}${r.nome || "—"}`)
-  );
+  if (q.lider !== null && q.lider !== undefined) {
+    lines.push("  SUPERQUADRA");
+    lines.push(sep);
+    lines.push(`  ${pad("1.", 4)}${pad("Líder", 22)}${q.lider || "—"}`);
+    (q.superquadra || []).forEach((r, i) =>
+      lines.push(`  ${pad(i+2+".", 4)}${pad(r.cargo, 22)}${r.nome || "—"}`)
+    );
+    lines.push(sep);
+    lines.push("  VÉI CHICO");
+    lines.push(sep);
+    lines.push(`  ${pad("1.", 4)}${pad("Líder", 22)}${q.lider || "—"}`);
+    (q.veichico || []).forEach((r, i) =>
+      lines.push(`  ${pad(i+2+".", 4)}${pad(r.cargo, 22)}${r.nome || "—"}`)
+    );
+  } else {
+    lines.push("  SALÃO");
+    lines.push(sep);
+    (q.salao || []).forEach((r, i) =>
+      lines.push(`  ${pad(i+1+".", 4)}${pad(r.cargo, 22)}${r.nome || "—"}`)
+    );
+    lines.push(sep);
+    lines.push("  COZINHA");
+    lines.push(sep);
+    (q.cozinha || []).forEach((r, i) =>
+      lines.push(`  ${pad(i+1+".", 4)}${pad(r.cargo, 22)}${r.nome || "—"}`)
+    );
+  }
   lines.push(sep);
   lines.push("  RUPTURAS");
   // Suporta formato novo (rupturas obj) e antigo (rupt_prod/rupt_ins)
@@ -2202,20 +2271,17 @@ function formatQuadroHTML(q) {
       <div class="rp-infobar">
         <div class="rp-info-item"><div class="rp-info-label">Data</div><div class="rp-info-value">${dataFmt}</div></div>
         <div class="rp-info-item"><div class="rp-info-label">Turno</div><div class="rp-info-value">${q.turno}</div></div>
-        <div class="rp-info-item"><div class="rp-info-label">Salão</div><div class="rp-info-value" style="color:${intColor}">${q.intensidade_salao||q.intensidade||'—'}</div></div>
-        <div class="rp-info-item"><div class="rp-info-label">Cozinha</div><div class="rp-info-value" style="color:${({'Fraquíssima':'#3b6d11','Fraca':'#1D9E75','Média':'#c97a00','Forte':'#dc3545','Fortíssima':'#a32d2d'})[q.intensidade_cozinha]||'#555'}">${q.intensidade_cozinha||q.intensidade||'—'}</div></div>
+        ${q.intensidade_superquadra ? `<div class="rp-info-item"><div class="rp-info-label">Superquadra</div><div class="rp-info-value" style="color:${({'Fraquíssima':'#3b6d11','Fraca':'#1D9E75','Média':'#c97a00','Forte':'#dc3545','Fortíssima':'#a32d2d'})[q.intensidade_superquadra]||'#555'}">${q.intensidade_superquadra}</div></div>` : `<div class="rp-info-item"><div class="rp-info-label">Salão</div><div class="rp-info-value" style="color:${intColor}">${q.intensidade_salao||q.intensidade||'—'}</div></div>`}
+        ${q.intensidade_veichico ? `<div class="rp-info-item"><div class="rp-info-label">Véi Chico</div><div class="rp-info-value" style="color:${({'Fraquíssima':'#3b6d11','Fraca':'#1D9E75','Média':'#c97a00','Forte':'#dc3545','Fortíssima':'#a32d2d'})[q.intensidade_veichico]||'#555'}">${q.intensidade_veichico}</div></div>` : `<div class="rp-info-item"><div class="rp-info-label">Cozinha</div><div class="rp-info-value" style="color:${({'Fraquíssima':'#3b6d11','Fraca':'#1D9E75','Média':'#c97a00','Forte':'#dc3545','Fortíssima':'#a32d2d'})[q.intensidade_cozinha]||'#555'}">${q.intensidade_cozinha||q.intensidade||'—'}</div></div>`}
         ${q.intensidade_grano ? `<div class="rp-info-item"><div class="rp-info-label">Grano/Inforno</div><div class="rp-info-value" style="color:#185fa5">${q.intensidade_grano}</div></div>` : ''}
       </div>
       <div class="rp-body">
         ${alertsHTML}
-        <div class="rp-section">
-          <div class="rp-section-title">🍽️ Salão</div>
-          <div class="rp-team-grid">${teamGrid(q.salao)}</div>
-        </div>
-        <div class="rp-section">
-          <div class="rp-section-title">👨‍🍳 Cozinha</div>
-          <div class="rp-team-grid">${teamGrid(q.cozinha)}</div>
-        </div>
+        ${q.lider !== null && q.lider !== undefined ? `<div class="rp-section"><div class="rp-section-title">👑 Líder do Turno</div><div class="rp-team-grid"><div class="rp-team-item"><span class="rp-team-pos">1. Líder</span><span class="rp-team-status ${q.lider ? 'rp-status-filled' : 'rp-status-empty'}">${q.lider || 'Não escalado'}</span></div></div></div>` : ''}
+        ${q.superquadra ? `<div class="rp-section"><div class="rp-section-title">🥩 Superquadra</div><div class="rp-team-grid">${teamGrid(q.superquadra)}</div></div>` : ''}
+        ${q.veichico ? `<div class="rp-section"><div class="rp-section-title">🔥 Véi Chico</div><div class="rp-team-grid">${teamGrid(q.veichico)}</div></div>` : ''}
+        ${!q.superquadra ? `<div class="rp-section"><div class="rp-section-title">🍽️ Salão</div><div class="rp-team-grid">${teamGrid(q.salao)}</div></div>` : ''}
+        ${!q.veichico ? `<div class="rp-section"><div class="rp-section-title">👨‍🍳 Cozinha</div><div class="rp-team-grid">${teamGrid(q.cozinha)}</div></div>` : ''}
         ${q.grano && q.grano.length ? `<div class="rp-section"><div class="rp-section-title">🍕 Grano/Inforno</div><div class="rp-team-grid">${teamGrid(q.grano)}</div></div>` : ''}
         ${metricsHTML}
         ${rupturasHTML}
