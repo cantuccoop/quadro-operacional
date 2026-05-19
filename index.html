@@ -1827,6 +1827,9 @@ function getExtras(setor) {
 // Retorna os valores já selecionados em todas as posições, exceto a atual
 function getUsedColabs(excludeSetor, excludeIdx) {
   const SPECIAL = new Set(['__freela__','__atestado__','__folga__','__Semanateste__','__naescalado__']);
+  // O líder pode aparecer em múltiplas posições — não entra nos "usados"
+  const liderEl = document.getElementById('pos-lider-0');
+  const liderVal = liderEl ? (liderEl.dataset.selected || '') : '';
   const used = new Set();
   document.querySelectorAll('input[id^="pos-"]').forEach(el => {
     const rest = el.id.slice(4); // remove "pos-"
@@ -1835,7 +1838,7 @@ function getUsedColabs(excludeSetor, excludeIdx) {
     const idxStr = rest.slice(dash1 + 1);
     if (setor === String(excludeSetor) && idxStr === String(excludeIdx)) return;
     const v = el.dataset.selected || '';
-    if (v && !SPECIAL.has(v)) used.add(v);
+    if (v && !SPECIAL.has(v) && v !== liderVal) used.add(v);
   });
   return used;
 }
