@@ -1869,17 +1869,40 @@ function filterColab(setor, idx, query) {
   dd.style.display = filtered.length ? 'block' : 'none';
 }
 
-function selectColab(setor, idx, val, label) {
-  const inp = document.getElementById(`pos-${setor}-${idx}`);
-  inp.dataset.selected = val;
-  inp.value = label;
+function applyColabStyle(inp, val) {
   inp.classList.toggle('freela-on', val === '__freela__');
   inp.style.color = val === '__atestado__' ? '#854f0b'
     : val === '__folga__' ? '#1D9E75'
     : val === '__naescalado__' ? '#a32d2d'
     : '';
   inp.style.fontWeight = val === '__naescalado__' ? '600' : '';
+}
+
+function selectColab(setor, idx, val, label) {
+  const inp = document.getElementById(`pos-${setor}-${idx}`);
+  inp.dataset.selected = val;
+  inp.value = label;
+  applyColabStyle(inp, val);
   document.getElementById(`pos-dd-${setor}-${idx}`).style.display = 'none';
+
+  // Replica o líder para todos os campos de posição com label "Líder"
+  const SPECIAL_VALS = ['__freela__','__naescalado__','__atestado__','__folga__','__Semanateste__'];
+  if (setor === 'lider' && !SPECIAL_VALS.includes(val)) {
+    document.querySelectorAll('.pos-row').forEach(row => {
+      const lbl = row.querySelector('.pos-label');
+      if (!lbl) return;
+      const labelText = lbl.textContent.trim();
+      if (/^L[ií]der(\s+\d+)?$/i.test(labelText)) {
+        const input = row.querySelector('input[type="text"]');
+        if (input && !input.value) {
+          input.dataset.selected = val;
+          input.value = label;
+          applyColabStyle(input, val);
+        }
+      }
+    });
+  }
+
   updateFreelaCounter();
   resetConfirmBtn();
 }
