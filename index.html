@@ -2636,12 +2636,10 @@ async function eqSave() {
   btn.disabled = true;
   btn.textContent = "Salvando...";
   try {
-    // Salva apenas a unidade atual (merge para não apagar outras)
     await db.collection(EQ_COL).doc(EQ_DOC).set(
       { [eqCurrentUnit]: eqData[eqCurrentUnit] || [] },
       { merge: true }
     );
-    // Sincroniza eqData com COLABORADORES para que filterColab use a lista atualizada imediatamente
     COLABORADORES[eqCurrentUnit] = [...(eqData[eqCurrentUnit] || [])];
     btn.textContent = "✓ Salvo!";
     setTimeout(() => {
@@ -2650,9 +2648,10 @@ async function eqSave() {
       goHome();
     }, 1200);
   } catch(e) {
+    console.error("eqSave erro:", e);
     btn.disabled = false;
     btn.textContent = "✓ Salvar alterações";
-    alert("Erro ao salvar. Tente novamente.");
+    alert("Erro ao salvar: " + (e && e.message ? e.message : JSON.stringify(e)));
   }
 }
 
