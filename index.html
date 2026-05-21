@@ -546,13 +546,13 @@ const ESCALA_REF = {
     turnos: {
       "Dia": {
         "Salão":        ["Fraquíssima","Fraquíssima","Fraca","Fraca","Média","Forte","Forte"],
-        "Cozinha":      ["Média","Fraca","Média","Média","Forte","Forte","Fortíssima"],
+        "Cozinha":      ["Média","Fraca","Fraca","Fraca","Média","Forte","Forte"],
         "Grano/Inforno":["Fechada","Fechada","Fechada","Fechada","MIN: 1","MIN: 1","MIN: 1"]
       },
       "Noite": {
-        "Salão":        ["Fraca","Fraca","Média","Média","Forte","Forte","Média"],
-        "Cozinha":      ["Fraca","Fraca","Média","Média","Fortíssima","Fortíssima","Média"],
-        "Grano/Inforno":["MIN: 4","MIN: 3","MIN: 4","MIN: 4","MIN: 6","MIN: 6","MIN: 6"]
+        "Salão":        ["Fraca","Fraquíssima","Média","Média","Forte","Forte","Média"],
+        "Cozinha":      ["Fraca","Fraca","Média","Média","Forte","Forte","Fraca"],
+        "Grano/Inforno":["MIN: 4","MIN: 3","MIN: 4","MIN: 4","MIN: 5","MIN: 5","MIN: 5"]
       }
     }
   },
@@ -689,20 +689,20 @@ const UNITS = {
     setor: "Cantucci",
     escalas: {
       salao: {
-        "Fraquíssima": { "Dia": ["Líder","Caixa (Boqueta)","Garçom 1","Garçom 2","Cumim 1","Cumim 2","Bar"] },
+        "Fraquíssima": { "Dia": ["Líder","Caixa","Garçom 1","Garçom 2","Cumim 1 (boqueta)","Cumim 2","Bar"] },
         "Fraca": {
-          "Dia": ["Líder","Caixa (Boqueta)","Garçom 1","Garçom 2","Garçom 3","Cumim 1","Cumim 2","Cumim 3","Bar"],
-          "Noite": ["Líder","Caixa (Boqueta)","Garçom 1","Garçom 2","Garçom 3","Cumim 1","Cumim 2","Cumim 3","Bar"]
+          "Dia": ["Líder","Caixa","Garçom 1","Garçom 2","Garçom 3","Cumim 1 (boqueta)","Cumim 2","Cumim 3","Bar"],
+          "Noite": ["Líder","Caixa","Garçom 1","Garçom 2","Garçom 3","Cumim 1 (boqueta)","Cumim 2","Cumim 3","Bar"]
         },
         "Média": {
-          "Dia": ["Líder","Líder (boqueta)","Caixa","Garçom 1","Garçom 2","Garçom 3","Garçom 4","Cumim 1","Cumim 2","Cumim 3","Bar"],
-          "Noite": ["Líder","Líder (boqueta)","Caixa","Garçom 1","Garçom 2","Garçom 3","Garçom 4","Cumim 1","Cumim 2","Cumim 3","Bar"]
+          "Dia": ["Líder 1","Líder 2","Caixa","Garçom 1","Garçom 2","Garçom 3","Garçom 4","Cumim 1 (boqueta)","Cumim 2","Cumim 3","Bar"],
+          "Noite": ["Líder 1","Líder 2","Caixa","Garçom 1","Garçom 2","Garçom 3","Garçom 4","Cumim 1 (boqueta)","Cumim 2","Cumim 3","Bar"]
         },
         "Forte": {
-          "Dia": ["Líder","Líder","Caixa","Recepcionista","Garçom 1","Garçom 2","Garçom 3","Garçom 4","Garçom 5","Cumim 1","Cumim 2","Cumim 3","Bar 1","Bar 2"]
+          "Dia": ["Líder 1","Líder 2","Líder 3","Caixa","Recepcionista","Garçom 1","Garçom 2","Garçom 3","Garçom 4","Garçom 5","Cumim 1 (boqueta)","Cumim 2","Cumim 3","Bar 1","Bar 2"]
         },
         "Fortíssima": {
-          "Dia": ["Líder","Líder","Líder","Caixa","Recepcionista","Garçom 1","Garçom 2","Garçom 3","Garçom 4","Garçom 5","Garçom 6","Boqueta","Cumim 1","Cumim 2","Cumim 3","Cumim 4","Chefe Bar","Bar 1","Bar 2"]
+          "Dia": ["Líder 1","Líder 2","Líder 3","Caixa","Recepcionista","Garçom 1","Garçom 2","Garçom 3","Garçom 4","Garçom 5","Garçom 6","Cumim 1 (boqueta)","Cumim 2","Cumim 3","Cumim 4","Bar 1","Bar 2"]
         }
       },
       cozinha: {
