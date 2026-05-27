@@ -28,7 +28,7 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; }
-  .app { max-width: 440px; margin: 0 auto; padding: 16px; }
+  .app { margin: 0 48px; padding: 16px; }
   .screen { display: none; }
   .screen.active { display: block; }
 
@@ -225,8 +225,8 @@
 
   .dash-charts-top { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:14px; }
   .dash-charts-top .dash-chart-card { margin-bottom:0; }
-  .dash-ruptura-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
-  .dash-ruptura-grid .dash-chart-card { padding:10px 10px; }
+  .dash-ruptura-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:14px; }
+  .dash-ruptura-grid .dash-chart-card { padding:8px 8px; }
   .dash-chart-card { background:#fff; border:1px solid #e8e6e0; border-radius:12px; padding:14px 16px; margin-bottom:14px; }
   .dash-chart-title { font-size:13px; font-weight:700; margin-bottom:4px; color:#1a1a1a; }
   .dash-rup-legend { margin-top:10px; display:flex; flex-direction:column; gap:4px; }
@@ -334,40 +334,21 @@
     </select>
   </div>
   <div id="dash-charts">
-    <div class="dash-charts-top">
-      <div class="dash-chart-card">
+    <div style="margin-bottom:14px;">
+      <div class="dash-chart-card" style="margin-bottom:0;">
         <div class="dash-chart-title">⚠️ Turnos fora da escala mínima</div>
         <div class="dash-chart-sub">Por unidade — clique para ver detalhes</div>
         <canvas id="chart-fora-escala" height="140" style="cursor:pointer"></canvas>
         <div id="fora-escala-detail" class="rup-detail-panel" style="display:none"></div>
-      </div>
-      <div class="dash-chart-card">
-        <div class="dash-chart-title">📈 Freelas</div>
-        <canvas id="chart-freelas" height="140"></canvas>
       </div>
     </div>
     <div id="dash-ruptura-pies"></div>
     <button type="button" class="btn btn-secondary" id="btn-download-rupturas" onclick="downloadRupturasCSV()" style="width:100%;margin-top:4px;display:none;">⬇ Baixar Rupturas (.csv)</button>
   </div>
 
-  <div class="section-title" style="margin-top:18px;">Quadros registrados</div>
-  <div style="background:#fff;border:1px solid #e8e6e0;border-radius:12px;overflow:hidden;">
-    <div style="overflow-x:auto;">
-      <table class="dash-table" id="dash-table">
-        <thead>
-          <tr>
-            <th>Unidade</th>
-            <th>Data · Turno</th>
-            <th>Intens. Salão</th>
-            <th>Intens. Cozinha</th>
-            <th>Rupturas</th>
-            <th>Alertas</th>
-          </tr>
-        </thead>
-        <tbody id="dash-tbody"></tbody>
-      </table>
-    </div>
-  </div>
+  <div class="section-title" style="margin-top:18px;">Quadros registrados <span id="dash-table-count" style="font-weight:400;color:#aaa;"></span></div>
+  <div id="dash-tbody"></div>
+  <button id="btn-ver-mais" onclick="dashVerMais()" style="display:none;width:100%;margin-top:6px;padding:10px;border-radius:8px;border:1px solid #e0ddd7;background:#fff;color:#555;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;"></button>
 </div>
 
 <!-- FORM -->
@@ -1398,7 +1379,7 @@ function applyDashFilters() {
 }
 
 function destroyCharts() {
-  ['chart-freelas','chart-fora-escala'].forEach(id => {
+  ['chart-fora-escala'].forEach(id => {
     try { Chart.getChart(document.getElementById(id))?.destroy(); } catch(e){}
   });
   Object.values(_charts).forEach(c => { try { c.destroy(); } catch(e){} });
@@ -1423,13 +1404,7 @@ function renderCharts(data) {
     return Object.keys(map).sort();
   }
 
-  // 1. Freelas
-  const fMap={};
-  data.forEach(q=>{ if(!q.data)return; const k=isWeek?q.data:q.data.slice(0,7); fMap[k]=(fMap[k]||0)+(q.freelas||0); });
-  const fKeys=timeKeys(fMap);
-  _charts.freelas=new Chart(document.getElementById('chart-freelas'),{ type:'bar', data:{labels:fKeys.map(isWeek?fmtDay:fmtMes),datasets:[{data:fKeys.map(k=>fMap[k]||0),backgroundColor:'#185fa5',borderRadius:4}]}, options:barOpts });
-
-  // 3. Turnos fora da escala mínima por unidade
+  // Turnos fora da escala mínima por unidade
   const dowToIdx = d => d===0?6:d-1; // Dom=6, Seg=0…Sáb=5
   const foraMap={}; // {unidade: [{data,turno,setor,registrado,esperado}]}
   data.forEach(q=>{
@@ -1491,7 +1466,7 @@ function renderCharts(data) {
     const id='pie_'+cat.replace(/[^a-z0-9]/gi,'_');
     const detailId='detail_'+cat.replace(/[^a-z0-9]/gi,'_');
     const card=document.createElement('div'); card.className='dash-chart-card';
-    card.innerHTML=`<div class="dash-chart-title">🚨 ${cat}</div><canvas id="${id}" height="90" style="cursor:pointer"></canvas><div id="${detailId}" class="rup-detail-panel" style="display:none"></div>`;
+    card.innerHTML=`<div class="dash-chart-title" style="font-size:11px;">🚨 ${cat}</div><canvas id="${id}" height="70" style="cursor:pointer"></canvas><div id="${detailId}" class="rup-detail-panel" style="display:none"></div>`;
     rupGrid.appendChild(card);
     requestAnimationFrame(()=>{
       const chart=new Chart(document.getElementById(id),{type:'doughnut',data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:COLORS.slice(0,entries.length),borderWidth:0,hoverOffset:6}]},options:{responsive:true,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed}x (${((ctx.parsed/total)*100).toFixed(1)}%)`}}},onClick:(evt,els)=>{
@@ -2486,30 +2461,59 @@ function renderDashboard(filteredData) {
     </div>
     `;
 
-  // Table rows — most recent first
+  // Cards — most recent first
   const sorted = data.slice().sort((a, b) => b.data.localeCompare(a.data));
+  _dashSorted = sorted;
+  _dashVisibleCount = 10;
+  renderDashCards();
+}
+
+let _dashSorted = [];
+let _dashVisibleCount = 10;
+
+function renderDashCards() {
   const tbody = document.getElementById("dash-tbody");
+  const btnMais = document.getElementById("btn-ver-mais");
+  const countEl = document.getElementById("dash-table-count");
+  const sorted = _dashSorted;
+  countEl.textContent = sorted.length ? `(${sorted.length})` : '';
   if (!sorted.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="dash-empty">Nenhum quadro registrado.</td></tr>`;
+    tbody.innerHTML = `<div class="dash-empty">Nenhum quadro registrado.</div>`;
+    btnMais.style.display = 'none';
     return;
   }
-  tbody.innerHTML = sorted.map(q => {
+  const slice = sorted.slice(0, _dashVisibleCount);
+  tbody.innerHTML = slice.map(q => {
     const idx = history.indexOf(q);
     const dataFmt = q.data ? q.data.split("-").reverse().join("/") : "—";
-    const alertIcons = (q.alerta_escala ? "⚠️" : "") + (q.alerta_rupturas ? "🚨" : "");
-    const intSalaoBadge = q.intensidade ? `<span class="badge badge-${badgeClass(q.intensidade)}">${q.intensidade}</span>` : "<span style='color:#aaa'>—</span>";
-    const intCozinhaBadge = q.intensidade_cozinha ? `<span class="badge badge-${badgeClass(q.intensidade_cozinha)}">${q.intensidade_cozinha}</span>` : "<span style='color:#aaa'>—</span>";
+    const alertIcons = (q.alerta_escala ? "⚠️ " : "") + (q.alerta_rupturas ? "🚨" : "");
     const rupCount = Object.values(q.rupturas || {}).reduce((s, arr) => s + (arr || []).length, 0);
-    const rupCell = rupCount > 0 ? `<span style="background:#fcebeb;color:#a32d2d;font-weight:600;padding:2px 8px;border-radius:6px;font-size:12px;">${rupCount}</span>` : "<span style='color:#aaa'>—</span>";
-    return `<tr onclick="viewQuadro(${idx})">
-      <td><div class="dash-row-unit">${q.unidade}</div></td>
-      <td><div>${dataFmt}</div><div class="dash-row-sub">${q.turno}</div></td>
-      <td>${intSalaoBadge}</td>
-      <td>${intCozinhaBadge}</td>
-      <td>${rupCell}</td>
-      <td style="font-size:15px;">${alertIcons || "<span style='color:#aaa;font-size:11px;'>—</span>"}</td>
-    </tr>`;
+    const intBadge = q.intensidade ? `<span class="badge badge-${badgeClass(q.intensidade)}">${q.intensidade}</span>` : '';
+    const intCozBadge = q.intensidade_cozinha && q.intensidade_cozinha !== q.intensidade ? ` <span class="badge badge-${badgeClass(q.intensidade_cozinha)}" style="opacity:0.7">${q.intensidade_cozinha}</span>` : '';
+    const rupBadge = rupCount > 0 ? `<span style="background:#fcebeb;color:#a32d2d;font-weight:600;padding:1px 6px;border-radius:5px;font-size:11px;">${rupCount} rupt.</span>` : '';
+    return `<div onclick="viewQuadro(${idx})" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f0eeea;cursor:pointer;background:#fff;transition:background 0.12s;" onmouseenter="this.style.background='#faf9f7'" onmouseleave="this.style.background='#fff'">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${q.unidade}</div>
+        <div style="font-size:11px;color:#888;margin-top:1px;">${dataFmt} · ${q.turno}</div>
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;justify-content:flex-end;">${intBadge}${intCozBadge} ${rupBadge} ${alertIcons ? `<span style="font-size:13px;">${alertIcons}</span>` : ''}</div>
+      <div style="color:#ccc;font-size:13px;flex-shrink:0;">›</div>
+    </div>`;
   }).join("");
+  // wrap in container
+  tbody.innerHTML = `<div style="background:#fff;border:1px solid #e8e6e0;border-radius:12px;overflow:hidden;">${tbody.innerHTML}</div>`;
+  const restante = sorted.length - _dashVisibleCount;
+  if (restante > 0) {
+    btnMais.style.display = 'block';
+    btnMais.textContent = `Ver mais ${restante} quadro${restante !== 1 ? 's' : ''} ↓`;
+  } else {
+    btnMais.style.display = 'none';
+  }
+}
+
+function dashVerMais() {
+  _dashVisibleCount += 20;
+  renderDashCards();
 }
 
 // ─── GERENCIAR EQUIPE ──────────────────────────────────────────────────────
