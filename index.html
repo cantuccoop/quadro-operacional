@@ -2667,7 +2667,20 @@ renderUnitList();
 renderHistory();
 renderFreelaStats();
 loadFromFirestore();
-eqLoadAll(); // carrega lista de equipes do Firestore para o autocomplete usar desde o início
+// Carrega colaboradores do MarQ (Firebase) com retry robusto
+(function carregarColaboradores() {
+  eqLoadAll().then(function() {
+    if (Object.keys(eqData).length === 0) {
+      setTimeout(function() {
+        eqLoadAll().then(function() {
+          if (Object.keys(eqData).length === 0) {
+            setTimeout(eqLoadAll, 3000);
+          }
+        });
+      }, 2000);
+    }
+  });
+})();
 if (location.hash === '#dashboard') openDashboard();
 
 // Reload automático quando o app volta do background (mobile: usuário troca de aba/app e volta)
