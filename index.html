@@ -1592,6 +1592,7 @@ function renderFreelaStats() {
 
 function renderHistory() {
   const el = document.getElementById("hist-list");
+  if (!el) return;
   if (!history.length) {
     el.innerHTML = '<div class="empty">Nenhum quadro salvo ainda.</div>';
     return;
@@ -2663,22 +2664,23 @@ async function eqSave() {
 }
 
 // ─── INIT ──────────────────────────────────────────────────────────────────
-renderUnitList();
-renderHistory();
-renderFreelaStats();
-loadFromFirestore();
+try { renderUnitList(); } catch(e) {}
+try { renderHistory(); } catch(e) {}
+try { renderFreelaStats(); } catch(e) {}
+try { loadFromFirestore(); } catch(e) {}
 // Carrega colaboradores do MarQ (Firebase) com retry robusto
 (function carregarColaboradores() {
-  eqLoadAll().then(function() {
-    if (Object.keys(eqData).length === 0) {
-      setTimeout(function() {
-        eqLoadAll().then(function() {
-          if (Object.keys(eqData).length === 0) {
-            setTimeout(eqLoadAll, 3000);
-          }
-        });
-      }, 2000);
-    }
+  function tryLoad() {
+    return eqLoadAll().then(function() {
+      return Object.keys(eqData).length > 0;
+    }).catch(function() { return false; });
+  }
+  tryLoad().then(function(ok) {
+    if (!ok) setTimeout(function() {
+      tryLoad().then(function(ok2) {
+        if (!ok2) setTimeout(eqLoadAll, 3000);
+      });
+    }, 2000);
   });
 })();
 if (location.hash === '#dashboard') openDashboard();
