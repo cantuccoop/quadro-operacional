@@ -2642,16 +2642,28 @@ function eqRemove(idx) {
   eqRender();
 }
 
+async function eqSaveViaRest(unit, names) {
+  // Converte array de nomes para formato Firestore REST
+  const API_KEY = "AIzaSyB_EOO59ePTfIchITlXCMaNOUPGMy7P2j0";
+  const url = "https://firestore.googleapis.com/v1/projects/quadro-cantucci/databases/(default)/documents/config/responsaveis?key=" + API_KEY;
+  const fields = {};
+  fields[unit] = { arrayValue: { values: names.map(n => ({ stringValue: n })) } };
+  const r = await fetch(url, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fields })
+  });
+  if (!r.ok) throw new Error("REST " + r.status + ": " + await r.text());
+}
+
 async function eqSave() {
   const btn = document.getElementById("eq-save-btn");
   btn.disabled = true;
   btn.textContent = "Salvando...";
   try {
-    await db.collection(EQ_COL).doc(EQ_DOC).set(
-      { [eqCurrentUnit]: eqData[eqCurrentUnit] || [] },
-      { merge: true }
-    );
-    COLABORADORES[eqCurrentUnit] = [...(eqData[eqCurrentUnit] || [])];
+    const names = eqData[eqCurrentUnit] || [];
+    await eqSaveViaRest(eqCurrentUnit, names);
+    COLABORADORES[eqCurrentUnit] = [...names];
     btn.textContent = "✓ Salvo!";
     setTimeout(() => {
       btn.disabled = false;
