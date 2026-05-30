@@ -1880,10 +1880,7 @@ function getUsedColabs(excludeSetor, excludeIdx) {
 }
 
 function filterColab(setor, idx, query) {
-  // Prefere lista dinâmica do Firestore (eqData) se existir; senão usa COLABORADORES hardcoded
-  const base = (eqData[currentUnit] && eqData[currentUnit].length)
-    ? eqData[currentUnit]
-    : (COLABORADORES[currentUnit] || []);
+  const base = COLABORADORES[currentUnit] || [];
   const colaboradores = base.slice().sort((a,b) => a.localeCompare(b,'pt-BR'));
   const q = query.toLowerCase();
   const SPECIAL = [
