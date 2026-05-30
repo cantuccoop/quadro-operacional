@@ -2237,26 +2237,26 @@ function formatQuadro(q) {
     lines.push(sep);
     lines.push(`  ${pad("1.", 4)}${pad("Líder", 22)}${q.lider || "—"}`);
     (q.superquadra || []).forEach((r, i) =>
-      lines.push(`  ${pad(i+2+".", 4)}${pad(r.cargo, 22)}${r.nome || "—"}`)
+      lines.push(`  ${pad(i+2+".", 4)}${pad(r.cargo, 22)}${displayNome(r.nome) || "—"}`)
     );
     lines.push(sep);
     lines.push("  VÉI CHICO");
     lines.push(sep);
     lines.push(`  ${pad("1.", 4)}${pad("Líder", 22)}${q.lider || "—"}`);
     (q.veichico || []).forEach((r, i) =>
-      lines.push(`  ${pad(i+2+".", 4)}${pad(r.cargo, 22)}${r.nome || "—"}`)
+      lines.push(`  ${pad(i+2+".", 4)}${pad(r.cargo, 22)}${displayNome(r.nome) || "—"}`)
     );
   } else {
     lines.push("  SALÃO");
     lines.push(sep);
     (q.salao || []).forEach((r, i) =>
-      lines.push(`  ${pad(i+1+".", 4)}${pad(r.cargo, 22)}${r.nome || "—"}`)
+      lines.push(`  ${pad(i+1+".", 4)}${pad(r.cargo, 22)}${displayNome(r.nome) || "—"}`)
     );
     lines.push(sep);
     lines.push("  COZINHA");
     lines.push(sep);
     (q.cozinha || []).forEach((r, i) =>
-      lines.push(`  ${pad(i+1+".", 4)}${pad(r.cargo, 22)}${r.nome || "—"}`)
+      lines.push(`  ${pad(i+1+".", 4)}${pad(r.cargo, 22)}${displayNome(r.nome) || "—"}`)
     );
   }
   lines.push(sep);
@@ -2320,13 +2320,20 @@ function formatQuadroHTML(q) {
   }
 
   // ── Grade de equipe ──
+  function displayNome(nome) {
+    if (!nome || nome === "—") return "";
+    const map = { "__freela__": "Freela ★", "__naescalado__": "Não escalado", "__atestado__": "Atestado 🏥", "__folga__": "Folga 🏖️", "__Semanateste__": "Semana Teste" };
+    return map[nome] || nome;
+  }
+
   function teamGrid(arr) {
     if (!arr || !arr.length) return '<div style="font-size:13px;color:#aaa;">Sem posições</div>';
     return arr.map((r, i) => {
-      const empty   = !r.nome || r.nome === "—";
-      const freela  = r.nome && r.nome.startsWith("Freela");
+      const translated = displayNome(r.nome);
+      const empty   = !translated;
+      const freela  = translated.startsWith("Freela");
       const cls     = empty ? "rp-status-empty" : freela ? "rp-status-freela" : "rp-status-filled";
-      const label   = empty ? "Não escalado" : r.nome;
+      const label   = empty ? "Não escalado" : translated;
       return `<div class="rp-team-item">
         <span class="rp-team-pos">${i+1}. ${r.cargo}</span>
         <span class="rp-team-status ${cls}">${label}</span>
