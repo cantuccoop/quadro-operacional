@@ -795,7 +795,10 @@ async function carregarColaboradoresAirtable() {
   try {
     let records = [], offset = null;
     do {
-      const params = new URLSearchParams({ "pageSize": "100" });
+      const params = new URLSearchParams({
+        "filterByFormula": `NOT(OR({Situação}="Desligado",{Situação}="Desligado FUNAP",{Situação}="Desligado Sinergia",{Situação}="Em desligamento",{Situação}="Em Desligamento FUNAP"))`,
+        "pageSize": "100",
+      });
       params.append("fields[]", "Nome");
       params.append("fields[]", "Unidade");
       if (offset) params.set("offset", offset);
