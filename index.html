@@ -795,13 +795,9 @@ async function carregarColaboradoresAirtable() {
   try {
     let records = [], offset = null;
     do {
-      const params = new URLSearchParams({
-        "filterByFormula": `{Situação}="Ativo"`,
-        "pageSize": "100",
-      });
+      const params = new URLSearchParams({ "pageSize": "100" });
       params.append("fields[]", "Nome");
       params.append("fields[]", "Unidade");
-      params.append("fields[]", "Situação");
       if (offset) params.set("offset", offset);
       const res = await fetch(
         `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}?${params}`,
@@ -820,7 +816,7 @@ async function carregarColaboradoresAirtable() {
       "Koji Asa Sul":         "Koji",
       "Superquadra Norte":    "Superquadra Norte",
       "Superquadra Mané":     "Mané",
-      "Véi Chico":            "Véi Chico",
+      "Véi Chico":            "Mané",
     };
     const mapa = {};
     for (const r of records) {
@@ -1880,10 +1876,7 @@ function getUsedColabs(excludeSetor, excludeIdx) {
 }
 
 function filterColab(setor, idx, query) {
-  // Prefere lista dinâmica do Firestore (eqData) se existir; senão usa COLABORADORES hardcoded
-  const base = (eqData[currentUnit] && eqData[currentUnit].length)
-    ? eqData[currentUnit]
-    : (COLABORADORES[currentUnit] || []);
+  const base = COLABORADORES[currentUnit] || [];
   const colaboradores = base.slice().sort((a,b) => a.localeCompare(b,'pt-BR'));
   const q = query.toLowerCase();
   const SPECIAL = [
@@ -2696,12 +2689,14 @@ function eqRemove(idx) {
   eqRender();
 }
 
-async function eqSaveViaRest(unit, names) {
-  // Converte array de nomes para formato Firestore REST
+async function eqSaveViaRest(allData) {
+  // Salva TODAS as unidades para não apagar dados das outras unidades no PATCH
   const API_KEY = "AIzaSyB_EOO59ePTfIchITlXCMaNOUPGMy7P2j0";
   const url = "https://firestore.googleapis.com/v1/projects/quadro-cantucci/databases/(default)/documents/config/responsaveis?key=" + API_KEY;
   const fields = {};
-  fields[unit] = { arrayValue: { values: names.map(n => ({ stringValue: n })) } };
+  for (const [unit, names] of Object.entries(allData)) {
+    fields[unit] = { arrayValue: { values: (names || []).map(n => ({ stringValue: n })) } };
+  }
   const r = await fetch(url, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -2716,7 +2711,9 @@ async function eqSave() {
   btn.textContent = "Salvando...";
   try {
     const names = eqData[eqCurrentUnit] || [];
-    await eqSaveViaRest(eqCurrentUnit, names);
+    // Garante que eqData tem os dados mais recentes da unidade atual antes de salvar tudo
+    eqData[eqCurrentUnit] = names;
+    await eqSaveViaRest(eqData);
     COLABORADORES[eqCurrentUnit] = [...names];
     btn.textContent = "✓ Salvo!";
     setTimeout(() => {
