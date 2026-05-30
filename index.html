@@ -171,6 +171,8 @@
   .rp-status-filled { background:#d4edda; color:#155724; }
   .rp-status-freela { background:#e6f1fb; color:#185fa5; }
   .rp-status-empty { background:#e2e3e5; color:#6c757d; }
+  .rp-status-atestado { background:#fff3cd; color:#856404; }
+  .rp-status-semanateste { background:#ede0f7; color:#6f42c1; }
   .rp-alerts { background:linear-gradient(135deg,#fff5e6 0%,#ffe8e8 100%); border:1px solid #ff6b6b; border-radius:8px; padding:12px; margin-bottom:14px; }
   .rp-alerts-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
   .rp-alerts-title { font-size:12px; font-weight:700; color:#dc3545; text-transform:uppercase; letter-spacing:0.04em; flex:1; }
@@ -1914,9 +1916,10 @@ function filterColab(setor, idx, query) {
 
 function applyColabStyle(inp, val) {
   inp.classList.toggle('freela-on', val === '__freela__');
-  inp.style.color = val === '__atestado__' ? '#854f0b'
-    : val === '__folga__' ? '#1D9E75'
-    : val === '__naescalado__' ? '#a32d2d'
+  inp.style.color = val === '__atestado__'    ? '#856404'
+    : val === '__Semanateste__' ? '#6f42c1'
+    : val === '__folga__'       ? '#1D9E75'
+    : val === '__naescalado__'  ? '#a32d2d'
     : '';
   inp.style.fontWeight = val === '__naescalado__' ? '600' : '';
 }
@@ -2331,8 +2334,11 @@ function formatQuadroHTML(q) {
     return arr.map((r, i) => {
       const translated = displayNome(r.nome);
       const empty   = !translated;
-      const freela  = translated.startsWith("Freela");
-      const cls     = empty ? "rp-status-empty" : freela ? "rp-status-freela" : "rp-status-filled";
+      const cls     = empty ? "rp-status-empty"
+        : translated.startsWith("Freela")   ? "rp-status-freela"
+        : translated === "Atestado 🏥"       ? "rp-status-atestado"
+        : translated === "Semana Teste"      ? "rp-status-semanateste"
+        : "rp-status-filled";
       const label   = empty ? "Não escalado" : translated;
       return `<div class="rp-team-item">
         <span class="rp-team-pos">${i+1}. ${r.cargo}</span>
