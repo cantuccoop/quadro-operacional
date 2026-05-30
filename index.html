@@ -1879,10 +1879,18 @@ function getUsedColabs(excludeSetor, excludeIdx) {
 }
 
 function filterColab(setor, idx, query) {
+  const _inp = document.getElementById(`pos-${setor}-${idx}`);
+  if (_inp && _inp.dataset.freeform === '1') {
+    _inp.dataset.selected = query;
+    document.getElementById(`pos-dd-${setor}-${idx}`).style.display = 'none';
+    resetConfirmBtn();
+    return;
+  }
   const base = COLABORADORES[currentUnit] || [];
   const colaboradores = base.slice().sort((a,b) => a.localeCompare(b,'pt-BR'));
   const q = query.toLowerCase();
   const SPECIAL = [
+    {val:'__foralista__',  label:'✏ Nome fora da lista'},
     {val:'__freela__',    label:'★ Freela'},
     {val:'__naescalado__',label:'✗ Não escalado'},
     {val:'__atestado__',  label:'Atestado'},
@@ -1915,13 +1923,27 @@ function applyColabStyle(inp, val) {
 
 function selectColab(setor, idx, val, label) {
   const inp = document.getElementById(`pos-${setor}-${idx}`);
+  inp.dataset.freeform = '';
+  if (val === '__foralista__') {
+    inp.dataset.selected = '';
+    inp.dataset.freeform = '1';
+    inp.value = '';
+    inp.style.color = '';
+    inp.style.fontWeight = '';
+    inp.classList.remove('freela-on');
+    document.getElementById(`pos-dd-${setor}-${idx}`).style.display = 'none';
+    setTimeout(() => inp.focus(), 0);
+    updateFreelaCounter();
+    resetConfirmBtn();
+    return;
+  }
   inp.dataset.selected = val;
   inp.value = label;
   applyColabStyle(inp, val);
   document.getElementById(`pos-dd-${setor}-${idx}`).style.display = 'none';
 
   // Replica o líder para todos os campos de posição com label "Líder"
-  const SPECIAL_VALS = ['__freela__','__naescalado__','__atestado__','__folga__','__Semanateste__'];
+  const SPECIAL_VALS = ['__freela__','__naescalado__','__atestado__','__folga__','__Semanateste__','__foralista__'];
   if (setor === 'lider' && !SPECIAL_VALS.includes(val)) {
     document.querySelectorAll('.pos-row').forEach(row => {
       const lbl = row.querySelector('.pos-label');
