@@ -2066,7 +2066,7 @@ function getEscalacao(setor) {
   const base = getPosicoes(setor).map((p, i) => {
     const el = document.getElementById(`pos-${setor}-${i}`);
     const val = el ? (el.dataset.selected || "") : "";
-    const nome = val === "__freela__" ? "Freela ★" : val === "__atestado__" ? "Atestado 🏥" : val === "__folga__" ? "Folga 🏖️" : val;
+    const nome = val === "__freela__" ? "Freela ★" : val === "__atestado__" ? "Atestado 🏥" : val === "__folga__" ? "Folga 🏖️" : val === "__naescalado__" ? "Não escalado" : val === "__Semanateste__" ? "Semana Teste" : val;
     return { cargo: p, nome };
   });
   return base.concat(getExtras(setor));
