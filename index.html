@@ -514,8 +514,8 @@ const ESCALA_REF = {
     setores: ["Salão","Cozinha"],
     turnos: {
       "Dia": {
-        "Salão":   ["Fraca","Fraca","Fraca","Média","Forte","Forte","Fortíssima"],
-        "Cozinha": ["Fraca","Média","Média","Média","Forte","Forte","Forte"]
+        "Salão":   ["Fechada","Fraca","Fraca","Média","Forte","Forte","Fortíssima"],
+        "Cozinha": ["Produção","Média","Média","Média","Forte","Forte","Forte"]
       },
       "Noite": {
         "Salão":   ["Fraca","Fraca","Fraca","Forte","Forte","Fortíssima","Fortíssima"],
@@ -724,14 +724,8 @@ const UNITS = {
       },
       cozinha: {
         "Fraquíssima": { "Dia": ["Boqueta","Fogão","Entrada","Pia","Produção","ASG"] },
-        "Fraca": { 
-          "Dia": ["Boqueta","Fogão","Entrada","Pia","Produção","Produção 2","ASG"],
-          "Noite": ["Boqueta","Fogão","Entrada","Pia","Inforno","Grano 1","Grano 2"]
-        },
-        "Média": { 
-          "Dia": ["Boqueta","Fogão","Forno","Gard 1","Gard 2","ASG","ASG 2","Produção"],
-          "Noite": ["Boqueta","Fogão","Fogão 2","entrada","Pia","Pia 2","Inforno","Grano 1","Grano 2","Grano 3"]
-        },
+        "Fraca": { "Dia": ["Boqueta","Fogão","Entrada","Pia","Produção","Produção 2"] },
+        "Média": { "Dia": ["Boqueta","Fogão","Forno","Gard 1","Gard 2","ASG","Pia","Produção"] },
         "Forte": {
           "Dia": ["Boqueta","Fogão","Fogão 2","Entrada","Entrada 2","Pia","Pia 2","Produção","Grano 1"],
           "Noite": ["Boqueta","Fogão","Fogão 2","Entrada","Entrada 2","Pia","Pia 2","Inforno","Inforno 2","Grano 1","Grano 2","Grano 3"]
@@ -792,8 +786,60 @@ const UNITS = {
   }
 };
 
-// ─── COLABORADORES POR UNIDADE ─────────────────────────────────────────────
-const COLABORADORES = {
+// ─── COLABORADORES POR UNIDADE (Airtable) ─────────────────────────────────
+const AIRTABLE_TOKEN = atob("cGF0dUtQUXlUSlpIZmN6U0YuZTA2ZWViNzVlNzcxYTA4ZjE2OTVkMGUyNGMwYTU1M2UzYWU1OWEyZWVlNWQ5MmEzZmQyMGI2MjUzNDY3ODdiNQ==");
+const AIRTABLE_BASE  = "app4ky6cEHAsiVqCQ";
+const AIRTABLE_TABLE = "tblzrO6o5coht8dB2";
+
+async function carregarColaboradoresAirtable() {
+  try {
+    let records = [], offset = null;
+    do {
+      const params = new URLSearchParams({
+        "filterByFormula": `{Situação}="Ativo"`,
+        "pageSize": "100",
+      });
+      params.append("fields[]", "Nome");
+      params.append("fields[]", "Unidade");
+      params.append("fields[]", "Situação");
+      if (offset) params.set("offset", offset);
+      const res = await fetch(
+        `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}?${params}`,
+        { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || res.statusText);
+      records = records.concat(data.records || []);
+      offset = data.offset;
+    } while (offset);
+
+    const UNIDADE_MAP = {
+      "Cantucci Asa Norte":   "Asa Norte",
+      "Cantucci Asa Sul":     "Asa Sul",
+      "Cantucci Águas Claras":"Águas Claras",
+      "Koji Asa Sul":         "Koji",
+      "Superquadra Norte":    "Superquadra Norte",
+      "Superquadra Mané":     "Mané",
+      "Véi Chico":            "Véi Chico",
+    };
+    const mapa = {};
+    for (const r of records) {
+      const nome       = (r.fields["Nome"] || "").trim();
+      const unidadeRaw = (r.fields["Unidade"] || "").trim();
+      const unidade    = UNIDADE_MAP[unidadeRaw] || unidadeRaw;
+      if (!nome || !unidade || unidade === "Escritório Central") continue;
+      const nomeFormatado = nome.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+      if (!mapa[unidade]) mapa[unidade] = [];
+      mapa[unidade].push(nomeFormatado);
+    }
+    COLABORADORES = mapa;
+  } catch (e) {
+    console.warn("Airtable indisponível, usando lista local.", e);
+    COLABORADORES = COLABORADORES_FALLBACK;
+  }
+}
+
+const COLABORADORES_FALLBACK = {
   "Asa Sul": [
     "André Luis Corrêa Batista","Antonio Filho","Danillo de Almeida",
     "Evaristo Junior","Fabio Alves","Francisca Silva",
@@ -872,6 +918,8 @@ const COLABORADORES = {
     "Vitor Borges","Vitor Silva","Vitoria Cardoso"
   ]
 };
+
+let COLABORADORES = COLABORADORES_FALLBACK;
 
 // ─── CONFIGURAÇÃO DE RUPTURAS POR UNIDADE ─────────────────────────────────
 const RUPTURAS_CONFIG = {
@@ -2685,6 +2733,7 @@ async function eqSave() {
 }
 
 // ─── INIT ──────────────────────────────────────────────────────────────────
+carregarColaboradoresAirtable();
 try { renderUnitList(); } catch(e) {}
 try { renderHistory(); } catch(e) {}
 try { renderFreelaStats(); } catch(e) {}
