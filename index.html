@@ -2696,12 +2696,14 @@ function eqRemove(idx) {
   eqRender();
 }
 
-async function eqSaveViaRest(unit, names) {
-  // Converte array de nomes para formato Firestore REST
+async function eqSaveViaRest(allData) {
+  // Salva TODAS as unidades para não apagar dados das outras unidades no PATCH
   const API_KEY = "AIzaSyB_EOO59ePTfIchITlXCMaNOUPGMy7P2j0";
   const url = "https://firestore.googleapis.com/v1/projects/quadro-cantucci/databases/(default)/documents/config/responsaveis?key=" + API_KEY;
   const fields = {};
-  fields[unit] = { arrayValue: { values: names.map(n => ({ stringValue: n })) } };
+  for (const [unit, names] of Object.entries(allData)) {
+    fields[unit] = { arrayValue: { values: (names || []).map(n => ({ stringValue: n })) } };
+  }
   const r = await fetch(url, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -2716,7 +2718,9 @@ async function eqSave() {
   btn.textContent = "Salvando...";
   try {
     const names = eqData[eqCurrentUnit] || [];
-    await eqSaveViaRest(eqCurrentUnit, names);
+    // Garante que eqData tem os dados mais recentes da unidade atual antes de salvar tudo
+    eqData[eqCurrentUnit] = names;
+    await eqSaveViaRest(eqData);
     COLABORADORES[eqCurrentUnit] = [...names];
     btn.textContent = "✓ Salvo!";
     setTimeout(() => {
