@@ -2282,9 +2282,13 @@ function formatQuadroHTML(q) {
   if (q.alerta_escala || q.alerta_rupturas) {
     let inner = "";
     if (q.alerta_escala) {
-      const vazSalao  = (q.salao  || []).filter(r => !r.nome || r.nome === "—");
-      const vazCoz    = (q.cozinha|| []).filter(r => !r.nome || r.nome === "—");
-      const total = vazSalao.length + vazCoz.length;
+      const SEM_COBERTURA = new Set(['','—','__naescalado__','Não escalado','__atestado__','Atestado 🏥','__folga__','Folga 🏖️']);
+      function semCobertura(r) { return !r.nome || SEM_COBERTURA.has(r.nome); }
+      const vazSalao  = (q.salao        || []).filter(semCobertura);
+      const vazCoz    = (q.cozinha      || []).filter(semCobertura);
+      const vazSuperq = (q.superquadra  || []).filter(semCobertura);
+      const vazVei    = (q.veichico     || []).filter(semCobertura);
+      const total = vazSalao.length + vazCoz.length + vazSuperq.length + vazVei.length;
       inner += `<div class="rp-alert-main">Escala incompleta — ${total} posição(ões) sem cobertura</div>`;
       if (vazSalao.length) {
         inner += `<div class="rp-alert-sub">Salão:</div>`;
@@ -2293,6 +2297,14 @@ function formatQuadroHTML(q) {
       if (vazCoz.length) {
         inner += `<div class="rp-alert-sub">Cozinha:</div>`;
         vazCoz.forEach(r => { inner += `<div class="rp-alert-item">› ${r.cargo}</div>`; });
+      }
+      if (vazSuperq.length) {
+        inner += `<div class="rp-alert-sub">Superquadra:</div>`;
+        vazSuperq.forEach(r => { inner += `<div class="rp-alert-item">› ${r.cargo}</div>`; });
+      }
+      if (vazVei.length) {
+        inner += `<div class="rp-alert-sub">Véi Chico:</div>`;
+        vazVei.forEach(r => { inner += `<div class="rp-alert-item">› ${r.cargo}</div>`; });
       }
     }
     if (q.alerta_rupturas) {
