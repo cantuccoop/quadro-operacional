@@ -174,6 +174,7 @@
   .rp-status-atestado { background:#fff3cd; color:#856404; }
   .rp-status-semanateste { background:#ede0f7; color:#6f42c1; }
   .rp-status-naescalado { background:#fcebeb; color:#a32d2d; font-weight:600; }
+  .rp-status-folga { background:#ede0f7; color:#6f42c1; }
   .rp-alerts { background:linear-gradient(135deg,#fff5e6 0%,#ffe8e8 100%); border:1px solid #ff6b6b; border-radius:8px; padding:12px; margin-bottom:14px; }
   .rp-alerts-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
   .rp-alerts-title { font-size:12px; font-weight:700; color:#dc3545; text-transform:uppercase; letter-spacing:0.04em; flex:1; }
@@ -1919,7 +1920,7 @@ function applyColabStyle(inp, val) {
   inp.classList.toggle('freela-on', val === '__freela__');
   inp.style.color = val === '__atestado__'    ? '#856404'
     : val === '__Semanateste__' ? '#6f42c1'
-    : val === '__folga__'       ? '#1D9E75'
+    : val === '__folga__'       ? '#6f42c1'
     : val === '__naescalado__'  ? '#a32d2d'
     : '';
   inp.style.fontWeight = val === '__naescalado__' ? '600' : '';
@@ -2340,6 +2341,7 @@ function formatQuadroHTML(q) {
         : translated === "Não escalado"      ? "rp-status-naescalado"
         : translated === "Atestado 🏥"       ? "rp-status-atestado"
         : translated === "Semana Teste"      ? "rp-status-semanateste"
+        : translated === "Folga 🏖️"          ? "rp-status-folga"
         : "rp-status-filled";
       const label   = empty ? "Não escalado" : translated;
       return `<div class="rp-team-item">
