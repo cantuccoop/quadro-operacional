@@ -2137,13 +2137,8 @@ function saveQuadro(confirmed) {
     el.style.display = "block";
   }
 
-  if (hasAlerta && !confirmed) {
-    const btn = document.querySelector(".btn-primary");
-    btn.textContent = "Gerar mesmo assim →";
-    btn.setAttribute("onclick", "saveQuadro(true)");
-    btn.style.background = "#854f0b";
+  if (hasAlerta) {
     document.getElementById("alert-escala").scrollIntoView({ behavior: "smooth" });
-    return;
   }
 
   const btn = document.querySelector(".btn-primary");
