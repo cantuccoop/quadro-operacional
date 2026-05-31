@@ -2098,23 +2098,13 @@ function saveQuadro(confirmed) {
   const posicoesSuperquadra = getPosicoes("superquadra");
   const posicoesVeiChico = getPosicoes("veichico");
 
-  // Vazio = valor "" (Freela conta como preenchido)
-  const vaziosSalao = posicoesSalao.filter((p, i) => {
-    const el = document.getElementById(`pos-salao-${i}`);
-    return !el || !(el.dataset.selected || "");
-  });
-  const vaziosCozinha = posicoesCozinha.filter((p, i) => {
-    const el = document.getElementById(`pos-cozinha-${i}`);
-    return !el || !(el.dataset.selected || "");
-  });
-  const vaziosSuperquadra = posicoesSuperquadra.filter((p, i) => {
-    const el = document.getElementById(`pos-superquadra-${i}`);
-    return !el || !(el.dataset.selected || "");
-  });
-  const vaziosVeiChico = posicoesVeiChico.filter((p, i) => {
-    const el = document.getElementById(`pos-veichico-${i}`);
-    return !el || !(el.dataset.selected || "");
-  });
+  // Vazio = sem seleção, folga, atestado ou não escalado (Freela conta como preenchido)
+  const ALERTA_VALS = new Set(['', '__naescalado__', '__atestado__', '__folga__']);
+  function isVazioAlerta(el) { return !el || ALERTA_VALS.has(el.dataset.selected || ''); }
+  const vaziosSalao = posicoesSalao.filter((p, i) => isVazioAlerta(document.getElementById(`pos-salao-${i}`)));
+  const vaziosCozinha = posicoesCozinha.filter((p, i) => isVazioAlerta(document.getElementById(`pos-cozinha-${i}`)));
+  const vaziosSuperquadra = posicoesSuperquadra.filter((p, i) => isVazioAlerta(document.getElementById(`pos-superquadra-${i}`)));
+  const vaziosVeiChico = posicoesVeiChico.filter((p, i) => isVazioAlerta(document.getElementById(`pos-veichico-${i}`)));
   const totalVazios = isMane
     ? vaziosSuperquadra.length + vaziosVeiChico.length
     : vaziosSalao.length + vaziosCozinha.length;
