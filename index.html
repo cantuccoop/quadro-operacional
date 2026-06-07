@@ -230,8 +230,8 @@
 
   .dash-charts-top { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:14px; }
   .dash-charts-top .dash-chart-card { margin-bottom:0; }
-  .dash-ruptura-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:14px; }
-  .dash-ruptura-grid .dash-chart-card { padding:8px 8px; }
+  .dash-ruptura-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:14px; }
+  .dash-ruptura-grid .dash-chart-card { padding:12px 10px; }
   .dash-chart-card { background:#fff; border:1px solid #e8e6e0; border-radius:12px; padding:14px 16px; margin-bottom:14px; }
   .dash-chart-title { font-size:13px; font-weight:700; margin-bottom:4px; color:#1a1a1a; }
   .dash-rup-legend { margin-top:10px; display:flex; flex-direction:column; gap:4px; }
@@ -1531,8 +1531,9 @@ function renderCharts(data) {
     const total=entries.reduce((s,e)=>s+e[1],0);
     const id='pie_'+cat.replace(/[^a-z0-9]/gi,'_');
     const detailId='detail_'+cat.replace(/[^a-z0-9]/gi,'_');
+    const legendHTML=`<div class="dash-rup-legend">${entries.slice(0,6).map((e,j)=>`<div class="dash-rup-legend-item"><span class="dash-rup-legend-dot" style="background:${COLORS[j]}"></span><span class="dash-rup-legend-name">${e[0]}</span><span class="dash-rup-legend-pct">${e[1]}x</span></div>`).join('')}</div>`;
     const card=document.createElement('div'); card.className='dash-chart-card';
-    card.innerHTML=`<div class="dash-chart-title" style="font-size:11px;">🚨 ${cat}</div><canvas id="${id}" height="70" style="cursor:pointer"></canvas><div id="${detailId}" class="rup-detail-panel" style="display:none"></div>`;
+    card.innerHTML=`<div class="dash-chart-title" style="font-size:11px;">🚨 ${cat}</div><canvas id="${id}" height="80" style="cursor:pointer"></canvas>${legendHTML}<div id="${detailId}" class="rup-detail-panel" style="display:none"></div>`;
     rupGrid.appendChild(card);
     requestAnimationFrame(()=>{
       const chart=new Chart(document.getElementById(id),{type:'doughnut',data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:COLORS.slice(0,entries.length),borderWidth:0,hoverOffset:6}]},options:{responsive:true,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed}x (${((ctx.parsed/total)*100).toFixed(1)}%)`}}},onClick:(evt,els)=>{
