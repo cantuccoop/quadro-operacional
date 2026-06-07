@@ -1486,25 +1486,45 @@ function renderCharts(data) {
         foraMap[q.unidade].push({data:q.data,turno:q.turno,setor,registrado:real,esperado:esp});
     });
   });
-  const foraLabels=Object.keys(foraMap).filter(u=>foraMap[u].length>0);
-  const foraVals=foraLabels.map(u=>foraMap[u].length);
+  const foraAll=Object.entries(foraMap).flatMap(([u,arr])=>arr.map(o=>({...o,unidade:u})));
   const foraDetail=document.getElementById('fora-escala-detail');
+  const foraChartSub=document.querySelector('#chart-fora-escala').closest('.dash-chart-card').querySelector('.dash-chart-sub');
+  const isMonthAllWeeks=dashPeriodStart&&!isWeek;
+  const detailRow=(o,showUnit)=>`<div class="rup-detail-row" style="grid-template-columns:70px${showUnit?' 1fr':''} 45px 55px 1fr 1fr;">
+    <span class="rup-detail-date">${o.data.split('-').reverse().join('/')}</span>
+    ${showUnit?`<span style="color:#555;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${o.unidade}</span>`:''}
+    <span class="rup-detail-turno">${o.turno}</span>
+    <span style="color:#888;font-size:11px;">${o.setor}</span>
+    <span style="color:#a32d2d;font-weight:600;font-size:11px;">${o.registrado}</span>
+    <span style="color:#555;font-size:11px;">esp:${o.esperado}</span>
+  </div>`;
+  let foraLabels,foraVals,foraClickData;
+  if(isMonthAllWeeks){
+    foraChartSub.textContent='Por semana — clique para ver detalhes';
+    const ym=document.getElementById('dash-sel-month').value;
+    const weeks=getWeeksOfMonth(ym);
+    foraLabels=weeks.map(w=>w.label);
+    foraClickData=weeks.map(w=>{
+      const s=new Date(w.start+'T00:00:00'),e=new Date(w.end+'T23:59:59');
+      return foraAll.filter(o=>{const d=new Date(o.data+'T12:00:00');return d>=s&&d<=e;});
+    });
+    foraVals=foraClickData.map(arr=>arr.length);
+  } else {
+    foraChartSub.textContent='Por unidade — clique para ver detalhes';
+    foraLabels=Object.keys(foraMap).filter(u=>foraMap[u].length>0);
+    foraVals=foraLabels.map(u=>foraMap[u].length);
+    foraClickData=foraLabels.map(u=>foraMap[u].map(o=>({...o,unidade:u})));
+  }
   _charts.escala=new Chart(document.getElementById('chart-fora-escala'),{
     type:'bar',
     data:{labels:foraLabels,datasets:[{data:foraVals,backgroundColor:'#a32d2d',borderRadius:4}]},
     options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}},
       onClick:(evt,els)=>{
         if(!els.length){foraDetail.style.display='none';return;}
-        const unit=foraLabels[els[0].index];
-        const ocorrs=foraMap[unit].sort((a,b)=>a.data>b.data?1:-1);
-        const rows=ocorrs.map(o=>`<div class="rup-detail-row" style="grid-template-columns:80px 50px 60px 1fr 1fr;">
-          <span class="rup-detail-date">${o.data.split('-').reverse().join('/')}</span>
-          <span class="rup-detail-turno">${o.turno}</span>
-          <span style="color:#888;font-size:11px;">${o.setor}</span>
-          <span style="color:#a32d2d;font-weight:600;font-size:11px;">${o.registrado}</span>
-          <span style="color:#555;font-size:11px;">esp: ${o.esperado}</span>
-        </div>`).join('');
-        foraDetail.innerHTML=`<div class="rup-detail-header"><strong>${unit}</strong> <span style="color:#888;font-size:11px;">${ocorrs.length} turno(s)</span> <button onclick="this.parentElement.parentElement.style.display='none'" style="float:right;background:none;border:none;cursor:pointer;font-size:16px;color:#888">×</button></div>${rows}`;
+        const idx=els[0].index;
+        const ocorrs=foraClickData[idx].sort((a,b)=>a.data>b.data?1:-1);
+        const rows=ocorrs.map(o=>detailRow(o,isMonthAllWeeks)).join('');
+        foraDetail.innerHTML=`<div class="rup-detail-header"><strong>${foraLabels[idx]}</strong> <span style="color:#888;font-size:11px;">${ocorrs.length} turno(s)</span> <button onclick="this.parentElement.parentElement.style.display='none'" style="float:right;background:none;border:none;cursor:pointer;font-size:16px;color:#888">×</button></div>${rows}`;
         foraDetail.style.display='block';
       }
     }
