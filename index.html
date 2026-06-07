@@ -2637,13 +2637,13 @@ function renderDashCards() {
     const idx = history.indexOf(q);
     const dataFmt = q.data ? q.data.slice(5).split("-").reverse().join("/") : "—";
     const alertIcons = (q.alerta_escala ? "⚠️" : "") + (q.alerta_rupturas ? "🚨" : "");
-    const rupCount = Object.values(q.rupturas || {}).reduce((s, arr) => s + (arr || []).length, 0);
     const intBadge = q.intensidade ? `<span class="badge badge-${badgeClass(q.intensidade)}" style="font-size:10px;padding:1px 5px;">${q.intensidade}</span>` : '';
-    const rupBadge = rupCount > 0 ? `<span style="background:#fcebeb;color:#a32d2d;font-weight:600;padding:1px 5px;border-radius:5px;font-size:10px;">${rupCount}r</span>` : '';
-    return `<div onclick="viewQuadro(${idx})" style="padding:7px 8px;border-bottom:1px solid #f0eeea;cursor:pointer;background:#fff;transition:background 0.12s;" onmouseenter="this.style.background='#faf9f7'" onmouseleave="this.style.background='#fff'">
-      <div style="font-size:11px;font-weight:600;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${q.unidade}</div>
-      <div style="font-size:10px;color:#888;margin-top:1px;">${dataFmt} · ${q.turno}</div>
-      <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:3px;align-items:center;">${intBadge}${rupBadge}${alertIcons ? `<span style="font-size:11px;">${alertIcons}</span>` : ''}</div>
+    return `<div onclick="viewQuadro(${idx})" style="padding:6px 8px;border-bottom:1px solid #f0eeea;cursor:pointer;background:#fff;" onmouseenter="this.style.background='#faf9f7'" onmouseleave="this.style.background='#fff'">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;">
+        <span style="font-size:10px;color:#888;white-space:nowrap;">${dataFmt} · ${q.turno}</span>
+        <span style="font-size:11px;flex-shrink:0;">${alertIcons}</span>
+      </div>
+      <div style="margin-top:2px;">${intBadge}</div>
     </div>`;
   }).join("");
   // wrap in container
