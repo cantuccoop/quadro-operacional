@@ -319,9 +319,8 @@
   <button class="back" onclick="goHome()">← voltar</button>
   <div class="header-title" style="margin-bottom:4px;">Dashboard</div>
   <div class="header-eyebrow" style="margin-bottom:4px;">Histórico de quadros</div>
-  <div id="dash-firestore-status" style="font-size:11px;color:#888;margin-bottom:12px;"></div>
+  <div id="dash-firestore-status" style="display:none;"></div>
   <div id="dash-summary" class="dash-summary"></div>
-
 
   <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
     <button class="turno-tab active" style="flex:0 0 auto;white-space:nowrap;" onclick="setDashAll(this)">Tudo</button>
@@ -338,22 +337,25 @@
       <option value="">Todas as unidades</option>
     </select>
   </div>
-  <div id="dash-charts">
-    <div style="margin-bottom:14px;">
-      <div class="dash-chart-card" style="margin-bottom:0;">
-        <div class="dash-chart-title">⚠️ Turnos fora da escala mínima</div>
-        <div class="dash-chart-sub">Por unidade — clique para ver detalhes</div>
-        <canvas id="chart-fora-escala" height="140" style="cursor:pointer"></canvas>
-        <div id="fora-escala-detail" class="rup-detail-panel" style="display:none"></div>
-      </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;align-items:start;">
+    <div class="dash-chart-card" style="margin-bottom:0;">
+      <div class="dash-chart-title" style="font-size:12px;">⚠️ Fora da escala mínima</div>
+      <div class="dash-chart-sub">Por unidade — clique para detalhes</div>
+      <canvas id="chart-fora-escala" height="140" style="cursor:pointer"></canvas>
+      <div id="fora-escala-detail" class="rup-detail-panel" style="display:none"></div>
     </div>
+    <div>
+      <div style="font-size:12px;font-weight:700;color:#1a1a1a;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em;">Quadros <span id="dash-table-count" style="font-weight:400;color:#aaa;"></span></div>
+      <div id="dash-tbody" style="max-height:260px;overflow-y:auto;border-radius:10px;"></div>
+      <button id="btn-ver-mais" onclick="dashVerMais()" style="display:none;width:100%;margin-top:6px;padding:8px;border-radius:8px;border:1px solid #e0ddd7;background:#fff;color:#555;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;"></button>
+    </div>
+  </div>
+
+  <div id="dash-charts">
     <div id="dash-ruptura-pies"></div>
     <button type="button" class="btn btn-secondary" id="btn-download-rupturas" onclick="downloadRupturasCSV()" style="width:100%;margin-top:4px;display:none;">⬇ Baixar Rupturas (.csv)</button>
   </div>
-
-  <div class="section-title" style="margin-top:18px;">Quadros registrados <span id="dash-table-count" style="font-weight:400;color:#aaa;"></span></div>
-  <div id="dash-tbody"></div>
-  <button id="btn-ver-mais" onclick="dashVerMais()" style="display:none;width:100%;margin-top:6px;padding:10px;border-radius:8px;border:1px solid #e0ddd7;background:#fff;color:#555;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;"></button>
 </div>
 
 <!-- FORM -->
