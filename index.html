@@ -1545,29 +1545,60 @@ function renderCharts(data) {
     if(dlBtn) dlBtn.style.display='none'; return;
   }
   if(dlBtn) dlBtn.style.display='block';
-  const rupGrid=document.createElement('div'); rupGrid.className='dash-ruptura-grid'; pc.appendChild(rupGrid);
-  Object.entries(byCat).forEach(([cat,items],i)=>{
-    const entries=Object.entries(items).sort((a,b)=>b[1]-a[1]);
-    const total=entries.reduce((s,e)=>s+e[1],0);
-    const id='pie_'+cat.replace(/[^a-z0-9]/gi,'_');
-    const detailId='detail_'+cat.replace(/[^a-z0-9]/gi,'_');
-    const legendHTML=`<div class="dash-rup-legend">${entries.slice(0,6).map((e,j)=>`<div class="dash-rup-legend-item"><span class="dash-rup-legend-dot" style="background:${COLORS[j]}"></span><span class="dash-rup-legend-name">${e[0]}</span><span class="dash-rup-legend-pct">${e[1]}x</span></div>`).join('')}</div>`;
-    const card=document.createElement('div'); card.className='dash-chart-card';
-    card.innerHTML=`<div class="dash-chart-title" style="font-size:11px;">🚨 ${cat}</div><canvas id="${id}" height="80" style="cursor:pointer"></canvas>${legendHTML}<div id="${detailId}" class="rup-detail-panel" style="display:none"></div>`;
-    rupGrid.appendChild(card);
-    requestAnimationFrame(()=>{
-      const chart=new Chart(document.getElementById(id),{type:'doughnut',data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:COLORS.slice(0,entries.length),borderWidth:0,hoverOffset:6}]},options:{responsive:true,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed}x (${((ctx.parsed/total)*100).toFixed(1)}%)`}}},onClick:(evt,els)=>{
-        const panel=document.getElementById(detailId);
-        if(!els.length){panel.style.display='none';return;}
-        const label=entries[els[0].index][0];
-        const ocorr=(byCatOcorrencias[cat][label]||[]).sort((a,b)=>a.data>b.data?1:-1);
-        const rows=ocorr.map(o=>`<div class="rup-detail-row"><span class="rup-detail-date">${o.data.split('-').reverse().join('/')}</span><span class="rup-detail-turno">${o.turno}</span><span class="rup-detail-unit">${o.unidade||''}</span></div>`).join('');
-        panel.innerHTML=`<div class="rup-detail-header"><strong>${label}</strong> <span style="color:#888;font-size:11px;">${ocorr.length}x</span> <button onclick="this.parentElement.parentElement.style.display='none'" style="float:right;background:none;border:none;cursor:pointer;font-size:16px;line-height:1;color:#888">×</button></div>${rows}`;
-        panel.style.display='block';
-      }}});
-      _charts['p'+i]=chart;
+  // Separar produto vs insumo
+  const INSUMO_CAT_SET=new Set(["Insumo",...Object.values(INSUMOS_BY_UNIT).flatMap(Object.keys)]);
+  const prodEntries=Object.entries(byCat).filter(([cat])=>!INSUMO_CAT_SET.has(cat));
+  const insEntries=Object.entries(byCat).filter(([cat])=>INSUMO_CAT_SET.has(cat));
+  function buildRupturaCards(grid,catEntries,prefix){
+    catEntries.forEach(([cat,items],i)=>{
+      const entries=Object.entries(items).sort((a,b)=>b[1]-a[1]);
+      const total=entries.reduce((s,e)=>s+e[1],0);
+      const id='pie_'+cat.replace(/[^a-z0-9]/gi,'_');
+      const detailId='detail_'+cat.replace(/[^a-z0-9]/gi,'_');
+      const legendHTML=`<div class="dash-rup-legend">${entries.slice(0,6).map((e,j)=>`<div class="dash-rup-legend-item"><span class="dash-rup-legend-dot" style="background:${COLORS[j]}"></span><span class="dash-rup-legend-name">${e[0]}</span><span class="dash-rup-legend-pct">${e[1]}x</span></div>`).join('')}</div>`;
+      const card=document.createElement('div'); card.className='dash-chart-card';
+      card.innerHTML=`<div class="dash-chart-title" style="font-size:11px;">🚨 ${cat}</div><canvas id="${id}" height="80" style="cursor:pointer"></canvas>${legendHTML}<div id="${detailId}" class="rup-detail-panel" style="display:none"></div>`;
+      grid.appendChild(card);
+      requestAnimationFrame(()=>{
+        const chart=new Chart(document.getElementById(id),{type:'doughnut',data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:COLORS.slice(0,entries.length),borderWidth:0,hoverOffset:6}]},options:{responsive:true,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed}x (${((ctx.parsed/total)*100).toFixed(1)}%)`}}},onClick:(evt,els)=>{
+          const panel=document.getElementById(detailId);
+          if(!els.length){panel.style.display='none';return;}
+          const label=entries[els[0].index][0];
+          const ocorr=(byCatOcorrencias[cat][label]||[]).sort((a,b)=>a.data>b.data?1:-1);
+          const rows=ocorr.map(o=>`<div class="rup-detail-row"><span class="rup-detail-date">${o.data.split('-').reverse().join('/')}</span><span class="rup-detail-turno">${o.turno}</span><span class="rup-detail-unit">${o.unidade||''}</span></div>`).join('');
+          panel.innerHTML=`<div class="rup-detail-header"><strong>${label}</strong> <span style="color:#888;font-size:11px;">${ocorr.length}x</span> <button onclick="this.parentElement.parentElement.style.display='none'" style="float:right;background:none;border:none;cursor:pointer;font-size:16px;line-height:1;color:#888">×</button></div>${rows}`;
+          panel.style.display='block';
+        }}});
+        _charts[prefix+i]=chart;
+      });
     });
-  });
+  }
+  // Grid de produtos (sempre visível)
+  if(prodEntries.length){
+    const rupGrid=document.createElement('div'); rupGrid.className='dash-ruptura-grid'; pc.appendChild(rupGrid);
+    buildRupturaCards(rupGrid,prodEntries,'p');
+  } else {
+    const empty=document.createElement('div'); empty.className='empty'; empty.style='padding:12px 0;'; empty.textContent='Nenhuma ruptura de produto no período.'; pc.appendChild(empty);
+  }
+  // Seção de insumos colapsável
+  if(insEntries.length){
+    const totalIns=insEntries.reduce((s,[,items])=>s+Object.values(items).reduce((ss,n)=>ss+n,0),0);
+    const insBtn=document.createElement('button');
+    insBtn.type='button'; insBtn.className='btn btn-secondary'; insBtn.style='width:100%;margin:12px 0 0;';
+    insBtn.innerHTML=`📦 Ver rupturas de insumo (${totalIns})`;
+    pc.appendChild(insBtn);
+    const insWrap=document.createElement('div'); insWrap.style.display='none';
+    pc.appendChild(insWrap);
+    const insGrid=document.createElement('div'); insGrid.className='dash-ruptura-grid'; insWrap.appendChild(insGrid);
+    let insRendered=false;
+    insBtn.onclick=()=>{
+      const open=insWrap.style.display==='none';
+      insWrap.style.display=open?'block':'none';
+      insBtn.innerHTML=open?'▲ Ocultar rupturas de insumo':`📦 Ver rupturas de insumo (${totalIns})`;
+      if(open&&!insRendered){ buildRupturaCards(insGrid,insEntries,'ins'); insRendered=true; }
+      else if(open){ insEntries.forEach(([],i)=>{ try{_charts['ins'+i].resize();}catch(e){} }); }
+    };
+  }
 }
 
 function downloadRupturasCSV() {
