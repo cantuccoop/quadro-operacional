@@ -342,7 +342,7 @@
     <div class="dash-chart-card" style="margin-bottom:0;">
       <div class="dash-chart-title" style="font-size:12px;">⚠️ Fora da escala mínima</div>
       <div class="dash-chart-sub">Por unidade — clique para detalhes</div>
-      <canvas id="chart-fora-escala" height="140" style="cursor:pointer"></canvas>
+      <canvas id="chart-fora-escala" style="cursor:pointer"></canvas>
       <div id="fora-escala-detail" class="rup-detail-panel" style="display:none"></div>
     </div>
     <div>
@@ -2635,19 +2635,15 @@ function renderDashCards() {
   const slice = sorted.slice(0, _dashVisibleCount);
   tbody.innerHTML = slice.map(q => {
     const idx = history.indexOf(q);
-    const dataFmt = q.data ? q.data.split("-").reverse().join("/") : "—";
-    const alertIcons = (q.alerta_escala ? "⚠️ " : "") + (q.alerta_rupturas ? "🚨" : "");
+    const dataFmt = q.data ? q.data.slice(5).split("-").reverse().join("/") : "—";
+    const alertIcons = (q.alerta_escala ? "⚠️" : "") + (q.alerta_rupturas ? "🚨" : "");
     const rupCount = Object.values(q.rupturas || {}).reduce((s, arr) => s + (arr || []).length, 0);
-    const intBadge = q.intensidade ? `<span class="badge badge-${badgeClass(q.intensidade)}">${q.intensidade}</span>` : '';
-    const intCozBadge = q.intensidade_cozinha && q.intensidade_cozinha !== q.intensidade ? ` <span class="badge badge-${badgeClass(q.intensidade_cozinha)}" style="opacity:0.7">${q.intensidade_cozinha}</span>` : '';
-    const rupBadge = rupCount > 0 ? `<span style="background:#fcebeb;color:#a32d2d;font-weight:600;padding:1px 6px;border-radius:5px;font-size:11px;">${rupCount} rupt.</span>` : '';
-    return `<div onclick="viewQuadro(${idx})" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f0eeea;cursor:pointer;background:#fff;transition:background 0.12s;" onmouseenter="this.style.background='#faf9f7'" onmouseleave="this.style.background='#fff'">
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:13px;font-weight:600;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${q.unidade}</div>
-        <div style="font-size:11px;color:#888;margin-top:1px;">${dataFmt} · ${q.turno}</div>
-      </div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;justify-content:flex-end;">${intBadge}${intCozBadge} ${rupBadge} ${alertIcons ? `<span style="font-size:13px;">${alertIcons}</span>` : ''}</div>
-      <div style="color:#ccc;font-size:13px;flex-shrink:0;">›</div>
+    const intBadge = q.intensidade ? `<span class="badge badge-${badgeClass(q.intensidade)}" style="font-size:10px;padding:1px 5px;">${q.intensidade}</span>` : '';
+    const rupBadge = rupCount > 0 ? `<span style="background:#fcebeb;color:#a32d2d;font-weight:600;padding:1px 5px;border-radius:5px;font-size:10px;">${rupCount}r</span>` : '';
+    return `<div onclick="viewQuadro(${idx})" style="padding:7px 8px;border-bottom:1px solid #f0eeea;cursor:pointer;background:#fff;transition:background 0.12s;" onmouseenter="this.style.background='#faf9f7'" onmouseleave="this.style.background='#fff'">
+      <div style="font-size:11px;font-weight:600;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${q.unidade}</div>
+      <div style="font-size:10px;color:#888;margin-top:1px;">${dataFmt} · ${q.turno}</div>
+      <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:3px;align-items:center;">${intBadge}${rupBadge}${alertIcons ? `<span style="font-size:11px;">${alertIcons}</span>` : ''}</div>
     </div>`;
   }).join("");
   // wrap in container
