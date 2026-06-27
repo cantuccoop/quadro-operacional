@@ -175,6 +175,7 @@
   .rp-status-semanateste { background:#ede0f7; color:#6f42c1; }
   .rp-status-naescalado { background:#fcebeb; color:#a32d2d; font-weight:600; }
   .rp-status-folga { background:#ede0f7; color:#6f42c1; }
+  .rp-status-faltou { background:#f8d7da; color:#721c24; font-weight:600; }
   .rp-alerts { background:linear-gradient(135deg,#fff5e6 0%,#ffe8e8 100%); border:1px solid #ff6b6b; border-radius:8px; padding:12px; margin-bottom:14px; }
   .rp-alerts-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
   .rp-alerts-title { font-size:12px; font-weight:700; color:#dc3545; text-transform:uppercase; letter-spacing:0.04em; flex:1; }
@@ -1925,7 +1926,7 @@ function getExtras(setor) {
 
 // Retorna os valores já selecionados em todas as posições, exceto a atual
 function getUsedColabs(excludeSetor, excludeIdx) {
-  const SPECIAL = new Set(['__freela__','__atestado__','__folga__','__Semanateste__','__naescalado__']);
+  const SPECIAL = new Set(['__freela__','__atestado__','__folga__','__faltou__','__Semanateste__','__naescalado__']);
   // O líder pode aparecer em múltiplas posições — não entra nos "usados"
   const liderEl = document.getElementById('pos-lider-0');
   const liderVal = liderEl ? (liderEl.dataset.selected || '') : '';
@@ -1959,6 +1960,7 @@ function filterColab(setor, idx, query) {
     {val:'__naescalado__',label:'✗ Não escalado'},
     {val:'__atestado__',  label:'Atestado'},
     {val:'__folga__',     label:'Folga'},
+    {val:'__faltou__',    label:'Faltou'},
     {val:'__Semanateste__',label:'Semana Teste'},
   ];
   const usedColabs = getUsedColabs(setor, idx);
@@ -1981,9 +1983,10 @@ function applyColabStyle(inp, val) {
   inp.style.color = val === '__atestado__'    ? '#856404'
     : val === '__Semanateste__' ? '#6f42c1'
     : val === '__folga__'       ? '#6f42c1'
+    : val === '__faltou__'      ? '#721c24'
     : val === '__naescalado__'  ? '#a32d2d'
     : '';
-  inp.style.fontWeight = val === '__naescalado__' ? '600' : '';
+  inp.style.fontWeight = (val === '__naescalado__' || val === '__faltou__') ? '600' : '';
 }
 
 function selectColab(setor, idx, val, label) {
@@ -2008,7 +2011,7 @@ function selectColab(setor, idx, val, label) {
   document.getElementById(`pos-dd-${setor}-${idx}`).style.display = 'none';
 
   // Replica o líder para todos os campos de posição com label "Líder"
-  const SPECIAL_VALS = ['__freela__','__naescalado__','__atestado__','__folga__','__Semanateste__','__foralista__'];
+  const SPECIAL_VALS = ['__freela__','__naescalado__','__atestado__','__folga__','__faltou__','__Semanateste__','__foralista__'];
   if (setor === 'lider' && !SPECIAL_VALS.includes(val)) {
     document.querySelectorAll('.pos-row').forEach(row => {
       const lbl = row.querySelector('.pos-label');
@@ -2131,7 +2134,7 @@ function getEscalacao(setor) {
   const base = getPosicoes(setor).map((p, i) => {
     const el = document.getElementById(`pos-${setor}-${i}`);
     const val = el ? (el.dataset.selected || "") : "";
-    const nome = val === "__freela__" ? "Freela ★" : val === "__atestado__" ? "Atestado 🏥" : val === "__folga__" ? "Folga 🏖️" : val === "__naescalado__" ? "Não escalado" : val === "__Semanateste__" ? "Semana Teste" : val;
+    const nome = val === "__freela__" ? "Freela ★" : val === "__atestado__" ? "Atestado 🏥" : val === "__folga__" ? "Folga 🏖️" : val === "__faltou__" ? "Faltou ❌" : val === "__naescalado__" ? "Não escalado" : val === "__Semanateste__" ? "Semana Teste" : val;
     return { cargo: p, nome };
   });
   return base.concat(getExtras(setor));
@@ -2159,7 +2162,7 @@ function saveQuadro(confirmed) {
   const posicoesVeiChico = getPosicoes("veichico");
 
   // Vazio = sem seleção, folga, atestado ou não escalado (Freela conta como preenchido)
-  const ALERTA_VALS = new Set(['', '__naescalado__', '__atestado__', '__folga__']);
+  const ALERTA_VALS = new Set(['', '__naescalado__', '__atestado__', '__folga__', '__faltou__']);
   function isVazioAlerta(el) { return !el || ALERTA_VALS.has(el.dataset.selected || ''); }
   const vaziosSalao = posicoesSalao.filter((p, i) => isVazioAlerta(document.getElementById(`pos-salao-${i}`)));
   const vaziosCozinha = posicoesCozinha.filter((p, i) => isVazioAlerta(document.getElementById(`pos-cozinha-${i}`)));
@@ -2342,7 +2345,7 @@ function formatQuadroHTML(q) {
   if (q.alerta_escala || q.alerta_rupturas) {
     let inner = "";
     if (q.alerta_escala) {
-      const SEM_COBERTURA = new Set(['','—','__naescalado__','Não escalado','__atestado__','Atestado 🏥','__folga__','Folga 🏖️']);
+      const SEM_COBERTURA = new Set(['','—','__naescalado__','Não escalado','__atestado__','Atestado 🏥','__folga__','Folga 🏖️','__faltou__','Faltou ❌']);
       function semCobertura(r) { return !r.nome || SEM_COBERTURA.has(r.nome); }
       const vazSalao  = (q.salao        || []).filter(semCobertura);
       const vazCoz    = (q.cozinha      || []).filter(semCobertura);
@@ -2384,7 +2387,7 @@ function formatQuadroHTML(q) {
   // ── Grade de equipe ──
   function displayNome(nome) {
     if (!nome || nome === "—") return "";
-    const map = { "__freela__": "Freela ★", "__naescalado__": "Não escalado", "__atestado__": "Atestado 🏥", "__folga__": "Folga 🏖️", "__Semanateste__": "Semana Teste" };
+    const map = { "__freela__": "Freela ★", "__naescalado__": "Não escalado", "__atestado__": "Atestado 🏥", "__folga__": "Folga 🏖️", "__faltou__": "Faltou ❌", "__Semanateste__": "Semana Teste" };
     return map[nome] || nome;
   }
 
@@ -2399,6 +2402,7 @@ function formatQuadroHTML(q) {
         : translated === "Atestado 🏥"       ? "rp-status-atestado"
         : translated === "Semana Teste"      ? "rp-status-semanateste"
         : translated === "Folga 🏖️"          ? "rp-status-folga"
+        : translated === "Faltou ❌"         ? "rp-status-faltou"
         : "rp-status-filled";
       const label   = empty ? "Não escalado" : translated;
       return `<div class="rp-team-item">
