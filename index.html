@@ -2387,6 +2387,7 @@ function formatQuadroHTML(q) {
   // ── Grade de equipe ──
   function displayNome(nome) {
     if (!nome || nome === "—") return "";
+    if (nome === "Vazio") return "";
     const map = { "__freela__": "Freela ★", "__naescalado__": "Não escalado", "__atestado__": "Atestado 🏥", "__folga__": "Folga 🏖️", "__faltou__": "Faltou ❌", "__Semanateste__": "Semana Teste" };
     return map[nome] || nome;
   }
@@ -2404,10 +2405,9 @@ function formatQuadroHTML(q) {
         : translated === "Folga 🏖️"          ? "rp-status-folga"
         : translated === "Faltou ❌"         ? "rp-status-faltou"
         : "rp-status-filled";
-      const label   = empty ? "Não escalado" : translated;
       return `<div class="rp-team-item">
         <span class="rp-team-pos">${i+1}. ${r.cargo}</span>
-        <span class="rp-team-status ${cls}">${label}</span>
+        ${empty ? '' : `<span class="rp-team-status ${cls}">${translated}</span>`}
       </div>`;
     }).join("");
   }
