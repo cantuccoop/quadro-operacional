@@ -520,7 +520,7 @@ const ESCALA_REF = {
     setores: ["Salão","Cozinha"],
     turnos: {
       "Dia": {
-        "Salão":   ["Fechada","Fraca","Fraca","Média","Forte","Forte","Fortíssima"],
+        "Salão":   ["Fraca","Fraca","Fraca","Média","Forte","Forte","Fortíssima"],
         "Cozinha": ["Produção","Média","Média","Média","Forte","Forte","Forte"]
       },
       "Noite": {
@@ -534,12 +534,12 @@ const ESCALA_REF = {
     turnos: {
       "Dia": {
         "Salão":        ["Fraquíssima","Fraquíssima","Fraca","Fraca","Média","Forte","Forte"],
-        "Cozinha":      ["Média","Fraca","Fraca","Fraca","Média","Forte","Forte"],
+        "Cozinha":      ["Média","Média","Média","Média","Média","Forte","Forte"],
         "Grano/Inforno":["Fechada","Fechada","Fechada","Fechada","MIN: 1","MIN: 1","MIN: 1"]
       },
       "Noite": {
         "Salão":        ["Fraca","Fraquíssima","Média","Média","Forte","Forte","Média"],
-        "Cozinha":      ["Fraca","Fraca","Média","Média","Forte","Forte","Fraca"],
+        "Cozinha":      ["Média","Fraca","Média","Média","Forte","Forte","Média"],
         "Grano/Inforno":["MIN: 4","MIN: 3","MIN: 4","MIN: 4","MIN: 5","MIN: 5","MIN: 5"]
       }
     }
@@ -696,11 +696,11 @@ const UNITS = {
       cozinha: {
         "Fraquíssima": { "Dia": ["Boqueta","Fogão","Entrada","Pia","Produção"] },
         "Fraca": {
-          "Dia": ["Boqueta","Forno","Fogão","Gard 1","Gard 2","Pia"],
-          "Noite": ["Boqueta","Forno","Fogão","Gard 1","Gard 2","Pia","ASG"]
+          "Dia": ["Boqueta","Forno","Fogão","Gard 1","ASG"],
+          "Noite": ["Boqueta","Forno","Fogão","Gard 1","ASG"]
         },
-        "Média": { "Dia": ["Boqueta","Fogão","Forno","Gard 1","Gard 2","ASG 1","Pia 1","Pia 2"] },
-        "Forte": { "Dia": ["Boqueta","Fogão 1","Fogão 2","Forno","Gard (entradas)","Gard (sobr.)","Pia 1","Pia 2"] }
+        "Média": { "Dia": ["Boqueta","Fogão","Forno","Gard 1","Gard 2","ASG 1","ASG 2"] },
+        "Forte": { "Dia": ["Boqueta","Fogão 1","Fogão 2","Forno","Gard 1","Gard 2","ASG 1","ASG 2"] }
       },
       grano: {
         "MIN 3": { "Dia/Noite": ["Forno/Despacho (L)","Abertura/Recheio","Chapa"] },
