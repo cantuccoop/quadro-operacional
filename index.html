@@ -694,13 +694,19 @@ const UNITS = {
         }
       },
       cozinha: {
-        "Fraquíssima": { "Dia": ["Boqueta","Fogão","Entrada","Pia","Produção"] },
+        "Fraquíssima": { "Dia": ["Boqueta","Fogão","Entrada","ASG","Produção","Produção 2"] },
         "Fraca": {
-          "Dia": ["Boqueta","Forno","Fogão","Gard 1","ASG"],
-          "Noite": ["Boqueta","Forno","Fogão","Gard 1","ASG"]
+          "Dia": ["Boqueta","Forno","Fogão","Gard 1","ASG","Produção","Produção 2"],
+          "Noite": ["Boqueta","Forno","Fogão","Gard 1","ASG","Produção","Produção 2"]
         },
-        "Média": { "Dia": ["Boqueta","Fogão","Forno","Gard 1","Gard 2","ASG 1","ASG 2"] },
-        "Forte": { "Dia": ["Boqueta","Fogão 1","Fogão 2","Forno","Gard 1","Gard 2","ASG 1","ASG 2"] }
+        "Média": { 
+          "Dia": ["Boqueta","Fogão","Forno","Gard 1","Gard 2","ASG 1","ASG 2","Produção","Produção 2"],
+          "Noite": ["Boqueta","Fogão","Forno","Gard 1","Gard 2","ASG 1","ASG 2"] 
+      },
+        
+        "Forte": { 
+          "Dia": ["Boqueta","Fogão 1","Fogão 2","Forno","Gard 1","Gard 2","ASG 1","ASG 2","Produção","Produção 2"],
+          "Noite": ["Boqueta","Fogão 1","Fogão 2","Forno","Gard 1","Gard 2","ASG 1","ASG 2"]
       },
       grano: {
         "MIN 3": { "Dia/Noite": ["Forno/Despacho (L)","Abertura/Recheio","Chapa"] },
